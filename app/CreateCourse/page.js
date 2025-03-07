@@ -18,6 +18,7 @@ const Page = () =>{
     const [NotifyText,ChangeNotifyText] = useState("")
     const [wordscount,changewordcount] = useState(0)
     const [OptionBtntxt,changeoptbtntxt] = useState("Select The Level 🚗")
+    const [PriceType,ChangePriceType] = useState("Select Payment Type 💸")
     const [TopicCovered,ChangeTopicCovered] = useState([])
     const [AlertofFormat,ChangeAlertofFormat] = useState("")
     const [AlertForTopic,ChangeAlertForTopic] = useState("")
@@ -57,14 +58,27 @@ const Page = () =>{
     },[])
 
     // Function to Show Levels Option 
-    const ShowOptions = ()=>{
-        document.getElementById("optionsdiv").style.display = 'flex'
+    const ShowOptions = (event)=>{
+        const id = event.target.id
+        if (id == 'TypesDiv'){
+            document.getElementById("PriceTypediv").style.display = 'flex'
+        }
+        if (id == 'lvlbtn'){
+            document.getElementById("optionsdiv").style.display = 'flex'
+        }
     }
+    
     // Function to Select The Option 
     const SelectOption = (event) =>{
         const id = event.target.id 
         changeoptbtntxt(id)
         document.getElementById("optionsdiv").style.display = 'none'
+    }
+    // Function to Select The Option 
+    const SelectType = (event) =>{
+        const id = event.target.id 
+        ChangePriceType(id)
+        document.getElementById("PriceTypediv").style.display = 'none'
     }
   
     // Function To Add Topics 
@@ -164,7 +178,8 @@ const Page = () =>{
             Level:OptionBtntxt,
             Description : document.getElementById("Description").value,
             Price:document.getElementById("Price").value ,
-            Topics:TopicCovered
+            Topics:TopicCovered,
+            PriceType : PriceType
         }
         console.log(Details)
         // Scrollup Function
@@ -182,6 +197,7 @@ const Page = () =>{
         const DescCheck = Details.Description != ""
         const PriceCheck = Details.Price > 0 
         const TopicsCheck = Details.Topics.length != 0
+        const PriceTypeCheck = Details.PriceType != "Select Payment Type 💸"
 
         if (!NameCheck){
             document.getElementById("CourseName").style.borderBottomColor = 'crimson'
@@ -210,11 +226,15 @@ const Page = () =>{
             document.getElementById("Price").style.borderBottomColor = "crimson"
             document.getElementById("Price").style.borderBottomWidth = '2px'
         }
+        if (!PriceTypeCheck){
+            document.getElementById("TypesDiv").style.borderBottomColor = "crimson"
+            document.getElementById("TypesDiv").style.borderBottomWidth = '2px'
+        }
         if (!TopicsCheck){
             ChangeAlertForTopic("( Add atleast one )")
         }
 
-        if (NameCheck && FieldCheck && DurationCheck && FormatCheck && LevelCheck && DescCheck && PriceCheck && TopicsCheck){
+        if (NameCheck && PriceTypeCheck && FieldCheck && DurationCheck && FormatCheck && LevelCheck && DescCheck && PriceCheck && TopicsCheck){
             document.getElementById("Notify").style.color = 'green'
             ChangeNotifyText("Publishing...🐟")
             const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/AddCourse`,{
@@ -288,6 +308,14 @@ const Page = () =>{
                 <textarea onChange={handlechange} id = "Description"  ref={textareaRef} onInput={handleInput} placeholder = 'Enter The Description' className = 'border mb-6   outline-black w-[370px]  p-2 rounded-lg shadow-lg'/>
                 <label className = 'ml-2 mb-2 text-sm'>Price (in Canadian Dollars )</label>
                 <input onChange={handlechange} id = "Price" className ='border-0 mb-6  outline-black shadow-sm border-b w-80 text-xl flex p-2' type = 'number' placeholder = "Enter The Price " />
+                <label className = 'ml-2 mb-2 text-sm'>Type:</label>
+                <div className = 'relative mb-6 w-80'>
+                 <button id = 'TypesDiv' onClick={ShowOptions} className = ' border h-12  w-full'>{PriceType}</button>
+                <ul id = "PriceTypediv" className="absolute flex-col hidden gap-2 left-0 top-14 outflow-none right-0  bg-white border  rounded-md shadow-lg ">
+                 <li onClick={SelectType} id = 'OneTime' className="px-4 h-12 items-center justify-center flex py-2cursor-pointer hover:border-b hover:bg-black hover:text-white">OneTime 1️⃣</li>
+                 <li onClick={SelectType}  id = 'Monthly' className="px-4 h-12 items-center justify-center flex py-2 cursor-pointer hover:bg-black hover:text-white">Monthly 🔁</li>                
+               </ul>
+                </div>
                 <label className = 'ml-2 mb-2 text-sm'>Topic Covered <strong className = "text-xs text-rose-600" >{AlertForTopic}</strong></label>
                <div className = 'w-80 flex'>
                <input onChange={handlechange} id = 'TopicName' className = 'w-3/4 outline-black p-2 border-0 border-b' type = "text" placeholder = 'Enter The Topic' />

@@ -10,11 +10,7 @@ const Signup = () =>{
     //Function To Change Disabled State of Create Button 
     const [isDisabled,ChangeisDisabled] = useState(false)
     const [Color,ChangeColor] = useState("")
-    const [hidden,changehidden] = useState('hidden')
     const[Alert,ChangeAlert] = useState("")
-    const [count, setCount] = useState(30); // Initialize the countdown value
-    const [Active,ChangeActive] = useState("active:bg-black active:text-white active:translate-y-1")
-    const [InnerText,ChangeInnerText] = useState("Create Account 👾")
     const Session = getSession()
     // Function To Reset The Page 
     const Reset = () =>{
@@ -22,9 +18,8 @@ const Signup = () =>{
         ChangeAlert("")
         document.getElementById("EmailConfirmation").style.display='none'
         document.getElementById("CreateButton").innerHTML = "Create Account 📝"
-        document.getElementById("CreateButton").style.color = 'black'
+        document.getElementById("CreateButton").style.color = 'white'
         document.getElementById("Email").value = ''
-        changehidden("hidden")
     }
     const CheckAuth = async()=>{
         const data = await Session 
@@ -43,8 +38,25 @@ const Signup = () =>{
       Router.push("/signup")
     }
     }
-    
-
+    const Signin = async()=>{
+        ChangeisDisabled(true)
+        document.getElementById("CreateButton").innerHTML = 'Sending...'
+        const domain = window.location.origin
+        const Email  = document.getElementById("Email").value 
+        const Request = await fetch("/api/email",{
+            method:"POST",
+            headers:{"Content-Type":'application/json'},
+            body:JSON.stringify({email:Email,Change:"Verify",domain,type:'verify'})
+        })
+        const Response = await Request.json()
+        if (Response.status == true){
+        // this Part Changed The style
+        document.getElementById("EmailConfirmation").style.display='flex'
+        setTimeout(()=>{
+            Reset()
+        },2000)
+        }
+    }
     // Function To Go to Login Page 
     const Login = () =>{
         Router.push("/")
@@ -54,57 +66,17 @@ const Signup = () =>{
         var status = await EmailValidator()
        console.log(status)
         if (status == true){
-        // this Part Changed The style
-        ChangeisDisabled(true)
-        ChangeActive("bg-black text-white shadow-white animate-jump")
-        ChangeInnerText("Sending...")
-        document.getElementById("EmailConfirmation").style.display='flex'
-        setCount(30)
-        changehidden("flex")
-        console.log('i m here')
-
-
-        // Send Request to Server 
-        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Email`,{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({Email:document.getElementById("Email").value })
-          })
-        const Response = await Request.json()
-
-        console.log(Response)
+        Signin()
     }
 }
-    // Function To Do Countdown function 
-const Countdown = () =>{
+   
 
-    useEffect(() => {
-      if (count > 1 ) {
-        const timer = setTimeout(() => {
-            var currentcount = count - 1 
-            if (currentcount == 1){
-                Reset()
-            }
-          setCount(count - 1); // Decrease the count by 1 every second
-        }, 1000);
-  
-        // Cleanup to avoid memory leaks
-        return () => clearTimeout(timer);
-      }
-      
-    }, [count]);
-  
 
-    return (
-        <div id = 'showcountdown' className = {hidden}>
-            <h2>This Page will Refreshed in {count} Sec</h2>
-        </div>
-    )
-}
     // Function to Check Email already Exist in Database 
     const EmailInDbornot = async()=>{
         const value = document.getElementById("Email").value 
-        const Request = await fetch("http://127.0.0.1:8000/CheckEmail",{
+        console.log(value)
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckEmail`,{
             method:"POST",
             headers:{"Content-Type":"application/json"},
             body:JSON.stringify({Email:value})
@@ -145,13 +117,13 @@ const Countdown = () =>{
             <button onClick = {Login} className = 'text-2xl absolute border-2 border-transparent right-6 top-2  p-3 rounded-lg hover:border-black hover:text-white active:translate-y-1 hover:bg-black active:bg-black active:text-white active:border-black transition duration-200'>Login👨🏻‍💻</button>
            <h1 className = "text-5xl mt-32">SkillsHub📝</h1>
            <p id = "EmailConfirmation" className = 'mt-10 border hidden border-black bg-green-300 p-2 rounded-lg text-xl'>Please Check Email for Verification 📩</p>
-           <Countdown />
+          
            <input onChange={EmailValidator} id = "Email" className = {`w-64 mt-28 border-0 border-b-2 text-lg outline-none border-b-black h-12 ${Color}`} type = "email" placeholder = "Enter The Email :" />
             <p className = 'mt-6 '>{Alert}</p>
           
-            <button id = "CreateButton" disabled={isDisabled}  onClick={CreateAndSend} className = {`border transform bg-black text-white     transition duration-200  border-black p-3 ${Active} rounded-lg mt-12`}>{InnerText}</button>
+            <button onClick = {CreateAndSend} id = "CreateButton" disabled={isDisabled}   className = "bg-black h-12 text-white px-3 py-2 rounded-lg mt-12">Create Account 🆕</button>
             <h3 className = 'mt-6 mb-3'>OR</h3>
-            <button onClick={GoogleSignup} disabled = {isDisabled} className = 'flex rounded-lg shadow-md   shadow-black active:bg-black active:shadow-gray-500 active:text-white active:translate-y-1 transition duration-200 px-6 py-3 border border-black p-3'>Signup With Google <img className = 'w-6' src = "google.png"/></button>
+            <button onClick={GoogleSignup} disabled = {isDisabled} className = 'flex rounded-lg shadow-md bg-black text-white   active:bg-black active:shadow-gray-500 active:text-white active:translate-y-1 transition duration-200 px-6 py-3 border border-black p-3'>Signup With Google <img className = 'w-6' src = "google.png"/></button>
          
         </div>
     )

@@ -12,14 +12,16 @@ import { MdOutlineSpaceDashboard } from "react-icons/md";
 import { TiThMenuOutline } from "react-icons/ti";
 import { FaRegWindowClose } from "react-icons/fa";
 import { useEffect } from "react"
-import Seach from './search'
+import { FaChalkboardTeacher } from "react-icons/fa";
+
 
 const page = ({carddata}) =>{
     const Router = useRouter()
     
     const [isOpentxt,ChangeisOpentxt] = useState("Menu")
     const [QueryinCard,ChangeQueryinCard] = useState('')
-    const [isOpen, setIsOpen] = useState(false); 
+    const [isOpen, setIsOpen] = useState(false);
+    const [Empty,ChangeEmpty] = useState(false) 
     const [Details,ChangeDetails] = useState({FullName:"",ImgSrc:"https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/photos%2F3d-cartoon-character.jpg?alt=media&token=90e0d748-1074-4944-8302-32644c60407c"})
     const session = getSession();
     const [Cards,ChangeCards] = useState([])
@@ -37,6 +39,8 @@ const page = ({carddata}) =>{
             const dataofcards = carddata
             document.getElementById("Courses").style.backgroundColor = 'black'
             document.getElementById("Courses").style.color = 'white'
+            document.getElementById("Enrolled").style.backgroundColor = 'white'
+            document.getElementById("Enrolled").style.color = 'black'
            ChangeCards(dataofcards)
            ChangeDetails(data.user)
 
@@ -67,6 +71,15 @@ const page = ({carddata}) =>{
     }
     
    }
+
+   // Function To Get Enrolled Courses 
+   const GetEnrolled = async() =>{
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/GetEnrolled/${Details.id}`)
+    const Response = await Request.json()
+      ChangeEmpty(Response.status)
+      ChangeCards(Response.data)
+    
+   }
    // Function To Change Cards Arr ( Enrolled or Courses)
    const ChangeCardsArr = (event) =>{
     const id = event.target.id 
@@ -75,12 +88,15 @@ const page = ({carddata}) =>{
         document.getElementById("Enrolled").style.color = 'white'
         document.getElementById("Courses").style.backgroundColor = 'white'
         document.getElementById("Courses").style.color = 'black'
+        GetEnrolled()
+
     }
     if (id == "Courses"){
         document.getElementById("Courses").style.backgroundColor = 'black'
         document.getElementById("Courses").style.color = 'white'
         document.getElementById("Enrolled").style.backgroundColor = 'white'
         document.getElementById("Enrolled").style.color = 'black'
+        ChangeCards(carddata)
     }
     
    }
@@ -119,17 +135,20 @@ const page = ({carddata}) =>{
     // View Component 
     const View = () =>{
         if (Cards.length != 0){
+          
             return (
                 <div  className = 'flex flex-wrap gap-12 justify-center items-center'>
-                           {Cards.map((data)=><Card Description={data.Description} Duration={data.Duration} Field={data.Field} format={data.Format} ImgSrc={data.ImgSrc} Level={data.Level} Name={data.Name} Price={data.Price} ProfessorId={data.ProfessorId} topics={data.Topics} id = {data.id}/>)}
-
+                {Cards.map((data)=><Card Description={data.Description} Duration={data.Duration} Field={data.Field} format={data.Format} ImgSrc={data.ImgSrc} Level={data.Level} Name={data.Name} Price={data.Price} ProfessorId={data.ProfessorId} topics={data.Topics} id = {data.id}/>)}
                 </div>
             )
         }
         if (Cards.length == 0){
-           return (
-            <>
-            <div className = 'flex animate-jump flex-col mt-12 items-center text-2xl'>
+          const Check = () =>{
+            console.log(Empty)
+            if (Empty == false){
+              return (
+                <>
+ <div className = 'flex animate-jump flex-col mt-12 items-center text-2xl'>
             Loading.....
             <div className="flex items-center justify-center h-24">
               <div className="relative w-80 max-w-md h-12 bg-gray-300 rounded-full overflow-hidden">
@@ -137,8 +156,21 @@ const page = ({carddata}) =>{
                <div className="absolute w-80 h-12 bg-blue-500 rounded-full animate-slide"></div>
             </div>
             </div>
-            </div>
-
+            </div>                </>
+              )
+            }
+            if (Empty == true){
+              return (
+                <>
+                <h1 className = 'mt-12'>No Enrolled Courses 📝 </h1>
+                <button onClick = {CheckAuth} className = 'active:border-black active:border  active:bg-white active:text-black mt-12 px-3 py-2 rounded bg-black text-white'>Go to Courses Page</button>
+                </>
+              )
+            }
+          }
+           return (
+            <>
+            <Check/>
 
 
             </>
@@ -218,6 +250,10 @@ const page = ({carddata}) =>{
                 </div>
         )
     }
+
+    const GoToBecProfessor = ()=>{
+      Router.push("/BecomeProfessor")
+    }
     return (
         <div className = "flex  relative flex-col items-center">
         <title>SkillsHub📝</title> 
@@ -239,7 +275,7 @@ const page = ({carddata}) =>{
         <ul className = 'text-2xl w-full justfiy-center items-center flex flex-col py-6' >
           <li onClick = {GotoProfile} className="mb-4 bg-white cursor-pointer  text-center flex hover:text-blue-400 gap-2 "><MdOutlineSpaceDashboard size={30} /> Dashboard</li>
           <li onClick={AddCourse} className="mb-4 cursor-pointer bg-white  text-center flex gap-2  py-3  hover:text-orange-300"> <MdOutlineAddBox size={30} /> Add Course</li>
-
+          <li onClick={GoToBecProfessor} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2  py-3  hover:text-blue-300"><FaChalkboardTeacher size = {30} />  Become Professor</li>
           <li onClick = {Logout} className="mb-4 flex   text-rose-600 cursor-pointer gap-2  text-center py-3  "> <IoIosLogOut size={30} /> Logout  </li>
         </ul>
       </div>

@@ -13,11 +13,16 @@ const ProfilePhotoUpload = (props) => {
   // For local file preview
  
   const handleImageChange = (e) => {
+    document.getElementById("alertforimage").style.display = 'flex'
     const file = e.target.files[0];
     if (file) {
      const Reader = new FileReader()
      Reader.onload = () => setImage(Reader.result)
      Reader.readAsDataURL(file)
+     setTimeout(()=>{
+      document.getElementById("alertforimage").style.display = 'none'
+     },8000)
+
     }
   };
   const handlelclick  = () =>{
@@ -72,7 +77,7 @@ const Preview = () =>{
       </div>
       <h1 className = 'text-2xl mb-6'>Prashant Kumar</h1>
       <button onClick={handlelclick}   className ='border border-black px-4 py-2 rounded-lg text-white bg-black transition duration-200 active:translate-y-1'>Upload</button>
-
+     <p id = "alertforimage" className = 'hidden items-center justify-center border px-2 py-2  mt-6 bg-green-400 rounded-lg  text-xs'>Please Check Your Email To Complete Change Procedure</p>
       
     </div>
   );

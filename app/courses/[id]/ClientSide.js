@@ -4,18 +4,21 @@ import { useEffect ,useState} from 'react';
 import {  useParams, useRouter } from 'next/navigation';
 import { CiImageOn } from "react-icons/ci";
 import { FaRegEdit } from "react-icons/fa";
-
+import Footer from "@/app/footer"
 import { getSession } from 'next-auth/react';
-
+import { LuTableOfContents } from "react-icons/lu";
 import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-
+import { loadStripe } from '@stripe/stripe-js';
 
 const Page = ({DataofCard}) =>{
+  
     const params = useParams()
+    const stripepromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
     const Router = useRouter()
+    const [UserDetails,ChangeUserDetails] = useState(undefined)
     const [Details,ChangeDetails] = useState(DataofCard)
     const session = getSession()
     // Function To Goback to Home 
@@ -23,15 +26,75 @@ const Page = ({DataofCard}) =>{
         Router.push("/home")
     }
   
+    // Function to Enroll in Course 
+    const Enroll = async()=>{
+      var Type 
+      if (DataofCard.PriceType == "OneTime"){
+        Type = 'payment'
+      }
+      if (DataofCard.PriceType == "Monthly"){
+        Type ='subscription'
+      }
+      
+      const Session = await session 
+      const items = {name:DataofCard.Name,quantity:1,price:DataofCard.Price}
+      const stripe = await stripepromise
+      const request = await fetch('/api/checkout-session',{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({items,Type})
+      })
+      const response = await request.json()
+      console.log(response.id)
+      const Details = {
+        SessionID:response.id ,
+        PaymentID:"",
+        status : "Pending",
+        CourseName:DataofCard.Name ,
+        ProfileID:Session.user.id,
+        CourseID:DataofCard.id,
+        Name:"",
+        Email:"",
+        Payments:[],
+        Amount:"",
+        Currency:"",
+        DateofPurchase:'',
+        mode:"",
+        NextDate:""
+      }
+      console.log(Details)
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SuccessPayment`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(Details)
+      })
+      const Response = await Request.json()
+      if (Response.status == true){
+        await stripe.redirectToCheckout({sessionId:response.id})
+
+      }
+    }
    // Function To Check User is Login or Not
   const CheckAuth = async() =>{
-    const Session = await session 
+    const Session = await session
     if (Details.ProfessorId == Session.user.id ){
       document.getElementById("Enrollbtn").style.display= 'none'
       document.getElementById("EditBtn").style.display= 'flex'
+      document.getElementById('Course Content').style.display = 'flex'
+    }
+    if (Session.user == undefined){
+      Router.push('/')
+    }
+    if (Session.user != undefined){
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/GetEnrolled/${session.user.id}`)
+      const Response = await Request.json()
+      if (Response.status == false){
+        document.getElementById("Enrollbtn").style.display= 'none'
+        document.getElementById('Course Content').style.display = 'flex'
+      }
 
+      return session.user 
       
-
     }
   }
 
@@ -53,7 +116,13 @@ const Page = ({DataofCard}) =>{
         
       },[])
 
-
+      // Function To Go to Video Page 
+      const GotoContentPage = async() =>{
+        const id = params.id 
+       
+          Router.push("/Course/"+ id)
+        
+      }
       // Function To Save Changes 
       const SaveChanges = async() =>{
         document.getElementById("Saving").style.display = 'flex'
@@ -268,7 +337,7 @@ const Page = ({DataofCard}) =>{
   }
      
       return (
-        <div className = 'flex   pt-24 relative flex-wrap sm:flex-wrap md:flex-nowrap lg:flex-nowrap xl:flex-nowrap 2xl:flex-nowrap  items-center'>
+        <div className = 'flex pb-24  pt-24 relative flex-wrap sm:flex-wrap md:flex-nowrap lg:flex-nowrap xl:flex-nowrap 2xl:flex-nowrap  items-center'>
             <h1 className = 'z-20 absolute text-2xl bg-white   text-center top-3 w-full'>Skillshub📝</h1>
             <button onClick = {BackToCourses} className = 'fixed z-30 top-2 left-2 text-lg'>⏪ Back to Courses </button>
 
@@ -325,7 +394,7 @@ const Page = ({DataofCard}) =>{
                 </div>
                 <p>Price : ${Details.Price} (Canadian Dollars) </p>
                 <input id = "Price" type = 'number' className = {`border border-black outline-blue-600 w-64 px-3 py-2 rounded  ${Display}`} placeholder = "Enter The Price " />
-                <button id = "Enrollbtn" className = 'bg-rose-600 text-white text-xl transition duration-200 active:translate-y-1 hover:ring-2 hover:ring-rose-300  px-4 py-2 rounded-lg'>Enroll</button>
+                <button onClick={Enroll} id = "Enrollbtn" className = 'bg-rose-600 text-white text-xl transition duration-200 active:translate-y-1 hover:ring-2 hover:ring-rose-300  px-4 py-2 rounded-lg'>Enroll</button>
                 <div id = "EditBtn" className = 'hidden mt-6  items-start justify-center  flex flex-col'>
                   <button onClick = {ShowSave} id = "EditBtnChild" className = 'flex border shadow-lg border-black px-2 py-2  text-center rounded gap-2  text-md'>Edit <FaRegEdit size = {25} /></button>
                   <div id = "SaveOrCancelBtn" className = ' hidden w-full items-center justify-center flex gap-2 '>
@@ -333,6 +402,8 @@ const Page = ({DataofCard}) =>{
                     <button onClick = {ShowSave} id = "CancelBtn" className = 'text-rose-600'>Cancel</button>
                   </div>
                 </div>
+
+                <button id = 'Course Content' onClick = {GotoContentPage} className = 'hidden gap-2 mt-6 items-center active:text-rose-600  justify-center'> <LuTableOfContents size={30} /> Course Content </button>
                <div className = 'mt-12 flex flex-col gap'>
                 <h1>About Professor</h1>
                <div className = 'relative w-36 border h-24'>
@@ -379,6 +450,7 @@ const Page = ({DataofCard}) =>{
   return (
     <>
     <View/>
+    <Footer/>
     </>
   )
     

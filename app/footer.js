@@ -1,10 +1,16 @@
+import { useRouter } from "next/navigation"
 
 const footer = () =>{
+    const Router = useRouter()
     //Function To Open Page
      const Click = (event)=>{
         if (event.target.id == '1'){
             window.location.href ='https://www.prashantjhim.com'
         }
+        if (event.target.id == "2"){
+            Router.push("/admin")
+        }
+
      }
     return (
     <div className = 'flex h-16 justify-center items-center border-0 border-t text-sm fixed bottom-0 z-30 bg-white w-full    gap-3 flex-wrap'>

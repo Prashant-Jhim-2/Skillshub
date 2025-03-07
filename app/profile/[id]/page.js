@@ -14,7 +14,7 @@ export default async function Home({params}) {
   return (
     <>
      
-      <Clientside Data={Response.data} />
+      <Clientside profiledetails={Response.data} />
     </>
   );
 }

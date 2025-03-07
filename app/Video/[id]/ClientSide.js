@@ -51,7 +51,7 @@ export default function Home({Data}) {
   const commentsEndRef = useRef(null);
   const [Postbtntext,changePostbtntext] = useState("Post")
   const textareaRef = useRef(null);
-  const [UserDetails,ChangeDetails] = useState(undefined)
+  const [UserDetails,ChangeDetails] = useState({id:''})
   const [Questions,ChangeQuestions] = useState(Data.Questions)
   const handleInput = (event) => {
     const textarea = event.target;
@@ -73,7 +73,6 @@ export default function Home({Data}) {
       ChangeDetails(Session.user)
     }
   }
-
   useEffect(()=>{
   CheckAuth()
   },[])
@@ -87,47 +86,44 @@ const FetchQuestions = async() =>{
   console.log(Responseforquestions.data)
 }
 
-  // useEffect to call function first
-  // Reply Card Component 
-  const ReplyCard = (props)=>{
-    return (
-      <div className = 'w-full mb-2 border  flex'>
-
-          <div className = 'relative w-12 ml-2 mt-2  h-12 '>
-          <Image
-          src = "https://unsplash.com/photos/5dahujbrfX4/download?ixid=M3wxMjA3fDB8MXxhbGx8MTZ8fHx8fHx8fDE3MzYwNDA2NDl8&force=true"
-          layout="fill"
-          objectFit="cover"
-          className = 'rounded-full'
-          />
-          <button className = 'text-[10px] mt-12'>
-           Prashant
-          </button>
-        </div>
-
-        <div className = 'mb-2  w-full  relative px-3 py-2'>
-        <h1 className = ' text-sm'>Hi PrashantHi PrashantHi PrashantHi PrashantHi PrashantHi PrashantHi PrashantHi PrashantHi PrashantHi PrashantHi PrashantHi Prashant </h1>
-        <button className = 'text-rose-600 text-xs'>Delete</button>
-      </div>
-
-      </div>
-    )
-  }
+ 
 
   
   const QuestionCard = (props) =>{
     const [Editable,ChangeEditable] = useState(false)
+    const [Replies,ChangeReplies] = useState([])
     const [BorderOrNot,ChangeBorderOrnot] = useState("")
+    const [Text,ChangeText] = useState(props.Text)
+    const [SaveOrCancel,ChangeSaveOrCancel] = useState("hidden")
+    const [DeleteOrNot,ChangeDeleteOrNot] = useState("hidden")
+    const [ReplyShow,ChangeReplyShow] = useState("hidden")
+    const [ReplyText,ChangeReplyText] = useState(undefined)
     // To Edit The Questions 
     const EditQuestion =() =>{
       ChangeBorderOrnot("border border-black rounded-lg")
       ChangeEditable(true)
+      ChangeSaveOrCancel("flex")
+    }
+    useEffect(()=>{
+      if (props.ProfileId == UserDetails.id ){
+        ChangeDeleteOrNot("flex")
+      }
+    })
+    // Save The Changes in Text 
+    const SaveChanges = (event) =>{
+      const text =  event.target.textContent 
+      ChangeText(text)
+    }
+    // Save Changes in Reply Text 
+    const SaveReply = (event) =>{
+      ChangeReplyText(event.target.value)
+      console.log(event.target.value )
     }
 
     // Save The update text 
     const SaveQuestion = async() =>{
       console.log("i mafjafja")
-     const text =  document.getElementById("Text").textContent 
+     const text =  Text
      console.log(text)
      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/EditQuestion`,{
       method:"POST",
@@ -140,6 +136,51 @@ const FetchQuestions = async() =>{
       FetchQuestions()
      }
     }
+    const ReplyorNot = async() =>{
+      ChangeReplyShow("flex")
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/GetReplies/${props.id}`)
+      const Response = await Request.json()
+      if (Response.status == true){
+        ChangeReplies(Response.data)
+      }
+    }
+
+     // useEffect to call function first
+  // Reply Card Component 
+  const ReplyCard = (props)=>{
+    // Function To Delete The Reply
+    const DeleteReply = async() =>{
+      if (props.ProfileId == UserDetails.id ){
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/DeleteReply/${props.id}`)
+        const Response = await Request.json()
+        if (Response.status == true){
+          ReplyorNot()
+        }
+      }
+    }
+    return (
+      <div className = 'w-full py-6 mb-2 border  flex'>
+
+          <div className = 'relative w-12 ml-2 mt-2  h-12 '>
+          <Image
+          src = "https://unsplash.com/photos/5dahujbrfX4/download?ixid=M3wxMjA3fDB8MXxhbGx8MTZ8fHx8fHx8fDE3MzYwNDA2NDl8&force=true"
+          layout="fill"
+          objectFit="cover"
+          className = 'rounded-full'
+          />
+          <button className = 'text-[8px] mt-12'>
+           {props.Name}
+          </button>
+        </div>
+
+        <div className = 'mb-2  w-full  relative px-3 py-2'>
+        <h1 className = ' text-sm'>{props.Text} </h1>
+        <button onClick={DeleteReply} className = 'text-rose-600 text-xs'>Delete</button>
+      </div>
+
+      </div>
+    )
+  }
     // Delete Questions
     const DeleteQuestion = async () =>{
       console.log(props.id)
@@ -153,6 +194,26 @@ const FetchQuestions = async() =>{
       console.log(Response)
       if (Response.status == true){
         FetchQuestions()
+      }
+    }
+    // Function to Post The Reply 
+    const PostReply = async() =>{
+      const Details = {
+        Name : UserDetails.name ,
+        ProfileId:UserDetails.id ,
+        Text:ReplyText,
+        QuestionId:props.id
+      }
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Reply`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(Details)
+      })
+      const Response = await Request.json()
+      console.log(Response)
+      if (Response.status == true){
+        document.getElementById(props.id).value = ''
+        ReplyorNot()
       }
     }
     // ButtonToShow 
@@ -175,18 +236,18 @@ const FetchQuestions = async() =>{
     }
     return (
       <div className = 'w-80 relative rounded-lg border mb-3 shadow-lg  '>
-        <div className = 'absolute z-30  top-2 text-xs right-2 flex  gap-3'>
+        <div className = {`absolute z-30 ${SaveOrCancel} bottom-2 text-xs right-2 flex  gap-3`}>
           <button onClick = {SaveQuestion} className = 'bg-green-600 active:bg-black active:text-green active:border-black px-2 py-2 rounded-lg text-white'>Save✅</button>
           <button>Cancel</button>
         </div>
-       <div className = 'w-full p-2 relative'>
+       <div className = 'w-full p-2  relative'>
 
-       <h1 contentEditable = {Editable} id = "Text" className = {`w-56 text-sm ${BorderOrNot}  p-1 mt-12 ml-16  mb-3 break-words`}>{props.Text}</h1>
-        <div className = 'gap-2  ml-16 flex text-sm'>
+       <h1 onInput= {SaveChanges} contentEditable = {Editable}   id = "Text" className = {`w-56 text-sm ${BorderOrNot}  p-1 mt-6 ml-[80px]  mb-3 break-words`}>{props.Text}</h1>
+        <div className = 'gap-2  ml-[80px] flex text-sm'>
          <ReplyorEdit/>
-          <button onClick = {DeleteQuestion} className = 'text-rose-600'>Delete</button>
+          <button onClick = {DeleteQuestion} className = {`text-rose-600 ${DeleteOrNot}`}>Delete</button>
         </div>
-        <button className = 'text-xs ml-16 text-blue-500'>View Replies</button>
+        <button onClick ={ReplyorNot} className = 'text-xs ml-[80px] text-blue-500'>View Replies</button>
 
         <div className = 'absolute w-12 h-12 top-1/4 left-4'>
           <Image
@@ -195,18 +256,17 @@ const FetchQuestions = async() =>{
           objectFit="cover"
           className = 'rounded-full'
           />
-          <button className = 'text-[10px] mt-12'>
+          <button className = 'text-[8px] mt-12'>
             {props.Name}
           </button>
         </div>
        </div>
 
-        <div className = 'hidden flex items-center justify-center flex-col '>
+        <div className = {`${ReplyShow} flex items-center justify-center flex-col `}>
           <h1 className ='w-full  text-center mt-6'>Replies </h1>
-          <textarea id = "Comment"  ref={textareaRef} onInput={handleInput} placeholder = 'Ask a Question' className = 'mb-3 outline-none w-64 border border-black  p-2 rounded-lg shadow-lg'/>
-          <button className = 'px-3 mb-6 py-2 bg-black text-white rounded'>Post Reply</button>
-         <ReplyCard/>
-         <ReplyCard/>
+          <textarea id = {props.id} onInput = {SaveReply}   ref={textareaRef}  placeholder = 'Ask a Question' className = 'mb-3 outline-none w-64 border border-black  p-2 rounded-lg shadow-lg'/>
+          <button onClick = {PostReply} className = 'px-3 mb-6 py-2 bg-black text-white rounded'>Post Reply</button>
+          {Replies.map((data)=><ReplyCard id = {data.id} Name = {data.Name} ProfileId={data.ProfileId} Text={data.Text} QuestionId={data.QuestionId} />)}
         </div>
         
        
@@ -262,11 +322,12 @@ const FetchQuestions = async() =>{
     <button className = 'absolute top-2 left-2 px-3 py-2 bg-white active:shadow-none transition duration-200 flex gap-1 items-center justify-center active:translate-y-2  rounded-lg  text-md'> <VscArrowCircleLeft size={30} />  Back</button>
     <h1 className = 'text-2xl  mt-6'>SkillsHub📝</h1>
     
-     <h1 className = 'text-xl mt-24'>Getting Started With Machine Learning </h1>
+     <h1 className = 'text-xl mt-24'>{Data.Details.Name}</h1>
+     <p>{Data.Details.Description}</p>
     <VideoPlayer
-        url="https://youtu.be/uChhQpHMmXE"
+        url={Data.Details.urlofvideo}
         className="w-[360px] mt-6 rounded-lg overflow-hidden  h-[260px] "
-        light="https://unsplash.com/photos/7cjEoVWKbJc/download?ixid=M3wxMjA3fDB8MXxzZWFyY2h8M3x8c2FtcGxlfGVufDB8fHx8MTczNDQ5NjgzNHww&force=true"
+        light={Data.Details.urlofThumbnail}
       />
       <h2 className = 'mt-6'>Questions</h2>
       <div>

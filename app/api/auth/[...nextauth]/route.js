@@ -27,7 +27,7 @@ const handler = NextAuth({
           const Response = await Request.json()
           console.log(Response)
           if (Response.status == true){
-            return {Type:Response.Type,id:Response.id,FullName:Response.FullName,ImgSrc:Response.ImgSrc}
+            return {Email:Details.Email,Type:Response.Type,id:Response.id,FullName:Response.FullName,ImgSrc:Response.ImgSrc}
           }
           else{
             return null
@@ -43,6 +43,7 @@ const handler = NextAuth({
     async jwt({ token, user, account }) {
       if (account?.provider === "google") {
         token.userType = "google";
+        console.log(user)
         const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/EmailID`,{
           method:"POST",
           headers:{"Content-Type":"application/json"},
@@ -54,6 +55,7 @@ const handler = NextAuth({
           token.FullName = Response.FullName
           token.ImgSrc=Response.ImgSrc
           token.Type=Response.Type
+          token.Email = user.Email
         }
       } else if (account?.provider === "credentials") {
         token.userType = "credentials";
@@ -62,6 +64,7 @@ const handler = NextAuth({
           token.FullName=user.FullName
           token.ImgSrc=user.ImgSrc
           token.Type=user.Type
+          token.Email=user.Email
 
         }
       }
@@ -75,6 +78,7 @@ const handler = NextAuth({
       session.user.FullName = token.FullName 
       session.user.ImgSrc = token.ImgSrc
       session.user.Type = token.Type
+      session.user.Email = token.Email 
       return session;
     },
   },
