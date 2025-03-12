@@ -187,6 +187,17 @@ const Page = ({DataofCard}) =>{
         
       }
 
+      // Function to Delete The Course from Database
+      const DeleteCourse = async()=>{
+        
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/DeleteCourse/${params.id}`)
+        const Response = await Request.json() 
+
+        if (Response.status == true){
+          Router.push('/home')
+        }
+      }
+
       // Function To Show Save and Cancel Button
   const ShowSave = (event) =>{
     const target = event.target.id
@@ -196,12 +207,14 @@ const Page = ({DataofCard}) =>{
       ChangeDisplay("flex")
       document.getElementById("SaveOrCancelBtn").style.display = 'flex'
       document.getElementById("EditBtnChild").style.display = 'none'
+      document.getElementById("DeleteCourse").style.display ='flex'
       return 0
     }
     if (target == 'CancelBtn'){
       ChangeDisplay("hidden")
       document.getElementById("SaveOrCancelBtn").style.display = 'none'
       document.getElementById("EditBtnChild").style.display = 'flex'
+      document.getElementById("DeleteCourse").style.display ='none'
       return 0
    
     }
@@ -401,6 +414,7 @@ const Page = ({DataofCard}) =>{
                     <button onClick = {SaveChanges} className = 'px-3 py-2 border border-black rounded bg-green-600 text-white'>Save </button>
                     <button onClick = {ShowSave} id = "CancelBtn" className = 'text-rose-600'>Cancel</button>
                   </div>
+                  <button onClick = {DeleteCourse} id = "DeleteCourse" className = 'rounded hidden active:bg-white active:text-rose-600 active:border active:border-black items-center justify-center mt-6 text-white bg-rose-600 px-3 py-2'>Delete Course</button>
                 </div>
 
                 <button id = 'Course Content' onClick = {GotoContentPage} className = 'hidden gap-2 mt-6 items-center active:text-rose-600  justify-center'> <LuTableOfContents size={30} /> Course Content </button>
