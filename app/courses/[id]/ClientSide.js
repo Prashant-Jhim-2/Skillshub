@@ -12,6 +12,7 @@ import { getStorage } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { loadStripe } from '@stripe/stripe-js';
+import { TbSchool } from "react-icons/tb";
 
 const Page = ({DataofCard}) =>{
   
@@ -348,6 +349,11 @@ const Page = ({DataofCard}) =>{
     }
   }
   }
+
+  // Function to Navigate Professor Page 
+  const Navigatetoprofessor = () =>{
+    Router.push("/Professor/"+ Details.ProfessorId)
+  }
      
       return (
         <div className = 'flex pb-24  pt-24 relative flex-wrap sm:flex-wrap md:flex-nowrap lg:flex-nowrap xl:flex-nowrap 2xl:flex-nowrap  items-center'>
@@ -418,21 +424,14 @@ const Page = ({DataofCard}) =>{
                 </div>
 
                 <button id = 'Course Content' onClick = {GotoContentPage} className = 'hidden gap-2 mt-6 items-center active:text-rose-600  justify-center'> <LuTableOfContents size={30} /> Course Content </button>
-               <div className = 'mt-12 flex flex-col gap'>
+               <div className = 'mt-12 items-center justify-center flex flex-col gap'>
                 <h1>About Professor</h1>
-               <div className = 'relative w-36 border h-24'>
-               <Image
-          src="https://www.wordstream.com/wp-content/uploads/2021/07/machine-learning1-1.png" // Replace with your image path
-          alt="Course Thumbnail"
-          
-          layout = 'fill'
-          objectFit = 'cover'
-         
-          className=""
-        />
-               </div>
-       <h1>Dr Prashant Kumar</h1>
-       <p>Software Developer </p>
+                <div onClick = {Navigatetoprofessor} className = 'flex flex-col items-center justify-center border  p-2 border-black rounded shadow-lg '>
+                <h2><TbSchool size = {40} /></h2>
+                <button >Prashant Kumar</button>
+      
+                </div>
+      
        
                </div>
                 </div>
