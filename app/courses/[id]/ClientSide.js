@@ -408,7 +408,7 @@ const Page = ({DataofCard}) =>{
                 <p>Price : ${Details.Price} (Canadian Dollars) </p>
                 <input id = "Price" type = 'number' className = {`border border-black outline-blue-600 w-64 px-3 py-2 rounded  ${Display}`} placeholder = "Enter The Price " />
                 <button onClick={Enroll} id = "Enrollbtn" className = 'bg-rose-600 text-white text-xl transition duration-200 active:translate-y-1 hover:ring-2 hover:ring-rose-300  px-4 py-2 rounded-lg'>Enroll</button>
-                <div id = "EditBtn" className = 'hidden mt-6  items-start justify-center  flex flex-col'>
+                <div id = "EditBtn" className = 'hidden mt-6 w-full items-center justify-center  items-start justify-center  flex flex-col'>
                   <button onClick = {ShowSave} id = "EditBtnChild" className = 'flex border shadow-lg border-black px-2 py-2  text-center rounded gap-2  text-md'>Edit <FaRegEdit size = {25} /></button>
                   <div id = "SaveOrCancelBtn" className = ' hidden w-full items-center justify-center flex gap-2 '>
                     <button onClick = {SaveChanges} className = 'px-3 py-2 border border-black rounded bg-green-600 text-white'>Save </button>
