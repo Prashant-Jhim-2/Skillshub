@@ -9,7 +9,7 @@ const ProfilePhotoUpload = (props) => {
   console.log(Details)
   const [image, setImage] = useState(''||Details.ImgSrc);
   const [text,changetext] = useState("Preview 🗾")
-  const setImageFile = useStore((state)=>state.setSharedState)
+  
   // For local file preview
  
   const handleImageChange = (e) => {

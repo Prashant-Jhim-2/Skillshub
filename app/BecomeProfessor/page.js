@@ -27,9 +27,19 @@ const Page = ()=>{
         }
         else {
             const user = data.user 
-            ChangeImgSrc(user.ImgSrc)
-            console.log(user)
-            ChangeUser(user)
+            
+           
+            // Part To Get User RealTime Data
+           const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${user.id}`)
+           const Response = await Request.json()
+           if (Response.status == true){
+            const Type = Response.Details.Type 
+            ChangeImgSrc(Response.Details.ImgSrc)
+            if (Type == "Professor"){
+                Router.push('/home')
+            }
+          
+        }
         }
       
     }

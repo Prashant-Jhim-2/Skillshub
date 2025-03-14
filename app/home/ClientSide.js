@@ -31,8 +31,7 @@ const page = ({carddata}) =>{
         const data = await session
         
         if (data == undefined){
-           document.getElementById("loginbtn").style.display = 'flex'
-           document.getElementById("profilebtn").style.display = 'none'  
+          Router.push('/')
         }
         if (data != undefined){
             
@@ -42,8 +41,22 @@ const page = ({carddata}) =>{
             document.getElementById("Enrolled").style.backgroundColor = 'white'
             document.getElementById("Enrolled").style.color = 'black'
            ChangeCards(dataofcards)
-           ChangeDetails(data.user)
+          
 
+           // Part To Get User RealTime Data
+           const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${data.user.id}`)
+           const Response = await Request.json()
+           if (Response.status == true){
+            const Type = Response.Details.Type 
+            if (Type == "Customer"){
+              document.getElementById('AddCourse').style.display = 'none'
+            }
+            if (Type == "Professor"){
+              document.getElementById('BecomeProfessor').style.display = 'none'
+
+            }
+            ChangeDetails(Response.Details)
+           }
         }
     }
     console.log(Cards)
@@ -274,8 +287,8 @@ const page = ({carddata}) =>{
       >
         <ul className = 'text-2xl w-full justfiy-center items-center flex flex-col py-6' >
           <li onClick = {GotoProfile} className="mb-4 bg-white cursor-pointer  text-center flex hover:text-blue-400 gap-2 "><MdOutlineSpaceDashboard size={30} /> Dashboard</li>
-          <li onClick={AddCourse} className="mb-4 cursor-pointer bg-white  text-center flex gap-2  py-3  hover:text-orange-300"> <MdOutlineAddBox size={30} /> Add Course</li>
-          <li onClick={GoToBecProfessor} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2  py-3  hover:text-blue-300"><FaChalkboardTeacher size = {30} />  Become Professor</li>
+          <li id = "AddCourse" onClick={AddCourse} className="mb-4 cursor-pointer bg-white  text-center flex gap-2  py-3  hover:text-orange-300"> <MdOutlineAddBox size={30} /> Add Course</li>
+          <li id = 'BecomeProfessor' onClick={GoToBecProfessor} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2  py-3  hover:text-blue-300"><FaChalkboardTeacher size = {30} />  Become Professor</li>
           <li onClick = {Logout} className="mb-4 flex   text-rose-600 cursor-pointer gap-2  text-center py-3  "> <IoIosLogOut size={30} /> Logout  </li>
         </ul>
       </div>
