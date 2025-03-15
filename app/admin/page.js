@@ -16,7 +16,7 @@ const Data = {
     refunds: Responseforrefunds.data
 }
   
-  
+  console.log(Data)
  
   return (
     <>

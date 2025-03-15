@@ -49,6 +49,7 @@ const page = ({carddata}) =>{
            console.log(Response.Details)
            if (Response.status == true){
             const Type = Response.Details.Type 
+            console.log(Type)
             if (Type == "Customer"){
               document.getElementById('AddCourse').style.display = 'none'
             }
