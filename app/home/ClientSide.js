@@ -46,6 +46,7 @@ const page = ({carddata}) =>{
            // Part To Get User RealTime Data
            const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${data.user.id}`)
            const Response = await Request.json()
+           console.log(Response.Details)
            if (Response.status == true){
             const Type = Response.Details.Type 
             if (Type == "Customer"){
@@ -56,6 +57,9 @@ const page = ({carddata}) =>{
 
             }
             ChangeDetails(Response.Details)
+           }
+           if (Response.status == false){
+            Router.push('/')
            }
         }
     }

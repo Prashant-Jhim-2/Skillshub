@@ -32,9 +32,20 @@ const Page = () =>{
     // Function To Check Whether User is Professor or Customer
     const CheckFirst = async() =>{
         const Details = await Session 
-        if (Details == undefined || Details.user.Type == "Customer"){
-            Router.push("/home")
-        }
+       if (Details != undefined){
+         // Function to Check User 
+         const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${Details.user.id}`)
+         const Response = await Request.json()
+         if (Response.status == true){
+            const Type = Response.Details.Type
+            if (Type == "Customer"){
+                Router.push('/home')
+            }
+         }
+         if (Response.status == false){
+            Router.push('/')
+         }
+       }
         
     }
     // Image Upload Function
@@ -268,7 +279,7 @@ const Page = () =>{
                 className = 'border shadow-lg rounded-lg'
                 />
             </div>
-            <input accept="image/jpeg" onChange={handleImageChange} id = "File" type = 'file' className = 'w-0' />
+            <input accept="image/jpeg" onChange={handleImageChange} id = "File" type = 'file' className = 'w-0 hidden' />
             <button onClick={handlelclick} className = 'border bg-black p-2 text-white rounded-lg mt-6'>Upload</button>
 
             <div className = 'mt-6 ml-2 items-start flex flex-col ' id = "Form">
