@@ -264,9 +264,14 @@ const Page = () =>{
         ChangeNotifyText("Clear Errors 🛑")
         
     }
+
+    // Function to Go back to Home 
+    const GoBack = ()=>{
+        Router.push('/home')
+    }
     return (
         <div className = 'flex relative  flex-col items-center justify-center '>
-            <button className = 'z-10 fixed focus:ring  hover:bg-white hover:text-black  border border-black bg-black text-white  rounded-lg py-2 px-4 top-2 left-2'>Back</button>
+            <button onClick={GoBack} className = 'z-10 fixed focus:ring  hover:bg-white hover:text-black  border border-black bg-black text-white  rounded-lg py-2 px-4 top-2 left-2'>Back</button>
             <button onClick={Publish} className = 'z-10 fixed top-2 p-3  bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 right-2'>Publish</button>
             <h1 className =' mt-6 text-3xl'>SkillsHub📝</h1>
             <p id = "Notify" className = 'mt-2 hidden'>{NotifyText}</p>
