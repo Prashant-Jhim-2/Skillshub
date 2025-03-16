@@ -39,7 +39,6 @@ const Page = ({data}) =>{
   //UseEffect to CheckAuth 
   useEffect(()=>{
     CheckAuth()
-    document.getElementById("BringUp").scrollIntoView({behavior:"smooth"})
   },[])
 
 
@@ -159,8 +158,8 @@ const Page = ({data}) =>{
 
     if (Status == true){
       return (
-        <div className ='mt-6 '>
-          <div className = 'w-80 flex relative flex-col shadow  border-l-2 border-l-blue-500 flex flec-col '>
+        <div className ='mt-6  '>
+          <div className = 'w-80 py-2 flex relative flex-col shadow  border-l-2 border-l-blue-500 flex flec-col '>
             <label className = 'ml-6 text-md'>Me</label>
             <p className = 'text-xs mt-3 p-3   ml-3 whitespace-pre-line break-all w-full'>{props.Chat}</p>
             {props.Photo !=  ''  && <div className = 'relative h-80 mb-6 border shadow  w-80'>
@@ -203,7 +202,7 @@ const Page = ({data}) =>{
            <label>Typing...</label>
         </div>
 
-        <div className = 'mt-48 mb-48'>
+        <div className = 'mt-48 mb-96'>
 
          {Chats.map((data)=><Chat id = {data.id} Photo={data.Photo} FullName = {data.FullName} Chat = {data.Chat} date = {data.date} />)}
          <label id = 'BringUp'></label>
