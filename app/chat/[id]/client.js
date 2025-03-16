@@ -3,9 +3,15 @@ import { getSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {useState,useEffect} from 'react'
+import { initializeApp } from 'firebase/app';
+import { getStorage } from 'firebase/storage';
+import { getFirestore } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 const Page = ({data}) =>{
   const [UserDetails,ChangeUserDetails] = useState({})
   const [VideoUrl,ChangeVideoUrl] = useState('')
+  const [PhotoFile,ChangePhotoFile] = useState(undefined)
+  const [VideoFile,ChangeVideoFile] = useState(undefined)
   const [PhotoUrl,ChangePhotoUrl] = useState('')
   const Router = useRouter()
   const [Chats,ChangeChats] = useState([])
@@ -33,6 +39,7 @@ const Page = ({data}) =>{
   //UseEffect to CheckAuth 
   useEffect(()=>{
     CheckAuth()
+    document.getElementById("BringUp").scrollIntoView({behavior:"smooth"})
   },[])
 
 
@@ -47,31 +54,104 @@ const Page = ({data}) =>{
     return `${formattedDate} : ${formattedTime}`;
   };
 
+
+        // Part Of Uploading Image 
+        const firebaseConfig = {
+          apiKey: process.env.NEXT_PUBLIC_apiKey,
+          authDomain:  process.env.NEXT_PUBLIC_authDomain,
+          projectId:  process.env.NEXT_PUBLIC_projectId,
+          storageBucket:  process.env.NEXT_PUBLIC_storageBucket,
+          messagingSenderId: process.env.NEXT_PUBLIC_messagingSenderId,
+          appId:  process.env.NEXT_PUBLIC_appId,
+        };
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app);
+        const db = getFirestore(app);
+    
+    
+        // Function To Upload Image and Get ImgSrc 
+        const UploadImg = async(UploadableFile)=>{
+          const storageref = ref(storage,`photos/${UploadableFile.name}`)
+          await uploadBytes(storageref,UploadableFile)
+          const url = await getDownloadURL(storageref)
+          return url 
+       }
+       
+      
   // Send Chat 
-  const Send = () =>{
+  const Send = async() =>{
     const date = new Date()
     const datestring = formatDate(date)
     const value = document.getElementById("Chat").value 
-    if (value != ''){
+    if (value != '' || PhotoFile != undefined || VideoFile != undefined){
       document.getElementById("Chat").value = ''
+      var UploadableURLPhoto = ''
+      var UploadableURLVideo = ''
 
+      if (PhotoFile != undefined){
+         UploadableURLPhoto = await UploadImg(PhotoFile)
+      }
+      if (VideoFile != undefined){
+        UploadableURLVideo = await UploadImg(VideoFile)
+      }
       const Details = {
         id :UserDetails.id ,
         FullName:UserDetails.FullName,
         Chat : value ,
-        
+        Photo:UploadableURLPhoto,
         date:datestring
       }
+      console.log(Details)
       const newarr = [...Chats,Details]
       ChangeChats(newarr)
+      document.getElementById("PreviewPhoto").style.display = 'none'
+      document.getElementById("Photo").innerHTML = 'Photo 📸'
+      ChangePhotoFile(undefined)
+      document.getElementById("BringUp").scrollIntoView({behavior:"smooth"})
+      
     }
-    if (value == ''){
-     
-
-    }
+    
    
     
 
+  }
+
+  // Handle Change 
+  const HandleChange = (event) =>{
+    const id = event.target.id 
+    const file = event.target.files[0];
+    if (file) {
+      
+      ChangePhotoFile(file)
+      const Reader = new FileReader()
+      Reader.onload = () => {
+        
+        ChangePhotoUrl(Reader.result)
+       
+      }
+
+      Reader.readAsDataURL(file)
+      document.getElementById("PreviewPhoto").style.display = 'flex'
+
+     }
+   
+   
+  
+  }
+  // Upload Photo And Video 
+  const UploadPhotoVideo = (event) =>{
+    const id = event.target.id 
+    if (id == 'Photo'){
+      const innervalue = document.getElementById("Photo").innerHTML
+     if (innervalue != 'Cancel ❌'){
+      document.getElementById("UploadPhoto").click()
+      document.getElementById("Photo").innerHTML = 'Cancel ❌'
+     }
+     else {
+      document.getElementById("PreviewPhoto").style.display = 'none'
+      document.getElementById("Photo").innerHTML = 'Photo 📸'
+     }
+    }
   }
   // Chat Componet 
   const Chat = (props) =>{
@@ -83,14 +163,14 @@ const Page = ({data}) =>{
           <div className = 'w-80 flex relative flex-col shadow  border-l-2 border-l-blue-500 flex flec-col '>
             <label className = 'ml-6 text-md'>Me</label>
             <p className = 'text-xs mt-3 p-3   ml-3 whitespace-pre-line break-all w-full'>{props.Chat}</p>
-            <div className = 'relative h-80 mb-6 border  w-80'>
+            {props.Photo !=  ''  && <div className = 'relative h-80 mb-6 border shadow  w-80'>
               <Image 
               className = 'z-10'
-                 src = '/Hamster.gif'
+                 src =  {props.Photo}
                layout = 'fill'
-               objectFit = 'cover'
+               objectFit = 'contain'
               />
-            </div>
+            </div> }
             <label className = 'ml-3 absolute bottom-0 right-2 text-rose-600 text-[10px]'>{props.date}</label>
           </div>
           </div>
@@ -125,7 +205,8 @@ const Page = ({data}) =>{
 
         <div className = 'mt-48 mb-48'>
 
-         {Chats.map((data)=><Chat id = {data.id} FullName = {data.FullName} Chat = {data.Chat} date = {data.date} />)}
+         {Chats.map((data)=><Chat id = {data.id} Photo={data.Photo} FullName = {data.FullName} Chat = {data.Chat} date = {data.date} />)}
+         <label id = 'BringUp'></label>
         </div>
        
          
@@ -138,12 +219,13 @@ const Page = ({data}) =>{
           <button onClick= {Send} className ='border rounded text-white bg-green-600 px-3 py-2'>Send</button>
           </div>
           <div className = 'flex self-start gap-3 ml-3'>
-          <button className = 'border text-xs   px-3 py-2 rounded shadow-button'>Photo 📸</button>
+          <button onClick = {UploadPhotoVideo} id = "Photo" className = 'border text-xs   px-3 py-2 rounded shadow-button'>Photo 📸</button>
           <button className = 'border px-3 py-2 shadow-button text-xs rounded'>Video 📹</button>
-          <button>Delete</button>
          </div>
-         <div className = 'relative border  shadow-lg w-80 h-80' id = "PreviewPhoto">
-          <Image className = 'z-20' layout = 'fill' objectFit = 'contain' src = 'https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/file%2F1737910590700-145a792b-03c3-48da-8dc8-a67ddc2ed3a6.JPG?alt=media&token=c40bf8fc-563e-41d2-a04d-44db2d7754ea' />
+         <input onChange = {HandleChange} id = "UploadPhoto" accept="image/*" type = 'file' className = 'hidden' />
+         <input id = "UploadVideo" accept = 'video/*' type = 'file' className = 'hidden'/>
+         <div  className = 'relative hidden border  shadow-lg w-80 h-80' id = "PreviewPhoto">
+          <Image className = 'z-20' layout = 'fill' objectFit = 'contain' src ={PhotoUrl} />
          </div>
            </div>
       </div>
