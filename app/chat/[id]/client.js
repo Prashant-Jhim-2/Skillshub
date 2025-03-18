@@ -1,12 +1,15 @@
 'use client'
 import { getSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { VscArrowCircleLeft } from "react-icons/vsc";
+
 import Image from 'next/image'
 import {useState,useEffect} from 'react'
 import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import Footer from "@/app/footer"
 const Page = ({data}) =>{
   const [UserDetails,ChangeUserDetails] = useState({})
   const [VideoUrl,ChangeVideoUrl] = useState('')
@@ -158,11 +161,11 @@ const Page = ({data}) =>{
 
     if (Status == true){
       return (
-        <div className ='mt-6  '>
-          <div className = 'w-80 py-2 flex relative flex-col shadow  border-l-2 border-l-blue-500 flex flec-col '>
+        <div className ='mt-9  '>
+          <div className = 'w-80 py-2  shadow-lg flex relative flex-col shadow  border-l-2 border-l-blue-500 flex flec-col '>
             <label className = 'ml-6 text-md'>Me</label>
             <p className = 'text-xs mt-3 p-3   ml-3 whitespace-pre-line break-all w-full'>{props.Chat}</p>
-            {props.Photo !=  ''  && <div className = 'relative h-80 mb-6 border shadow  w-80'>
+            {props.Photo !=  ''  && <div className = 'relative h-80 mb-6   w-80'>
               <Image 
               className = 'z-10'
                  src =  {props.Photo}
@@ -172,6 +175,7 @@ const Page = ({data}) =>{
             </div> }
             <label className = 'ml-3 absolute bottom-0 right-2 text-rose-600 text-[10px]'>{props.date}</label>
           </div>
+          <button className = 'text-rose-600 text-xs'>Delete for everyone</button>
           </div>
       )
     }
@@ -193,8 +197,8 @@ const Page = ({data}) =>{
       <div className = 'flex  flex-col items-center justify-center'>
        
         <div className = ' flex z-30   fixed bg-white py-2 top-0 border-b w-full flex-col items-center justify-center '>
-        <button className = 'absolute px-3 py-2 border border-black rounded top-2 left-2 '>
-          Back
+        <button className = 'absolute  flex items-center justify-center   top-2 left-2 '>
+         <VscArrowCircleLeft size = {30}/> Back
         </button>
         <h1 className = 'text-2xl  '>Skillshub📝</h1>
           <button className = 'text-xl mt-3'>{UserDetails.FullName}</button>
@@ -211,7 +215,7 @@ const Page = ({data}) =>{
          
 
        
-        <div className = 'fixed z-20 bg-white shadow-lg w-80  bottom-6 p-3 flex flex-col gap-3 border rounded items-center justify-center'>
+        <div className = 'fixed z-20 bg-white shadow-lg w-80  bottom-3 p-3 flex flex-col gap-3 border rounded items-center justify-center'>
         
           <div className = 'flex items-center justify-center'>
           <textarea id = "Chat" className = 'items-center border-b border-b-black  h-auto p-3 outline-none justify-center flex' placeholder = 'Text Anything' type = 'text' />
@@ -227,6 +231,8 @@ const Page = ({data}) =>{
           <Image className = 'z-20' layout = 'fill' objectFit = 'contain' src ={PhotoUrl} />
          </div>
            </div>
+
+        
       </div>
     )
 }
