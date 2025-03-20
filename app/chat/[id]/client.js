@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import {db} from './firebase'
 import { doc, onSnapshot } from "firebase/firestore";
+import { BsFillSendFill } from "react-icons/bs";
 import Image from 'next/image'
 import {useState,useEffect} from 'react'
 import { initializeApp } from 'firebase/app';
@@ -195,7 +196,10 @@ const Page = ({Responsefromserver}) =>{
      }
     }
   }
-  // Function to Delete Chat from Databse
+  // Function to GoBack to Chats Page 
+  const GoBack = () =>{
+    Router.push('/chats')
+  }
 
   // Chat Componet 
   const Chat = (props) =>{
@@ -246,7 +250,7 @@ const Page = ({Responsefromserver}) =>{
       <div className = 'flex  flex-col items-center justify-center'>
        
         <div className = ' flex z-30   fixed bg-white py-2 top-0 border-b w-full flex-col items-center justify-center '>
-        <button className = 'absolute  flex items-center justify-center   top-2 left-2 '>
+        <button onClick = {GoBack} className = 'absolute active:text-rose-600 flex items-center justify-center   top-2 left-2 '>
          <VscArrowCircleLeft size = {30}/> Back
         </button>
         <h1 className = 'text-2xl  '>Skillshub📝</h1>
@@ -267,15 +271,14 @@ const Page = ({Responsefromserver}) =>{
         <div className = 'fixed z-20 bg-white shadow-lg w-80  bottom-3 p-3 flex flex-col gap-3 border rounded items-center justify-center'>
         
           <div className = 'flex items-center justify-center'>
-          <textarea id = "Chat" className = 'items-center border-b border-b-black  h-auto p-3 outline-none justify-center flex' placeholder = 'Text Anything' type = 'text' />
-          <button onClick= {Send} className ='border rounded text-white bg-green-600 px-3 py-2'>Send</button>
+          <textarea id = "Chat" className = 'items-center border-b border-b-black w-64  h-auto p-3 outline-none justify-center flex' placeholder = 'Text Anything' type = 'text' />
           </div>
-          <div className = 'flex self-start gap-3 ml-3'>
-          <button onClick = {UploadPhotoVideo} id = "Photo" className = 'border text-xs   px-3 py-2 rounded shadow-button'>Photo 📸</button>
-          <button className = 'border px-3 py-2 shadow-button text-xs rounded'>Video 📹</button>
+          <div className = 'flex relative self-start w-full gap-3 ml-3'>
+          <button onClick = {UploadPhotoVideo} id = "Photo" className = 'border text-xs active:shadow-none h-9 active:bg-black active:text-white active:border-black   px-3 py-2 rounded shadow-button'>Photo 📸</button>
+          <button onClick= {Send} className ='border absolute bottom-0 right-4 rounded text-sm text-white active:bg-white h-9 active:border-black shadow-lg active:text-green-600 bg-green-600 flex gap-2 items-center justify-center px-3 py-2'> Send <BsFillSendFill size = {10} /></button>
+
          </div>
          <input onChange = {HandleChange} id = "UploadPhoto" accept="image/*" type = 'file' className = 'hidden' />
-         <input id = "UploadVideo" accept = 'video/*' type = 'file' className = 'hidden'/>
          <div  className = 'relative hidden border  shadow-lg w-80 h-80' id = "PreviewPhoto">
           <Image className = 'z-20' layout = 'fill' objectFit = 'contain' src ={PhotoUrl} />
          </div>
