@@ -59,9 +59,14 @@ const Page = ({data}) =>{
             Router.push('/chat/'+Response.id)
         }
     }
+
+    // Function to Go Back to home page 
+    const GoBack = () =>{
+        Router.push('/home')
+    }
     return (
         <div className = 'flex flex-col items-center justify-center'>
-            <button className = 'fixed top-2 left-2 flex items-center justify-center gap-1'> <VscArrowCircleLeft size = {30} />Back</button>
+            <button onClick = {GoBack} className = 'fixed active:text-rose-600 top-2 left-2 flex items-center justify-center gap-1'> <VscArrowCircleLeft size = {30} />Back</button>
             <h1 className = 'text-2xl mt-12 '>Skillshub📝</h1>
             <div className = 'mt-24 flex flex-col items-center justify-center'>
                 <input className = 'w-64 text-xl border-b-2 text-center h-12 border-b-black' type = 'text' placeholder = 'Enter The Username ' />

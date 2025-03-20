@@ -2,6 +2,7 @@
 import {useState} from 'react'
 import { getSession ,signOut} from 'next-auth/react';
 import Head from 'next/head'
+import { LuMessagesSquare } from "react-icons/lu";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image'
 import Footer from '../footer'
@@ -268,6 +269,9 @@ const page = ({carddata}) =>{
                 </div>
         )
     }
+    const GoToChat = () =>{
+      Router.push('/chats')
+    }
 
     const GoToBecProfessor = ()=>{
       Router.push("/BecomeProfessor")
@@ -294,6 +298,8 @@ const page = ({carddata}) =>{
           <li onClick = {GotoProfile} className="mb-4 bg-white cursor-pointer  text-center flex hover:text-blue-400 gap-2 "><MdOutlineSpaceDashboard size={30} /> Dashboard</li>
           <li id = "AddCourse" onClick={AddCourse} className="mb-4 cursor-pointer bg-white  text-center flex gap-2  py-3  hover:text-orange-300"> <MdOutlineAddBox size={30} /> Add Course</li>
           <li id = 'BecomeProfessor' onClick={GoToBecProfessor} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2  py-3  hover:text-blue-300"><FaChalkboardTeacher size = {30} />  Become Professor</li>
+          <li id = 'Messages' onClick={GoToChat}  className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2  py-3  hover:text-blue-300"> <LuMessagesSquare size = {30} />  Messages</li>
+
           <li onClick = {Logout} className="mb-4 flex   text-rose-600 cursor-pointer gap-2  text-center py-3  "> <IoIosLogOut size={30} /> Logout  </li>
         </ul>
       </div>
