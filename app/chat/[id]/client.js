@@ -67,6 +67,7 @@ const Page = ({Responsefromserver}) =>{
           // Get data from snapshot and update state
           const data = snapshot.data()
           ChangeChats(data.Chat)
+          document.getElementById("BringUp").scrollIntoView({behavior:"smooth"})
         } else {
           console.log("Document not found");
         }
