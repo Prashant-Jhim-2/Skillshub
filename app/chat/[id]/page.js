@@ -1,13 +1,17 @@
+
 import Clientside from './client'
 
 
-export default async function Page() {
+export default async function Page({params}) {
+  const {id} = params
  
-const Data = {}
+const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Chat/${params.id}`)
+const Response = await Request.json()
  
+console.log(Response)
   return (
     <>
-      <Clientside data = {Data}  />
+      <Clientside Responsefromserver = {Response}  />
      
     </>
   );

@@ -1,8 +1,9 @@
 'use client'
 import { getSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { VscArrowCircleLeft } from "react-icons/vsc";
-
+import {db} from './firebase'
+import { doc, onSnapshot } from "firebase/firestore";
 import Image from 'next/image'
 import {useState,useEffect} from 'react'
 import { initializeApp } from 'firebase/app';
@@ -10,14 +11,16 @@ import { getStorage } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Footer from "@/app/footer"
-const Page = ({data}) =>{
+const Page = ({Responsefromserver}) =>{
+  const params = useParams()
   const [UserDetails,ChangeUserDetails] = useState({})
+  const [Receiver,ChangeReceiver] = useState({FullName:''})
   const [VideoUrl,ChangeVideoUrl] = useState('')
   const [PhotoFile,ChangePhotoFile] = useState(undefined)
   const [VideoFile,ChangeVideoFile] = useState(undefined)
   const [PhotoUrl,ChangePhotoUrl] = useState('')
   const Router = useRouter()
-  const [Chats,ChangeChats] = useState([])
+  const [Chats,ChangeChats] = useState(Responsefromserver.Data.Chat)
   const session = getSession()
   // Function To Check Authication 
   const CheckAuth = async() =>{
@@ -27,8 +30,17 @@ const Page = ({data}) =>{
       const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${id}`)
       const Response = await Request.json()
       if (Response.status == true){
-        console.log(Response)
         ChangeUserDetails(Response.Details)
+        if (id == Responsefromserver.Data.User1){
+          const Requestforuser2 = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${Responsefromserver.Data.User2}`)
+          const Responseforuser2 = await Requestforuser2.json()
+          ChangeReceiver(Responseforuser2.Details)
+        }
+        if (id == Responsefromserver.Data.User2){
+          const Requestforuser1 = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${Responsefromserver.Data.User1}`)
+          const Responseforuser1 = await Requestforuser1.json()
+          ChangeReceiver(Responseforuser1.Details)
+        }
       }
       if (Response.status == false){
         Router.push("/")
@@ -39,9 +51,15 @@ const Page = ({data}) =>{
     }
   }
 
+   // Live Subscription for listening to live changes in chat 
+   const listeningchat = async() =>{
+
+   }
+
   //UseEffect to CheckAuth 
   useEffect(()=>{
     CheckAuth()
+    
   },[])
 
 
@@ -105,7 +123,16 @@ const Page = ({data}) =>{
       }
       console.log(Details)
       const newarr = [...Chats,Details]
-      ChangeChats(newarr)
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SendChat`,{
+        method:"POST",
+        headers:{"Content-Type":'application/json'},
+        body:JSON.stringify({id : params.id ,chat:newarr})
+      })
+      const Response = await Request.json()
+      if (Response.status == true){
+        ChangeChats(newarr)
+      }
+      
       document.getElementById("PreviewPhoto").style.display = 'none'
       document.getElementById("Photo").innerHTML = 'Photo 📸'
       ChangePhotoFile(undefined)
@@ -159,11 +186,11 @@ const Page = ({data}) =>{
   const Chat = (props) =>{
     const Status = props.id == UserDetails.id 
 
-    if (Status == true){
+   
       return (
         <div className ='mt-9  '>
           <div className = 'w-80 py-2  shadow-lg flex relative flex-col shadow  border-l-2 border-l-blue-500 flex flec-col '>
-            <label className = 'ml-6 text-md'>Me</label>
+            <label className = 'ml-6 text-md'>{Status && <>Me </>} {!Status && <>{Receiver.FullName}</>}</label>
             <p className = 'text-xs mt-3 p-3   ml-3 whitespace-pre-line break-all w-full'>{props.Chat}</p>
             {props.Photo !=  ''  && <div className = 'relative h-80 mb-6   w-80'>
               <Image 
@@ -175,23 +202,12 @@ const Page = ({data}) =>{
             </div> }
             <label className = 'ml-3 absolute bottom-0 right-2 text-rose-600 text-[10px]'>{props.date}</label>
           </div>
-          <button className = 'text-rose-600 text-xs'>Delete for everyone</button>
+         {Status && <button className = 'text-rose-600 text-xs'>Delete for everyone</button>} 
           </div>
       )
-    }
+    
 
-    if (Status == false) {
-      return (
-        <div className ='mt-6'>
-        <div className = 'w-80 flex flex-col shadow p-3  border-l-2 border-l-red-500 flex flex-col '>
-          <label className = 'ml-6 text-md'>{props.FullName}</label>
-          <p className = 'text-xs mt-3 p-3   ml-3 whitespace-pre-line break-all w-full'>{props.Chat}</p>
-          <label className = 'ml-3 absolute bottom-0 right-2 text-rose-600 text-[10px]'>{props.date}</label>
-
-        </div>
-        </div>
-      )
-    }
+    
   }
     return (
       <div className = 'flex  flex-col items-center justify-center'>
@@ -201,7 +217,7 @@ const Page = ({data}) =>{
          <VscArrowCircleLeft size = {30}/> Back
         </button>
         <h1 className = 'text-2xl  '>Skillshub📝</h1>
-          <button className = 'text-xl mt-3'>{UserDetails.FullName}</button>
+          <button className = 'text-xl mt-3'>{Receiver.FullName}</button>
            <strong className = 'text-sm text-green-600'>🟢 Online</strong>
            <label>Typing...</label>
         </div>

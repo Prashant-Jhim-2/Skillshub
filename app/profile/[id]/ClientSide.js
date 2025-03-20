@@ -14,7 +14,7 @@ const bcryptjs = require("bcryptjs")
 
 import useStore from './usestore'
 
-import db from './firebase'
+
 import {collection, onSnapshot } from "firebase/firestore";
 
 
@@ -138,21 +138,7 @@ const View = () =>{
   
   }
   if (ViewState == "PersonalInfo"){
-    const Live = async() =>{
-      const session = await Session 
-      console.log(session)
-      const colref = collection(db,'users')
-      const newdata = []
-      const change = onSnapshot(colref,(snapshot)=>{
-        const items = snapshot.docs.filter((doc)=>{
-          
-          console.log(doc.id)
-          
-        })
-        
-       
-      })
-    }
+   
     useEffect(()=>{
       Live()
     },[])
