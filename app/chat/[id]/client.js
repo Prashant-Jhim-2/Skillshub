@@ -134,7 +134,7 @@ const Page = ({Responsefromserver}) =>{
         Photo:UploadableURLPhoto,
         date:datestring
       }
-      console.log(Details)
+      
       const newarr = [...Chats,Details]
       const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SendChat`,{
         method:"POST",
@@ -201,7 +201,25 @@ const Page = ({Responsefromserver}) =>{
   const Chat = (props) =>{
     const Status = props.id == UserDetails.id 
 
-   
+    // Function to Delete the Chat 
+    const Deleteforeveryone = async() =>{
+      const id = props.idofchat 
+      const newarr = Chats.filter((data)=>{
+        if (id != data.idofchat){
+          return data
+        }
+      })
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/DeleteChat`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({id:params.id,arr:newarr})
+      })
+      const Response = await Request.json()
+      if (Response.status == true){
+        ChangeChats(newarr)
+      }
+
+    }
       return (
         <div className ='mt-9  '>
           <div className = 'w-80 py-2  shadow-lg flex relative flex-col shadow  border-l-2 border-l-blue-500 flex flec-col '>
@@ -217,7 +235,7 @@ const Page = ({Responsefromserver}) =>{
             </div> }
             <label className = 'ml-3 absolute bottom-0 right-2 text-rose-600 text-[10px]'>{props.date}</label>
           </div>
-         {Status && <button className = 'text-rose-600 text-xs'>Delete for everyone</button>} 
+         {Status && <button onClick = {Deleteforeveryone} id = {props.idofchat} className = 'text-rose-600 text-xs'>Delete for everyone</button>} 
           </div>
       )
     
@@ -239,7 +257,7 @@ const Page = ({Responsefromserver}) =>{
 
         <div className = 'mt-48 mb-96'>
 
-         {Chats.map((data)=><Chat id = {data.id} Photo={data.Photo} FullName = {data.FullName} Chat = {data.Chat} date = {data.date} />)}
+         {Chats.map((data)=><Chat idofchat = {data.idofchat} id = {data.id} Photo={data.Photo} FullName = {data.FullName} Chat = {data.Chat} date = {data.date} />)}
          <label id = 'BringUp'></label>
         </div>
        
