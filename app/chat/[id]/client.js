@@ -2,14 +2,12 @@
 import { getSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { VscArrowCircleLeft } from "react-icons/vsc";
-import {db} from './firebase'
-import { doc, onSnapshot } from "firebase/firestore";
+import {db} from '@/app/firebase'
+
 import { BsFillSendFill } from "react-icons/bs";
 import Image from 'next/image'
 import {useState,useEffect} from 'react'
-import { initializeApp } from 'firebase/app';
-import { getStorage } from 'firebase/storage';
-import { getFirestore } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Footer from "@/app/footer"
 const Page = ({Responsefromserver}) =>{
@@ -60,6 +58,24 @@ const Page = ({Responsefromserver}) =>{
   //UseEffect to CheckAuth 
   useEffect(()=>{
     CheckAuth()
+
+    // Reference to the specific document
+    const unsubscribe = onSnapshot(
+      doc(db, 'chats', params.id), // Specify your collection and document ID
+      (snapshot) => {
+        if (snapshot.exists()) {
+          // Get data from snapshot and update state
+          const data = snapshot.data()
+          ChangeChats(data.Chat)
+        } else {
+          console.log("Document not found");
+        }
+      },
+      (error) => {
+        console.error('Error fetching live updates:', error);
+      }
+      );
+      return () => unsubscribe();
     
   },[])
 
@@ -76,18 +92,7 @@ const Page = ({Responsefromserver}) =>{
   };
 
 
-        // Part Of Uploading Image 
-        const firebaseConfig = {
-          apiKey: process.env.NEXT_PUBLIC_apiKey,
-          authDomain:  process.env.NEXT_PUBLIC_authDomain,
-          projectId:  process.env.NEXT_PUBLIC_projectId,
-          storageBucket:  process.env.NEXT_PUBLIC_storageBucket,
-          messagingSenderId: process.env.NEXT_PUBLIC_messagingSenderId,
-          appId:  process.env.NEXT_PUBLIC_appId,
-        };
-        const app = initializeApp(firebaseConfig);
-        const storage = getStorage(app);
-        const db = getFirestore(app);
+        
     
     
         // Function To Upload Image and Get ImgSrc 
