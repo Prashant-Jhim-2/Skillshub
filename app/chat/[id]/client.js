@@ -98,6 +98,15 @@ const Page = ({Responsefromserver}) =>{
        }
        
       
+  // Function to Generate Random ID 
+  const GenerateRandom = () =>{
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let id = '';
+    for (let i = 0; i < 12; i++) {
+        id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return id;
+  }
   // Send Chat 
   const Send = async() =>{
     const date = new Date()
@@ -114,7 +123,11 @@ const Page = ({Responsefromserver}) =>{
       if (VideoFile != undefined){
         UploadableURLVideo = await UploadImg(VideoFile)
       }
+      // Part To Generate Random ID in order to help in Deleting 
+      const idofchat = GenerateRandom()
+
       const Details = {
+        idofchat:idofchat,
         id :UserDetails.id ,
         FullName:UserDetails.FullName,
         Chat : value ,
@@ -182,6 +195,8 @@ const Page = ({Responsefromserver}) =>{
      }
     }
   }
+  // Function to Delete Chat from Databse
+
   // Chat Componet 
   const Chat = (props) =>{
     const Status = props.id == UserDetails.id 
