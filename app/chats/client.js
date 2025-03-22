@@ -59,7 +59,7 @@ const Page = ({data}) =>{
             Router.push('/chat/'+Response.id)
         }
     }
-
+    
     // Function to Go Back to home page 
     const GoBack = () =>{
         Router.push('/home')

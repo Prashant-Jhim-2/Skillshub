@@ -14,7 +14,8 @@ const Page = ({Responsefromserver}) =>{
   const params = useParams()
   const [UserDetails,ChangeUserDetails] = useState({})
   const [Receiver,ChangeReceiver] = useState({FullName:''})
-  const [VideoUrl,ChangeVideoUrl] = useState('')
+  const [TypingOrNot,ChangeTypingStatus] = useState(false)
+  const [Chatdata,ChangeChatData] = useState({})
   const [PhotoFile,ChangePhotoFile] = useState(undefined)
   const [VideoFile,ChangeVideoFile] = useState(undefined)
   const [PhotoUrl,ChangePhotoUrl] = useState('')
@@ -50,15 +51,31 @@ const Page = ({Responsefromserver}) =>{
     }
   }
 
-   // Live Subscription for listening to live changes in chat 
-   const listeningchat = async() =>{
-
+   // Live Listening whether user is typing or not 
+   const Typingornot = async() =>{
+    const Session = await session 
+    if (Chatdata.User1 == Session.user.id && Chatdata.User2Typing == True ){
+       return (
+        <>
+        {Receiver.FullName} is Typing
+        </>
+       )
+    }
+    if (Chatdata.User2 == Session.user.id && Chatdata.User1Typing == True ){
+      return (
+       <>
+       {Receiver.FullName} is Typing
+       </>
+      )
+   }
    }
 
   //UseEffect to CheckAuth 
-  useEffect(()=>{
-    CheckAuth()
-
+  useEffect(async()=>{
+    CheckAuth() 
+    const Session = await session 
+    const id = Session.user.id 
+    
     // Reference to the specific document
     const unsubscribe = onSnapshot(
       doc(db, 'chats', params.id), // Specify your collection and document ID
@@ -66,6 +83,14 @@ const Page = ({Responsefromserver}) =>{
         if (snapshot.exists()) {
           // Get data from snapshot and update state
           const data = snapshot.data()
+
+          if (id == data.User1){
+            ChangeTypingStatus(data.User2Typing)
+          }
+          if (id == data.User2){
+            ChangeTypingStatus(data.User1Typing)
+          }
+
           ChangeChats(data.Chat)
           document.getElementById("BringUp").scrollIntoView({behavior:"smooth"})
         } else {
@@ -79,7 +104,21 @@ const Page = ({Responsefromserver}) =>{
       return () => unsubscribe();
     
   },[])
-
+ 
+  // Function to Broadcast Typing event 
+  const Typing = async(event) =>{
+    const value = event.target.value 
+    const Session = await session 
+    const idofuser = Session.user.id 
+    const idofchat = params.id 
+    const status = value != ''
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Typing`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({idofchat,idofuser,status})
+    })
+    const Response = await Request.json()
+}
 
   // Function to Give Date 
   const formatDate = (date) => {
@@ -187,6 +226,7 @@ const Page = ({Responsefromserver}) =>{
    
   
   }
+  
   // Upload Photo And Video 
   const UploadPhotoVideo = (event) =>{
     const id = event.target.id 
@@ -262,13 +302,14 @@ const Page = ({Responsefromserver}) =>{
         <h1 className = 'text-2xl  '>Skillshub📝</h1>
           <button className = 'text-xl mt-3'>{Receiver.FullName}</button>
            <strong className = 'text-sm text-green-600'>🟢 Online</strong>
-           <label>Typing...</label>
+           
         </div>
 
         <div className = 'mt-48 mb-96'>
 
          {Chats.map((data)=><Chat idofchat = {data.idofchat} id = {data.id} Photo={data.Photo} FullName = {data.FullName} Chat = {data.Chat} date = {data.date} />)}
          <label id = 'BringUp'></label>
+         <label className = 'text-xs text-blue-600 mt-12'>{TypingOrNot && <>{Receiver.FullName} is Typing...</>}</label>
         </div>
        
          
@@ -277,7 +318,7 @@ const Page = ({Responsefromserver}) =>{
         <div className = 'fixed z-20 bg-white shadow-lg w-80  bottom-3 p-3 flex flex-col gap-3 border rounded items-center justify-center'>
         
           <div className = 'flex items-center justify-center'>
-          <textarea id = "Chat" className = 'items-center border-b border-b-black w-64  h-auto p-3 outline-none justify-center flex' placeholder = 'Text Anything' type = 'text' />
+          <textarea onChange = {Typing} id = "Chat" className = 'items-center border-b border-b-black w-64  h-auto p-3 outline-none justify-center flex' placeholder = 'Text Anything' type = 'text' />
           </div>
           <div className = 'flex relative self-start w-full gap-3 ml-3'>
           <button onClick = {UploadPhotoVideo} id = "Photo" className = 'border text-xs active:shadow-none h-9 active:bg-black active:text-white active:border-black   px-3 py-2 rounded shadow-button'>Photo 📸</button>
