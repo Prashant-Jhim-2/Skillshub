@@ -13,6 +13,7 @@ import Footer from "@/app/footer"
 const Page = ({Responsefromserver}) =>{
   const params = useParams()
   let timeout ;
+  let typingtimeout ;
  
   const [Online,changestatus] = useState(false)
   const [UserDetails,ChangeUserDetails] = useState({})
@@ -95,6 +96,36 @@ const Page = ({Responsefromserver}) =>{
   const fun = async() =>{
     await updateseconds()
   }
+  
+  // Function to Broadcast Typing event 
+  const Typing = async() =>{
+    
+    const Session = await session 
+    const idofuser = Session.user.id 
+    const idofchat = params.id 
+   
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Typing`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({idofchat,idofuser,status:true})
+    })
+    const Response = await Request.json()
+
+    if (typingtimeout) {
+      clearTimeout(typingtimeout)
+    }
+    typingtimeout = setTimeout(async()=>{
+       
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Typing`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({idofchat,idofuser,status:false})
+  })
+  const Response = await Request.json()
+    },2000)
+}
+
+ 
   //UseEffect to CheckAuth 
   useEffect(()=>{
     CheckAuth() 
@@ -107,6 +138,7 @@ const Page = ({Responsefromserver}) =>{
     
     
     fun()
+   
     const id = Session.user.id 
    
     
@@ -164,24 +196,12 @@ const Page = ({Responsefromserver}) =>{
         if (unsubscribe){
           unsubscribe();
         }
+        
       }
     
   },[params.id])
  
-  // Function to Broadcast Typing event 
-  const Typing = async(event) =>{
-    const value = event.target.value 
-    const Session = await session 
-    const idofuser = Session.user.id 
-    const idofchat = params.id 
-    const status = value != ''
-    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Typing`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({idofchat,idofuser,status})
-    })
-    const Response = await Request.json()
-}
+  
 
   // Function to Give Date 
   const formatDate = (date) => {
