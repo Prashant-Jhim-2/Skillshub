@@ -3,15 +3,18 @@ import { getSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import {db} from '@/app/firebase'
-
+import { getDatabase, onDisconnect } from "firebase/database";
 import { BsFillSendFill } from "react-icons/bs";
 import Image from 'next/image'
 import {useState,useEffect} from 'react'
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Footer from "@/app/footer"
 const Page = ({Responsefromserver}) =>{
   const params = useParams()
+  let timeout ;
+ 
+  const [Online,changestatus] = useState(false)
   const [UserDetails,ChangeUserDetails] = useState({})
   const [Receiver,ChangeReceiver] = useState({FullName:''})
   const [TypingOrNot,ChangeTypingStatus] = useState(false)
@@ -70,14 +73,48 @@ const Page = ({Responsefromserver}) =>{
    }
    }
 
-  //UseEffect to CheckAuth 
-  useEffect(async()=>{
-    CheckAuth() 
+   // Function To Change Whether User is Online or Offline 
+   const OnlineorOffline = async(idofchat,lastseen) =>{
     const Session = await session 
-    const id = Session.user.id 
+    const idofuser = Session.user.id
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Online`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({idofchat,idofuser,lastseen})
+    })
+    const Response = await Request.json()
     
+   }
+   const updateseconds = async() =>{
+    const nowseconds = Math.floor(Date.now()/1000)
+    await OnlineorOffline(params.id,nowseconds)
+    timeout = setTimeout(updateseconds, 5000);
+   
+   }
+
+  const fun = async() =>{
+    await updateseconds()
+  }
+  //UseEffect to CheckAuth 
+  useEffect(()=>{
+    CheckAuth() 
+    let unsubscribe ;
+   
+    const realtime = async() =>{
+      const Session = await session 
+
+   
+    
+    
+    fun()
+    const id = Session.user.id 
+   
+    
+    
+   
+   
     // Reference to the specific document
-    const unsubscribe = onSnapshot(
+    unsubscribe = onSnapshot(
       doc(db, 'chats', params.id), // Specify your collection and document ID
       (snapshot) => {
         if (snapshot.exists()) {
@@ -85,9 +122,25 @@ const Page = ({Responsefromserver}) =>{
           const data = snapshot.data()
 
           if (id == data.User1){
+            const nowseconds = Math.floor(Date.now()/1000)
+            const diff = nowseconds - data.User2LastSeen
+            if (diff <= 10){
+              changestatus(true)
+            }
+            if (diff > 10){
+              changestatus(false)
+            }
             ChangeTypingStatus(data.User2Typing)
           }
           if (id == data.User2){
+            const nowseconds = Math.floor(Date.now()/1000)
+            const diff = nowseconds - data.User1LastSeen
+            if (diff <= 10){
+              changestatus(true)
+            }
+            if (diff > 10){
+              changestatus(false)
+            }
             ChangeTypingStatus(data.User1Typing)
           }
 
@@ -101,9 +154,19 @@ const Page = ({Responsefromserver}) =>{
         console.error('Error fetching live updates:', error);
       }
       );
-      return () => unsubscribe();
+    }
+    realtime()
+      return () =>  {
+         
+        if (timeout){
+          clearTimeout(timeout)
+        }
+        if (unsubscribe){
+          unsubscribe();
+        }
+      }
     
-  },[])
+  },[params.id])
  
   // Function to Broadcast Typing event 
   const Typing = async(event) =>{
@@ -301,7 +364,8 @@ const Page = ({Responsefromserver}) =>{
         </button>
         <h1 className = 'text-2xl  '>Skillshub📝</h1>
           <button className = 'text-xl mt-3'>{Receiver.FullName}</button>
-           <strong className = 'text-sm text-green-600'>🟢 Online</strong>
+           <strong className = 'text-sm text-green-600'>{Online && <>🟢 Online</>} {!Online && <> 📵 Offline</>}</strong>
+          
            
         </div>
 
