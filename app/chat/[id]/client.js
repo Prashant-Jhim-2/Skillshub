@@ -3,6 +3,7 @@ import { getSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import {db} from '@/app/firebase'
+import {storage} from '@/app/firestore(image)'
 import { getDatabase, onDisconnect } from "firebase/database";
 import { BsFillSendFill } from "react-icons/bs";
 import Image from 'next/image'
@@ -55,24 +56,6 @@ const Page = ({Responsefromserver}) =>{
     }
   }
 
-   // Live Listening whether user is typing or not 
-   const Typingornot = async() =>{
-    const Session = await session 
-    if (Chatdata.User1 == Session.user.id && Chatdata.User2Typing == True ){
-       return (
-        <>
-        {Receiver.FullName} is Typing
-        </>
-       )
-    }
-    if (Chatdata.User2 == Session.user.id && Chatdata.User1Typing == True ){
-      return (
-       <>
-       {Receiver.FullName} is Typing
-       </>
-      )
-   }
-   }
 
    // Function To Change Whether User is Online or Offline 
    const OnlineorOffline = async(idofchat,lastseen) =>{
@@ -187,6 +170,7 @@ const Page = ({Responsefromserver}) =>{
       }
       );
     }
+
     realtime()
       return () =>  {
          
@@ -221,6 +205,7 @@ const Page = ({Responsefromserver}) =>{
         // Function To Upload Image and Get ImgSrc 
         const UploadImg = async(UploadableFile)=>{
           const storageref = ref(storage,`photos/${UploadableFile.name}`)
+          
           await uploadBytes(storageref,UploadableFile)
           const url = await getDownloadURL(storageref)
           return url 
@@ -263,7 +248,7 @@ const Page = ({Responsefromserver}) =>{
         Photo:UploadableURLPhoto,
         date:datestring
       }
-      
+      console.log(Details)
       const newarr = [...Chats,Details]
       const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SendChat`,{
         method:"POST",
@@ -362,6 +347,7 @@ const Page = ({Responsefromserver}) =>{
               <Image 
               className = 'z-10'
                  src =  {props.Photo}
+                 alt = 'Chat Image'
                layout = 'fill'
                objectFit = 'contain'
               />

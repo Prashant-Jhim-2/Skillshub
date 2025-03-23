@@ -140,7 +140,7 @@ const View = () =>{
   if (ViewState == "PersonalInfo"){
    
     useEffect(()=>{
-      Live()
+     
     },[])
 
     const SaveChanges = async() =>{

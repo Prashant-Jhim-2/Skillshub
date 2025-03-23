@@ -11,7 +11,7 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_SKILLSHUB_APPID
   };
  // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = getApps().find(app => app.name === "app1") || initializeApp(firebaseConfig, "app1");
 console.log(app)
 // Get Firestore instance
 const db = getFirestore(app);
