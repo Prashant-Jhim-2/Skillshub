@@ -2,17 +2,19 @@
 import { getSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { VscArrowCircleLeft } from "react-icons/vsc";
+import {useRef} from 'react'
 import {db} from '@/app/firebase'
 import {storage} from '@/app/firestore(image)'
 import { getDatabase, onDisconnect } from "firebase/database";
 import { BsFillSendFill } from "react-icons/bs";
 import Image from 'next/image'
-import {useState,useEffect} from 'react'
+import {useState,useEffect,useMemo} from 'react'
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Footer from "@/app/footer"
 const Page = ({Responsefromserver}) =>{
   const params = useParams()
+  const timeoutRef = useRef(null)
   let timeout ;
   let typingtimeout ;
  
@@ -20,12 +22,13 @@ const Page = ({Responsefromserver}) =>{
   const [UserDetails,ChangeUserDetails] = useState({})
   const [Receiver,ChangeReceiver] = useState({FullName:''})
   const [TypingOrNot,ChangeTypingStatus] = useState(false)
-  const [Chatdata,ChangeChatData] = useState({})
+  const [Chatdata,ChangeChatData] = useState([])
   const [PhotoFile,ChangePhotoFile] = useState(undefined)
   const [VideoFile,ChangeVideoFile] = useState(undefined)
   const [PhotoUrl,ChangePhotoUrl] = useState('')
   const Router = useRouter()
   const [Chats,ChangeChats] = useState(Responsefromserver.Data.Chat)
+  const MemorizedChats = useMemo(()=>Chats,[Chats])
   const session = getSession()
   // Function To Check Authication 
   const CheckAuth = async() =>{
@@ -69,16 +72,16 @@ const Page = ({Responsefromserver}) =>{
     const Response = await Request.json()
     
    }
-   const updateseconds = async() =>{
-    const nowseconds = Math.floor(Date.now()/1000)
-    await OnlineorOffline(params.id,nowseconds)
-    timeout = setTimeout(updateseconds, 5000);
-   
-   }
+   const updateseconds = async () => {
+    if (timeoutRef.current) return; // Prevent duplicate intervals
+    
+    timeoutRef.current = setInterval(async () => {
+      const nowseconds = Math.floor(Date.now() / 1000);
+      await OnlineorOffline(params.id, nowseconds);
+    }, 5000);
+  };
 
-  const fun = async() =>{
-    await updateseconds()
-  }
+ 
   
   // Function to Broadcast Typing event 
   const Typing = async() =>{
@@ -120,7 +123,7 @@ const Page = ({Responsefromserver}) =>{
    
     
     
-    fun()
+    updateseconds()
    
     const id = Session.user.id 
    
@@ -145,7 +148,14 @@ const Page = ({Responsefromserver}) =>{
             if (diff > 10){
               changestatus(false)
             }
+            if (data.NewMessages1 == true){
+              document.getElementById("NewChat").style.display = 'flex'
+            }
+            if (data.NewMessages1 == false){
+              document.getElementById("NewChat").style.display = 'none'
+            }
             ChangeTypingStatus(data.User2Typing)
+            
           }
           if (id == data.User2){
             const nowseconds = Math.floor(Date.now()/1000)
@@ -156,11 +166,23 @@ const Page = ({Responsefromserver}) =>{
             if (diff > 10){
               changestatus(false)
             }
+            if (data.NewMessages2 == true){
+              document.getElementById("NewChat").style.display = 'flex'
+            }
+            if (data.NewMessages2 == false){
+              document.getElementById("NewChat").style.display = 'none'
+            }
+            
+            
             ChangeTypingStatus(data.User1Typing)
+            
           }
 
-          ChangeChats(data.Chat)
-          document.getElementById("BringUp").scrollIntoView({behavior:"smooth"})
+          if (Chats.length  != data.Chat.length) {
+            ChangeChats(data.Chat)
+          }
+
+          
         } else {
           console.log("Document not found");
         }
@@ -174,8 +196,9 @@ const Page = ({Responsefromserver}) =>{
     realtime()
       return () =>  {
          
-        if (timeout){
-          clearTimeout(timeout)
+        if (timeoutRef.current){
+          clearTimeout(timeoutRef.current)
+          timeoutRef.current = null
         }
         if (unsubscribe){
           unsubscribe();
@@ -185,7 +208,19 @@ const Page = ({Responsefromserver}) =>{
     
   },[params.id])
  
-  
+  // Function to Scroll Up 
+  const ScrollUp = async() =>{
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Seen`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({idofchat:params.id,idofuser:UserDetails.id})}
+    )
+    const Response = await Request.json() 
+    if (Response.status == true){
+        document.getElementById("BringUp").scrollIntoView({behavior:"smooth"})
+        document.getElementById("NewChat").style.display = 'none'
+    }
+  }
 
   // Function to Give Date 
   const formatDate = (date) => {
@@ -253,7 +288,7 @@ const Page = ({Responsefromserver}) =>{
       const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SendChat`,{
         method:"POST",
         headers:{"Content-Type":'application/json'},
-        body:JSON.stringify({id : params.id ,chat:newarr})
+        body:JSON.stringify({id : params.id,idofuser:UserDetails.id ,chat:newarr})
       })
       const Response = await Request.json()
       if (Response.status == true){
@@ -318,6 +353,9 @@ const Page = ({Responsefromserver}) =>{
   // Chat Componet 
   const Chat = (props) =>{
     const Status = props.id == UserDetails.id 
+    
+
+    
 
     // Function to Delete the Chat 
     const Deleteforeveryone = async() =>{
@@ -350,6 +388,7 @@ const Page = ({Responsefromserver}) =>{
                  alt = 'Chat Image'
                layout = 'fill'
                objectFit = 'contain'
+               loading = 'lazy'
               />
             </div> }
             <label className = 'ml-3 absolute bottom-0 right-2 text-rose-600 text-[10px]'>{props.date}</label>
@@ -372,21 +411,21 @@ const Page = ({Responsefromserver}) =>{
           <button className = 'text-xl mt-3'>{Receiver.FullName}</button>
            <strong className = 'text-sm text-green-600'>{Online && <>🟢 Online</>} {!Online && <> 📵 Offline</>}</strong>
           
-           
+           <button onClick = {ScrollUp} id = 'NewChat' className = 'mt-3 border  hidden  text-sm px-3 py-2 rounded-lg shadow-lg text-red-600'>New Messages 💬</button>
+
         </div>
 
-        <div className = 'mt-48 mb-96'>
+        <div className = 'relative pb-12 mt-48 mb-96'>
 
          {Chats.map((data)=><Chat idofchat = {data.idofchat} id = {data.id} Photo={data.Photo} FullName = {data.FullName} Chat = {data.Chat} date = {data.date} />)}
          <label id = 'BringUp'></label>
-         <label className = 'text-xs text-blue-600 mt-12'>{TypingOrNot && <>{Receiver.FullName} is Typing...</>}</label>
+         {TypingOrNot && <label className = 'text-xs text-blue-600 mt-12'>{TypingOrNot && <>{Receiver.FullName} is Typing...</>}</label>}
         </div>
        
          
 
        
         <div className = 'fixed z-20 bg-white shadow-lg w-80  bottom-3 p-3 flex flex-col gap-3 border rounded items-center justify-center'>
-        
           <div className = 'flex items-center justify-center'>
           <textarea onChange = {Typing} id = "Chat" className = 'items-center border-b border-b-black w-64  h-auto p-3 outline-none justify-center flex' placeholder = 'Text Anything' type = 'text' />
           </div>
