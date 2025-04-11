@@ -9,11 +9,12 @@ import Footer from '../footer'
 import { IoIosLogOut } from "react-icons/io";
 import { IoIosSearch } from "react-icons/io";
 import { MdOutlineAddBox } from "react-icons/md";
-import { MdOutlineSpaceDashboard } from "react-icons/md";
+import { CgProfile } from "react-icons/cg";
 import { TiThMenuOutline } from "react-icons/ti";
 import { FaRegWindowClose } from "react-icons/fa";
 import { useEffect } from "react"
 import { FaChalkboardTeacher } from "react-icons/fa";
+import { MdOutlinePayments } from "react-icons/md";
 
 
 const page = ({carddata}) =>{
@@ -276,6 +277,9 @@ const page = ({carddata}) =>{
     const GoToBecProfessor = ()=>{
       Router.push("/BecomeProfessor")
     }
+    const GotoPurchases = () =>{
+      Router.push("/purchases")
+    }
     return (
         <div className = "flex  relative flex-col items-center">
         <title>SkillsHub📝</title> 
@@ -295,9 +299,10 @@ const page = ({carddata}) =>{
         } transition-transform duration-300 ease-in-out`}
       >
         <ul className = 'text-2xl w-full justfiy-center items-center flex flex-col py-6' >
-          <li onClick = {GotoProfile} className="mb-4 bg-white cursor-pointer  text-center flex hover:text-blue-400 gap-2 "><MdOutlineSpaceDashboard size={30} /> Dashboard</li>
+          <li onClick = {GotoProfile} className="mb-4 bg-white cursor-pointer  text-center flex hover:text-blue-400 gap-2 "><CgProfile size={30} /> Profile</li>
           <li id = "AddCourse" onClick={AddCourse} className="mb-4 cursor-pointer bg-white  text-center flex gap-2  py-3  hover:text-orange-300"> <MdOutlineAddBox size={30} /> Add Course</li>
           <li id = 'BecomeProfessor' onClick={GoToBecProfessor} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2  py-3  hover:text-blue-300"><FaChalkboardTeacher size = {30} />  Become Professor</li>
+          <li id = "Purchases" onClick = {GotoPurchases} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2  py-3  hover:text-red-600"> <MdOutlinePayments size = {30} />  Purchases</li>
           <li id = 'Messages' onClick={GoToChat}  className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2  py-3  hover:text-blue-300"> <LuMessagesSquare size = {30} />  Messages</li>
 
           <li onClick = {Logout} className="mb-4 flex   text-rose-600 cursor-pointer gap-2  text-center py-3  "> <IoIosLogOut size={30} /> Logout  </li>

@@ -1,27 +1,63 @@
-import React, { useState } from "react";
+"use client"
 import Image from "next/image";
-import { useRef } from "react";
+
 import useStore from "./[id]/usestore";
+import {storage} from '@/app/firestore(image)'
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getSession } from "next-auth/react";
+import { useEffect,useState } from "react";
+import { useParams } from "next/navigation";
+
+
+
 
 const ProfilePhotoUpload = (props) => {
-  const ref = useRef(null)
   const Details = props.data
+  const params = useParams()
   console.log(Details)
   const [image, setImage] = useState(''||Details.ImgSrc);
   const [text,changetext] = useState("Preview 🗾")
   
+
+
+
+   // Function To Upload Image and Get ImgSrc 
+   const UploadImg = async(UploadableFile)=>{
+    const storageref = ref(storage,`photos/${UploadableFile.name}`)
+    
+    await uploadBytes(storageref,UploadableFile)
+    const url = await getDownloadURL(storageref)
+    return url 
+ }
+
   // For local file preview
  
-  const handleImageChange = (e) => {
-    document.getElementById("alertforimage").style.display = 'flex'
+  const handleImageChange = async(e) => {
     const file = e.target.files[0];
     if (file) {
+      // This Part Stores the image in the local storage
      const Reader = new FileReader()
      Reader.onload = () => setImage(Reader.result)
      Reader.readAsDataURL(file)
      setTimeout(()=>{
       document.getElementById("alertforimage").style.display = 'none'
      },8000)
+     
+     const url = await UploadImg(file) 
+     const Session = await getSession() 
+     const session = await Session
+     const id = session.user.id
+    
+     if (id == params.id)  {
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/ChangeProfileImage`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ImgSrc:url,id:params.id})
+       })
+       const Response = await Request.json()
+     }
+     
+
 
     }
   };
@@ -75,8 +111,8 @@ const Preview = () =>{
         />
         
       </div>
-      <h1 className = 'text-2xl mb-6'>Prashant Kumar</h1>
-      <button onClick={handlelclick}   className ='border border-black px-4 py-2 rounded-lg text-white bg-black transition duration-200 active:translate-y-1'>Upload</button>
+      <h1 className = 'text-2xl mb-6'>{Details.FullName}</h1>
+     {props.Authenticate && <button onClick={handlelclick} className="bg-black text-white px-4 py-2 rounded-lg">Upload</button>}
      <p id = "alertforimage" className = 'hidden items-center justify-center border px-2 py-2  mt-6 bg-green-400 rounded-lg  text-xs'>Please Check Your Email To Complete Change Procedure</p>
       
     </div>

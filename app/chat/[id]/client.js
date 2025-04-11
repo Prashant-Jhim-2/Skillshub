@@ -5,7 +5,7 @@ import { VscArrowCircleLeft } from "react-icons/vsc";
 import {useRef} from 'react'
 import {db} from '@/app/firebase'
 import {storage} from '@/app/firestore(image)'
-import { getDatabase, onDisconnect } from "firebase/database";
+import { CgProfile } from "react-icons/cg";
 import { BsFillSendFill } from "react-icons/bs";
 import Image from 'next/image'
 import {useState,useEffect,useMemo} from 'react'
@@ -306,7 +306,10 @@ const Page = ({Responsefromserver}) =>{
     
 
   }
-
+  // Function to go to profile of user 
+  const gotoprofile = () =>{
+  Router.push(`/profile/${Receiver.id}`)
+  }
   // Handle Change 
   const HandleChange = (event) =>{
     const id = event.target.id 
@@ -408,7 +411,7 @@ const Page = ({Responsefromserver}) =>{
          <VscArrowCircleLeft size = {30}/> Back
         </button>
         <h1 className = 'text-2xl  '>Skillshub📝</h1>
-          <button className = 'text-xl mt-3'>{Receiver.FullName}</button>
+          <button onClick = {gotoprofile} className = 'text-md active:rounded-lg flex  gap-2 items-center justify-center  active:bg-black active:text-white  px-3 py-2  mb-3  mt-3'><div className = 'relative w-12 h-12 '><Image className = 'rounded-full border shadow-lg   ' src = {Receiver.ImgSrc}  layout = 'fill' objectFit = 'contain'/></div>{Receiver.FullName}</button>
            <strong className = 'text-sm text-green-600'>{Online && <>🟢 Online</>} {!Online && <> 📵 Offline</>}</strong>
           
            <button onClick = {ScrollUp} id = 'NewChat' className = 'mt-3 border  hidden  text-sm px-3 py-2 rounded-lg shadow-lg text-red-600'>New Messages 💬</button>
