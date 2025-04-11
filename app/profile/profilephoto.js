@@ -2,7 +2,7 @@
 import Image from "next/image";
 
 import useStore from "./[id]/usestore";
-import {storage} from '@/app/firestore(image)'
+import {storage} from './firestore(image)'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { getSession } from "next-auth/react";
 import { useEffect,useState } from "react";

@@ -1,7 +1,7 @@
 'use client'
 import {useState,useEffect} from 'react'
 import { VscArrowCircleLeft } from "react-icons/vsc";
-import Footer from '@/app/footer'
+
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 const Page = ({data}) =>{
@@ -73,7 +73,7 @@ const Page = ({data}) =>{
                 <h2 className ='text-sm mt-12'>Click on User Button to start Chat 💬</h2>
                 {Users.map((data)=><button onClick={GoToChat} className = 'border text-sm w-80 border-black h-12 px-3 rounded  shadow-button mt-6' id = {data.id}>{data.FullName} 👨🏻‍💻</button>)}
             </div>
-            <Footer/>
+          
         </div>
     )
 }

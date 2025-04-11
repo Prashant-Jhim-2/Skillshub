@@ -1,7 +1,7 @@
 
 import Image from "next/image"
 import {useState,useEffect} from 'react'
-import { useArrStore } from "../store/useStore"
+import { useArrStore } from "./store/useStore"
 const Card = (props)=>{
     const {ChangeUsers} = useArrStore()
     const [DelRequst,ChangeDelRequest]  = useState('flex')

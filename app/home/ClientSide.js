@@ -5,7 +5,7 @@ import Head from 'next/head'
 import { LuMessagesSquare } from "react-icons/lu";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image'
-import Footer from '../footer'
+
 import { IoIosLogOut } from "react-icons/io";
 import { IoIosSearch } from "react-icons/io";
 import { MdOutlineAddBox } from "react-icons/md";
@@ -335,8 +335,7 @@ const page = ({carddata}) =>{
            
           <View/>
          
-           <Footer/>
-
+           
         </div>
     )
 }

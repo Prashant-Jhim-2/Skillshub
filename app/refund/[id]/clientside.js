@@ -4,7 +4,7 @@ import {useEffect,useState} from 'react'
 import { getSession } from 'next-auth/react';
 import {useRouter} from 'next/navigation'
 import Image from "next/image";
-import Footer from '@/app/footer'
+
 import { FilePenLine } from 'lucide-react';
 
 const Page = ({data}) =>{
@@ -238,7 +238,7 @@ const Page = ({data}) =>{
                 <button onClick={EditMode} className="text-rose-600 text-sm active:text-black">Cancel</button>
                </div>}
             </div>}
-            <Footer/>
+           
           </div>
     )
 }

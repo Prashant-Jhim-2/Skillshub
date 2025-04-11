@@ -4,7 +4,7 @@ import { useEffect ,useState} from 'react';
 import {  useParams, useRouter } from 'next/navigation';
 import { CiImageOn } from "react-icons/ci";
 import { FaRegEdit } from "react-icons/fa";
-import Footer from "@/app/footer"
+
 import { getSession } from 'next-auth/react';
 import { LuTableOfContents } from "react-icons/lu";
 import { initializeApp } from 'firebase/app';
@@ -463,7 +463,7 @@ const Page = ({DataofCard}) =>{
   return (
     <>
     <View/>
-    <Footer/>
+   
     </>
   )
     

@@ -1,19 +1,8 @@
 'use client'
-import {db} from '@/app/firebase'
-import { VscArrowCircleLeft } from "react-icons/vsc";
 
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { useEffect,useState } from 'react';
-import { getSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 // Component to Tell Database whether user is online or not by last seen
 const Page = (props) =>{
-  var unsubscribe
-  var timeout 
-  console.log(props)
-    const [Online,changestatus] = useState(false)
-  const session =  getSession()
-  const Router = useRouter()
+
     
 
    

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import {useState,useEffect} from 'react'
 import { RiRefund2Fill } from "react-icons/ri";
-import Footer from '../footer';
+
 import html2pdf from 'html2pdf.js';
 import {useRef} from 'react'
 
@@ -84,7 +84,7 @@ const Page = ()=>{
             </div>}
            
         </div>
-        <Footer/>
+        
         </div>
     )
 }

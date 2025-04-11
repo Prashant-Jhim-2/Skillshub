@@ -9,8 +9,8 @@ import { RiProfileLine } from "react-icons/ri";
 import { Bs0Square } from "react-icons/bs";
 import Componet from '../profilephoto'
 import { IoBookOutline } from "react-icons/io5";
-import {db} from '@/app/firebase'
-import Footer from './footer'
+import {db} from './firebase'
+
 import Image from "next/image";
 const bcryptjs = require("bcryptjs")
 
@@ -207,7 +207,7 @@ const View = () =>{
           <View/>
         </div>
        
-        <Footer/>
+       
     </div>)
 }
 export default page

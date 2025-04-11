@@ -1,7 +1,7 @@
 'use client'
 import Image from "next/image"
 import { CiEdit } from "react-icons/ci";
-import Footer from "@/app/footer"
+
 import {useState,useEffect} from 'react'
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import { getSession } from "next-auth/react";
@@ -353,7 +353,7 @@ const Page = ({details}) =>{
                 <button className = 'border border-black px-4 py-1 rounded '>Courses</button>
             </div>
             <View/>
-            <Footer/>
+           
         </div>
     )
 }

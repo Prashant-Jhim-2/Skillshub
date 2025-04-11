@@ -3,15 +3,15 @@ import { getSession } from 'next-auth/react'
 import { useParams, useRouter } from 'next/navigation'
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import {useRef} from 'react'
-import {db} from '@/app/firebase'
-import {storage} from '@/app/firestore(image)'
+import {db} from './firebase'
+import {storage} from './firestore(image)'
 import { CgProfile } from "react-icons/cg";
 import { BsFillSendFill } from "react-icons/bs";
 import Image from 'next/image'
 import {useState,useEffect,useMemo} from 'react'
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import Footer from "@/app/footer"
+
 const Page = ({Responsefromserver}) =>{
   const params = useParams()
   const timeoutRef = useRef(null)

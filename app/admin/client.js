@@ -2,8 +2,8 @@
 import UserCard from './user'
 import RefundCard from './refunds'
 import {useEffect,useState} from 'react'
-import Footer from "@/app/footer"
-import { useArrStore,useRefundStore } from '@/app/store/useStore'
+
+import { useArrStore,useRefundStore } from './store/useStore'
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import { CiFilter } from "react-icons/ci";
 import { CiSearch } from "react-icons/ci";
@@ -151,7 +151,7 @@ const Page = ({data})=>{
                 </div>}
                 
         </div>
-        <Footer/>
+        
         </div>
     )
 }
