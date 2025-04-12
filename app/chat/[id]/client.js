@@ -428,7 +428,7 @@ const Page = ({Responsefromserver}) =>{
          
 
        
-        <div className = 'fixed z-20 bg-white shadow-lg w-80  bottom-3 p-3 flex flex-col gap-3 border rounded items-center justify-center'>
+        <div className = 'fixed z-20 bg-white shadow-lg w-80  bottom-24 p-3 flex flex-col gap-3 border rounded items-center justify-center'>
           <div className = 'flex items-center justify-center'>
           <textarea onChange = {Typing} id = "Chat" className = 'items-center border-b border-b-black w-64  h-auto p-3 outline-none justify-center flex' placeholder = 'Text Anything' type = 'text' />
           </div>
