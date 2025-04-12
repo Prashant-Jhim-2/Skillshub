@@ -5,7 +5,7 @@ import { VscArrowCircleLeft } from "react-icons/vsc";
 import {useState,useEffect} from 'react'
 import { RiRefund2Fill } from "react-icons/ri";
 
-import html2pdf from 'html2pdf.js';
+
 import {useRef} from 'react'
 
 import { BsReceipt } from "react-icons/bs";
