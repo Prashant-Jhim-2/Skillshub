@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { BookPlus } from 'lucide-react';
 
 const Card = ({ data }) => {
     const Router = useRouter()
@@ -57,10 +58,10 @@ const Card = ({ data }) => {
                         </div>
                     </div>
                     <button 
-                        className="mt-4 flex gap-2 border active:border-black active:bg-white items-center justify-center px-4 py-2 active:text-black bg-black text-white rounded  active:scale-95 transition-transform"
+                        className="mt-4 flex gap-2 border active:border-black active:bg-white items-center justify-center px-3 py-2 active:text-black text-xs bg-black text-white rounded  active:scale-95 transition-transform"
                         onClick={handleEnroll}
                     >
-                        Enroll <Image src = "/Enroll.png" width={20} height={20} />
+                      Enroll   <BookPlus />
                     </button>
                 </div>
             </div>
