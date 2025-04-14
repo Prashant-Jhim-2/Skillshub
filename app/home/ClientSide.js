@@ -260,7 +260,10 @@ const page = ({carddata}) =>{
           {Cards.map((data) => {
             if (data != undefined){
               const condition = Enrolled.includes(data.id);
+             
               const verify = Details.id == data.ProfessorId
+              console.log(`Name : ${data.Name}`)
+              console.log(`Already Enrolled ${condition} and Verify ${verify}`)
               console.log(verify)
               
             return (
