@@ -2,8 +2,14 @@ import React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { BookPlus } from 'lucide-react';
+import { Navigation } from 'lucide-react';
+import { FilePenLine } from 'lucide-react';
 
-const Card = ({ data }) => {
+const Card = ({ data,enrolled,Verify}) => {
+   
+  
+     const Enrolled = enrolled
+     console.log(`${data.Name}     ${Verify}`)
     const Router = useRouter()
     const {
         id,
@@ -23,9 +29,13 @@ const Card = ({ data }) => {
     const handleEnroll = () => {
        Router.push(`/courses/${id}`);
     };
+    const handlegotocourse = () =>{
+        Router.push(`/Course/${id}`);
+    }
+
 
     return (
-        <div className="w-80 mb-6  rounded overflow-hidden shadow-lg bg-white">
+        <div className="w-80 mb-6  relative rounded overflow-hidden shadow-lg bg-white">
             <div className="relative w-full h-48">
                 <Image className="object-cover" src={ImgSrc} alt={Name} layout="fill" />
             </div>
@@ -57,12 +67,15 @@ const Card = ({ data }) => {
                             ))}
                         </div>
                     </div>
-                    <button 
-                        className="mt-4 flex gap-2 border active:border-black active:bg-white items-center justify-center px-3 py-2 active:text-black text-xs bg-black text-white rounded  active:scale-95 transition-transform"
+                    {!Enrolled && !Verify && <button 
+                        className="mt-4 flex gap-1 border active:border-black active:bg-white items-center justify-center px-3 py-2 active:text-black text-sm bg-rose-600 hover:bg-rose-700 text-white rounded  active:scale-95 transition-transform"
                         onClick={handleEnroll}
                     >
-                      Enroll   <BookPlus />
-                    </button>
+                      Enroll   <BookPlus className = 'w-4'/>
+                    </button>}
+                   {Enrolled &&  <label className='text-white  top-0 right-0 w-full flex items-center justify-center absolute bg-rose-600  p-3 text-sm'>Already Enrolled</label>}
+                   {Enrolled && !Verify && <button onClick = {handlegotocourse} className='text-white mt-4 bg-black flex items-center justify-center gap-1 active:bg-white active:text-black px-3 py-2 text-xs rounded'><Navigation className='w-4' /> Go To Course </button>}
+                  {Verify &&  <button className='text-black mt-4 bg-white gap-1 text-sm border border-black flex active:bg-black active:text-white items-center justify-center px-3 py-2 rounded shadow-lg' onClick={handleEnroll}>Edit <FilePenLine className='w-4' /></button>}
                 </div>
             </div>
         </div>

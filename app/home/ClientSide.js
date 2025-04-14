@@ -34,16 +34,33 @@ const page = ({carddata}) =>{
 
     
      
-  
+  // Function To Get Enrolled Courses 
+  const GetEnrolled = async() =>{
+    const data = await session
+    const id = data.user.id
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/GetEnrolled/${id}`)
+    const Response = await Request.json()
+    console.log(Response)
+    if (Response.status == true){
+       const filtered =   Response.data.map((data)=> data.CourseID)
+       ChangeEnrolled(filtered)
+      }
+    if (Response.status == false){
+      ChangeEnrolled([])
+    }
+  }
+
     const CheckAuth = async() =>{
         const data = await session
-        
+        console.log(data)
         if (data == undefined){
           Router.push('/')
         }
         if (data != undefined){
             
             const dataofcards = carddata
+            GetEnrolled()
+            console.log(dataofcards)
             document.getElementById("Courses").style.backgroundColor = 'black'
             document.getElementById("Courses").style.color = 'white'
             document.getElementById("Enrolled").style.backgroundColor = 'white'
@@ -56,6 +73,7 @@ const page = ({carddata}) =>{
            const Response = await Request.json()
            console.log(Response.Details)
            if (Response.status == true){
+           
             const Type = Response.Details.Type 
             console.log(Type)
             if (Type == "Customer"){
@@ -66,6 +84,7 @@ const page = ({carddata}) =>{
 
             }
             ChangeDetails(Response.Details)
+            
            }
            if (Response.status == false){
             Router.push('/')
@@ -76,29 +95,17 @@ const page = ({carddata}) =>{
     
     console.log(Cards)
     useEffect(()=>{
+      console.log('i m working in useeffect')
         CheckAuth()
     },[])
 
    
 
-   // Function To Get Enrolled Courses 
-   const GetEnrolled = async() =>{
-    const data = await session
-    const id = data.user.id
-    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/GetEnrolled/${id}`)
-    const Response = await Request.json()
-    console.log(Response)
-    if (Response.status == true){
-       const filtered =   Response.data.map((data)=> data.CourseID)
-       ChangeEnrolled(filtered)
-      }
-    if (Response.status == false){
-        ChangeEmpty(true)
-        ChangeCards([])
-    }
+   
+
     
       
-   }
+   
    // Function To Change Cards Arr ( Enrolled or Courses)
    const ChangeCardsArr = (event) =>{
     const id = event.target.id 
@@ -107,7 +114,12 @@ const page = ({carddata}) =>{
         document.getElementById("Enrolled").style.color = 'white'
         document.getElementById("Courses").style.backgroundColor = 'white'
         document.getElementById("Courses").style.color = 'black'
-        GetEnrolled()
+        const EnrolledCards = Cards.map((data)=>{
+          if (Enrolled.includes(data.id)){
+            return data
+          }
+        })
+       ChangeCards(EnrolledCards)
 
     }
     if (id == "Courses"){
@@ -245,9 +257,17 @@ const page = ({carddata}) =>{
         </div>
 
         <div className='flex flex-wrap gap-6 justify-center'>
-          {Cards.map((data) => (
-            <Card key={data.Name} data={data} />
-          ))}
+          {Cards.map((data) => {
+            if (data != undefined){
+              const condition = Enrolled.includes(data.id);
+              const verify = Details.id == data.ProfessorId
+              console.log(verify)
+              
+            return (
+            <Card Verify = {verify} enrolled = {condition}  data={data} />
+            )
+            }
+          })}
         </div>
       </div>
     );
