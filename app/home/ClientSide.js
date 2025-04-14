@@ -255,6 +255,7 @@ const page = ({carddata}) =>{
           />
         </div>
 
+        {Cards.length > 0 && Enrolled.length >= 0 && Details?.id && 
         <div className='flex flex-wrap gap-6 justify-center'>
           {Cards.map((data) => {
             if (data != undefined){
@@ -271,6 +272,7 @@ const page = ({carddata}) =>{
             }
           })}
         </div>
+}
       </div>
     );
 }
