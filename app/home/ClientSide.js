@@ -35,9 +35,8 @@ const page = ({carddata}) =>{
     
      
   // Function To Get Enrolled Courses 
-  const GetEnrolled = async() =>{
-    const data = await session
-    const id = data.user.id
+  const GetEnrolled = async(id) =>{
+   
     const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/GetEnrolled/${id}`)
     const Response = await Request.json()
     console.log(Response)
@@ -59,7 +58,7 @@ const page = ({carddata}) =>{
         if (data != undefined){
             
             const dataofcards = carddata
-            GetEnrolled()
+            GetEnrolled(data.user.id)
             console.log(dataofcards)
             document.getElementById("Courses").style.backgroundColor = 'black'
             document.getElementById("Courses").style.color = 'white'
