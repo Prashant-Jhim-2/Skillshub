@@ -89,4 +89,3 @@ import GoogleProvider from "next-auth/providers/google";
 });
 
 export { handler as GET, handler as POST };
-export const config = { runtime: "edge" };

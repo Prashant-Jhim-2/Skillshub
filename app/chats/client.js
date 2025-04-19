@@ -187,6 +187,17 @@ const Page = ({data}) =>{
                             NewDetails.LastSeen = formattedDateTime
                             ChangeCardDetails(NewDetails)
                         }
+                        else {
+                            const seconds = data.User1LastSeen
+                            const nowseconds = Math.floor(Date.now()/1000)
+                            const diff = nowseconds - seconds
+                            if (diff > 10){
+                                if (Online == true){
+                                    ChangeStatus(false)
+                                }
+                            }
+                        }
+
                     }
                     if (data.User2 != userid){
                         if (data.User2LastSeen != CardDetails.LastSeen){
@@ -214,6 +225,16 @@ const Page = ({data}) =>{
                             NewDetails.LastSeen = formattedDateTime
                             ChangeCardDetails(NewDetails)
                             
+                        }
+                        else {
+                            const seconds = data.User2LastSeen
+                            const nowseconds = Math.floor(Date.now()/1000)
+                            const diff = nowseconds - seconds
+                            if (diff > 10){
+                                if (Online == true){
+                                    ChangeStatus(false)
+                                }
+                            }
                         }
                     }
                 }
