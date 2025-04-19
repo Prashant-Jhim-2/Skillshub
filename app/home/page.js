@@ -1,6 +1,5 @@
 import Clientside from './ClientSide'
 import { getServerSession } from 'next-auth';
-import {authoptions} from '../api/auth/[...nextauth]/route'
 
 
 export default async function Home() {
