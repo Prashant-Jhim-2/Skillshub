@@ -167,6 +167,7 @@ const Page = ({data}) =>{
                 src={CardDetails.ImgSrc}
                 width={100}
                 height={100}
+                priority
                 alt={`${CardDetails.FullName}'s profile picture`}
             />
             <div className='flex flex-col '>
@@ -219,7 +220,8 @@ const Page = ({data}) =>{
         return (
             <div  onClick={GoToChat} className = "flex gap-2 active:shadow-button active:rounded-lg active:border-2 active:border-black active:translate-y-2 mt-6 w-80 p-4  border shadow-lg items-center justify-start">
                <div className='relative border shadow-lg border-gray-300 overflow-none p-6 w-12 h-12 rounded-[100px] '>
-               <Image alt="ProfilePhoto" className='rounded-[100px]' objectFit='contain'  layout = 'fill' src = {data.ImgSrc} />
+               <Image alt="ProfilePhoto" className='rounded-[100px]' objectFit='contain'  priority
+                 layout = 'fill' src = {data.ImgSrc} />
 
                </div>
                 <div>
