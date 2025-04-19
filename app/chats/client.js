@@ -49,62 +49,27 @@ const Page = ({data}) =>{
 
     }
 
-    
+    const GetExistingChat = async() =>{
+        const session = await Session 
+        const id = session.user.id
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/Chats/${id}`)
+        const Response = await Request.json()
+        if (Response.status == true){
+            ChangeChats(Response.data)
+        }
+        
+    }
     useEffect(()=>{
     var unsubscribe = ()=>{}
     
     CheckAuth()
-    const Call = async() =>{
-        var docs = []
-        const session = await Session 
-        const user = session.user.id 
-        unsubscribe = onSnapshot(collection(db,'chats'),(snapshot)=>{
-           docs = snapshot.docs.map((doc)=>{
-                const details = {id:doc.id,...doc.data()}
+    GetExistingChat()
+    
+                        
                
-                const user1 = details.User1 
-                const user2 = details.User2 
-
-                if (user1 === user || user2 === user) {
-                    if (user1 != user){
-                        const newdetails = {
-                            User1 : details.User1,
-                            User2 : details.User2,
-                            User1LastSeen : details.User1LastSeen
-                        }
-                        return newdetails
-                    }
-                    if (user2 != user){
-                        const newdetails = {
-                            User1 : details.User1,
-                            User2 : details.User2,
-                            User2LastSeen : details.User2LastSeen
-                        }
-                        return newdetails
-                    }
-                  }
 
           
-                  return null;
-                
-            }
-            
-                
-            ).filter(Boolean)
-            const prev = Chats 
-            const issame = JSON.stringify(prev) === JSON.stringify(docs)
-            if (issame != true){
-                ChangeChats(docs)
-            }
-        })
-      
        
-        
-
-
-    }
-    Call()
-    return ()=>unsubscribe()
      
 
 
@@ -112,7 +77,9 @@ const Page = ({data}) =>{
 
     const ChatComponet = (props) =>{
         const [CardDetails,ChangeCardDetails] = useState({ImgSrc:"",FullName:"",LastSeen:"",id:""})
+        const [Online,ChangeStatus] = useState(false)
         const data = props.data
+        console.log(data)
         const FetchData = async() =>{
             var details  = {}
             if (Details != undefined){
@@ -123,29 +90,57 @@ const Page = ({data}) =>{
                 if (data.User1 != id){
                     const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${data.User1}`)
                     const Response = await Request.json() 
-                    
+                    const seconds = data.User1LastSeen
+
+                            // Convert to Date object
+                        const date = new Date(seconds * 1000);
+
+
+                            const formattedDateTime = date.toLocaleString('en-US', {
+                             month: 'short',   // e.g., Apr
+                             day: 'numeric',   // e.g., 19
+                             hour: '2-digit',
+                             minute: '2-digit',
+                             hour12: true,
+                            });
+                          const  LastSeen = formattedDateTime
                     if (Response.status == true){
                         details.ImgSrc = Response.Details.ImgSrc 
                         details.FullName = Response.Details.FullName 
                         details.id == data.User1
-                        details.LastSeen = data.User1LastSeen
+                        details.LastSeen = LastSeen
                     }
                     
                 }
                 if (data.User2 != id){
                     const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${data.User2}`)
                     const Response = await Request.json() 
-                   
+                    const seconds = data.User2LastSeen
+
+                            // Convert to Date object
+                        const date = new Date(seconds * 1000);
+
+
+                            const formattedDateTime = date.toLocaleString('en-US', {
+                             month: 'short',   // e.g., Apr
+                             day: 'numeric',   // e.g., 19
+                             hour: '2-digit',
+                             minute: '2-digit',
+                             hour12: true,
+                            });
+                          const  LastSeen = formattedDateTime
+                           
                     if (Response.status == true){
                         details.ImgSrc = Response.Details.ImgSrc 
                         details.FullName = Response.Details.FullName 
                         details.id == data.User2
-                        details.LastSeen = data.User2LastSeen
+                        details.LastSeen = LastSeen
                     }
                     
                 }
                 console.log(details)
                 ChangeCardDetails(details)
+                return details
             }
         }
 
@@ -154,26 +149,93 @@ const Page = ({data}) =>{
             Router.push('/chat/'+data.id)
         }
 
+
         useEffect(()=>{
-        FetchData()
+        var unsubscribe 
+      
+        const Call = async() =>{
+            const userid = Details.id 
+            
+            unsubscribe = onSnapshot(doc(db,'chats',data.id),async(snapshot)=>{
+                if (snapshot.exists()){
+                    const data = snapshot.data() 
+                    const CardDetails = await FetchData()
+                    if (data.User1 != userid){
+                        if (data.User1LastSeen != CardDetails.LastSeen){
+                            var NewDetails = CardDetails
+                            const seconds = data.User1LastSeen
+                            const nowseconds = Math.floor(Date.now()/1000)
+                            const diff = nowseconds - seconds
+                            if (diff <= 10 ){
+                                ChangeStatus(true)
+                            }
+                            if (diff > 10){
+                                ChangeStatus(false)
+                            }
+
+                            // Convert to Date object
+                            const date = new Date(seconds * 1000);
+
+
+                            const formattedDateTime = date.toLocaleString('en-US', {
+                             month: 'short',   // e.g., Apr
+                             day: 'numeric',   // e.g., 19
+                             hour: '2-digit',
+                             minute: '2-digit',
+                             hour12: true,
+                            });
+                            NewDetails.LastSeen = formattedDateTime
+                            ChangeCardDetails(NewDetails)
+                        }
+                    }
+                    if (data.User2 != userid){
+                        if (data.User2LastSeen != CardDetails.LastSeen){
+                            var NewDetails = CardDetails
+                            const seconds = data.User2LastSeen
+                            const nowseconds = Math.floor(Date.now()/1000)
+                            const diff = nowseconds - seconds
+                            if (diff <= 10 ){
+                                ChangeStatus(true)
+                            }
+                            if (diff > 10){
+                                ChangeStatus(false)
+                            }
+                            // Convert to Date object
+                            const date = new Date(seconds * 1000);
+
+
+                            const formattedDateTime = date.toLocaleString('en-US', {
+                             month: 'short',   // e.g., Apr
+                             day: 'numeric',   // e.g., 19
+                             hour: '2-digit',
+                             minute: '2-digit',
+                             hour12: true,
+                            });
+                            NewDetails.LastSeen = formattedDateTime
+                            ChangeCardDetails(NewDetails)
+                            
+                        }
+                    }
+                }
+            })
+        }
+        Call()
+        
+
+        return () => unsubscribe()
+
         },[])
         return (
             <div
                             
-            className="flex   border w-80 gap-2 bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow"
+            className="flex   border w-80 gap-2 bg-white justufy-center items-center shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow"
         >
-            <Image
-                className="object-cover"
-                src={CardDetails.ImgSrc}
-                width={100}
-                height={100}
-                priority
-                alt={`${CardDetails.FullName}'s profile picture`}
-            />
-            <div className='flex flex-col '>
+           
+            <div className='flex flex-col  gap-2 items-center justify-center w-full'>
+            <label className='text-2xl rounded-[120px] border shadow-lg w-12 items-center justify-center flex h-12 '>👤</label>
             <h1 className="text-lg font-semibold mt-4">{CardDetails.FullName}</h1>
-            <p className="text-xs  text-gray-500">Last Seen : <strong>{CardDetails.LastSeen}</strong> --------</p>
-            <p className=' text-green-600 font-bold'>Online</p>
+           {Online == false &&  <p className="text-xs  text-gray-500">Last Seen : <strong>{CardDetails.LastSeen}</strong> </p>}
+           {Online == true &&  <p className=' text-green-600 font-bold'>Online</p>}
             <button className='w-24 flex  items-center justify-center gap-1 active:bg-white shadow-lg active:border-black active:text-black text-xs h-12 border bg-black text-white rounded mt-3' onClick = {GoToChat}>Open Chat <DoorOpen  className='w-4'/></button>
             </div>
         </div>
@@ -218,14 +280,11 @@ const Page = ({data}) =>{
         }
     }
         return (
-            <div  onClick={GoToChat} className = "flex gap-2 active:shadow-button active:rounded-lg active:border-2 active:border-black active:translate-y-2 mt-6 w-80 p-4  border shadow-lg items-center justify-start">
-               <div className='relative border shadow-lg border-gray-300 overflow-none p-6 w-12 h-12 rounded-[100px] '>
-               <Image alt="ProfilePhoto" className='rounded-[100px]' objectFit='contain'  priority
-                 layout = 'fill' src = {data.ImgSrc} />
-
-               </div>
-                <div>
-                    <h1 className='font-bold text-md'>{data.FullName}</h1>
+            <div  onClick={GoToChat} className = "flex gap-2 active:shadow-button active:rounded-lg active:border-2 active:border-black active:translate-y-2 mt-6 w-80 p-4  border shadow-lg items-center justify-center">
+               
+                <div className='w-full gap-2 flex flex-col items-center justify-center' >
+                    <label className='text-2xl rounded-[120px] border shadow-lg w-12 items-center justify-center flex h-12 '>👤</label>
+                    <h1 className='font-bold text-md'>{data.FullName} </h1>
                    
                 </div>
             </div>

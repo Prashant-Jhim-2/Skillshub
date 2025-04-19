@@ -1,0 +1,8 @@
+{
+    "functions": {
+      "api/auth/[...nextauth].ts": {
+        "maxDuration": 30
+      }
+    }
+  }
+  
