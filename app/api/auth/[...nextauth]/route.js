@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.NEXT_PUBLIC_CLIENTID,
@@ -37,6 +37,10 @@ const handler = NextAuth({
       },
     }),
   ],
+  session : {
+    strategy: "jwt",    
+  },
+  
   secret: process.env.NEXTAUTH_SECRET, // Use a secure secret
   callbacks: {
     
@@ -82,7 +86,8 @@ const handler = NextAuth({
       return session;
     },
   },
-});
+}
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST }
 export const config = { runtime: "edge" };
