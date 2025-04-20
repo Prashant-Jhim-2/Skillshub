@@ -7,7 +7,7 @@ import { FilePenLine, User } from 'lucide-react';
 import { DoorOpen } from 'lucide-react';
 import { Search } from 'lucide-react';
 
-import { collection, doc, getDocs, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 const Page = ({data}) =>{
@@ -75,22 +75,29 @@ const Page = ({data}) =>{
 
     },[])
 
+    
     const ChatComponet = (props) =>{
         const [CardDetails,ChangeCardDetails] = useState({ImgSrc:"",FullName:"",LastSeen:"",id:""})
+        const[LastSeenSec,ChangeLastSeenSec] = useState(0)
         const [Online,ChangeStatus] = useState(false)
         const data = props.data
-        console.log(data)
+        console.log(LastSeenSec)
+
+       
+    
         const FetchData = async() =>{
             var details  = {}
             if (Details != undefined){
               
                 var id = Details.id 
-                console.log(data)
+                
                 
                 if (data.User1 != id){
                     const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${data.User1}`)
                     const Response = await Request.json() 
                     const seconds = data.User1LastSeen
+                   
+                    ChangeLastSeenSec(seconds)
 
                             // Convert to Date object
                         const date = new Date(seconds * 1000);
@@ -104,6 +111,13 @@ const Page = ({data}) =>{
                              hour12: true,
                             });
                           const  LastSeen = formattedDateTime
+                          const nowseconds = Math.floor(Date.now()/1000)
+                            const diff = nowseconds - seconds
+                            if (diff > 10){
+                                if (Online == true){
+                                    ChangeStatus(false)
+                                }
+                            }
                     if (Response.status == true){
                         details.ImgSrc = Response.Details.ImgSrc 
                         details.FullName = Response.Details.FullName 
@@ -116,6 +130,8 @@ const Page = ({data}) =>{
                     const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${data.User2}`)
                     const Response = await Request.json() 
                     const seconds = data.User2LastSeen
+                   
+                    ChangeLastSeenSec(seconds)
 
                             // Convert to Date object
                         const date = new Date(seconds * 1000);
@@ -129,6 +145,15 @@ const Page = ({data}) =>{
                              hour12: true,
                             });
                           const  LastSeen = formattedDateTime
+
+                         
+                            const nowseconds = Math.floor(Date.now()/1000)
+                            const diff = nowseconds - seconds
+                            if (diff > 10){
+                                if (Online == true){
+                                    ChangeStatus(false)
+                                }
+                            }
                            
                     if (Response.status == true){
                         details.ImgSrc = Response.Details.ImgSrc 
@@ -148,22 +173,49 @@ const Page = ({data}) =>{
         const GoToChat = () =>{
             Router.push('/chat/'+data.id)
         }
-
+       
 
         useEffect(()=>{
+        var userid = Details.id
+        var interval = setInterval(async()=>{
+            const docref = doc(db,'chats',data.id)
+            const docget = await getDoc(docref)
+            if (docget.exists){
+                const data = docget.data() 
+                if (data.User1 != userid){
+                    var nowseconds = Math.floor(Date.now()/1000)
+                    var beforeseconds = data.User1LastSeen 
+                    var diff = nowseconds - beforeseconds 
+                    if (diff > 10){
+                        ChangeStatus(false)
+                    }
+                }
+                if (data.User2 != userid){
+                    var nowseconds = Math.floor(Date.now()/1000)
+                    var beforeseconds = data.User2LastSeen 
+                    var diff = nowseconds - beforeseconds 
+                    if (diff > 10){
+                        ChangeStatus(false)
+                    }
+                }
+            }
+        },5000)
         var unsubscribe 
+     
       
         const Call = async() =>{
-            const userid = Details.id 
+            
             
             unsubscribe = onSnapshot(doc(db,'chats',data.id),async(snapshot)=>{
                 if (snapshot.exists()){
+                    
                     const data = snapshot.data() 
                     const CardDetails = await FetchData()
                     if (data.User1 != userid){
                         if (data.User1LastSeen != CardDetails.LastSeen){
                             var NewDetails = CardDetails
                             const seconds = data.User1LastSeen
+                            ChangeLastSeenSec(seconds)
                             const nowseconds = Math.floor(Date.now()/1000)
                             const diff = nowseconds - seconds
                             if (diff <= 10 ){
@@ -189,6 +241,7 @@ const Page = ({data}) =>{
                         }
                         else {
                             const seconds = data.User1LastSeen
+                            ChangeLastSeenSec(seconds)
                             const nowseconds = Math.floor(Date.now()/1000)
                             const diff = nowseconds - seconds
                             if (diff > 10){
@@ -243,7 +296,10 @@ const Page = ({data}) =>{
         Call()
         
 
-        return () => unsubscribe()
+        return () => {
+            unsubscribe()
+            clearInterval(interval)
+        }
 
         },[])
         return (
