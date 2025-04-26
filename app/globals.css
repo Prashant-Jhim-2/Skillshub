@@ -3,3 +3,19 @@
 @tailwind utilities;
 @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Bebas+Neue&display=swap');
 
+@keyframes moveDownFade {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  100% {
+    top: 70px;
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .animate-moveDownFade {
+    animation: moveDownFade 2s ease-in-out forwards;
+  }
+}

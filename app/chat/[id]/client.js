@@ -9,7 +9,7 @@ import { CgProfile } from "react-icons/cg";
 import { BsFillSendFill } from "react-icons/bs";
 import Image from 'next/image'
 import {useState,useEffect,useMemo} from 'react'
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc,serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const Page = ({Responsefromserver}) =>{
@@ -256,6 +256,46 @@ const Page = ({Responsefromserver}) =>{
     }
     return id;
   }
+  const dateinformat = (date)=> {
+    const day = date.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11 ? 'st' :
+      day % 10 === 2 && day !== 12 ? 'nd' :
+      day % 10 === 3 && day !== 13 ? 'rd' : 'th';
+  
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+  
+    const hours = date.getHours();
+    const isPM = hours >= 12;
+    const formattedHour = hours % 12 || 12;
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const ampm = isPM ? 'pm' : 'am';
+  
+    return `${day}${suffix} ${months[date.getMonth()]} ${date.getFullYear()} ${formattedHour}:${minutes}${ampm}`;
+  }
+  
+  // Function to Send Alert of New Message 
+  const SendAlert = async (User,By,ChatID,Message) => {
+    const timestamp = dateinformat(new Date())
+    const Details = {
+      By,
+      Page:`/chat/${ChatID}`,
+      User,
+      Type:"Chat",
+      Message,
+      time:timestamp
+    }
+
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SendAlert`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(Details)
+    })
+    const Response = await Request.json()
+  }
   // Send Chat 
   const Send = async() =>{
     const date = new Date()
@@ -292,6 +332,7 @@ const Page = ({Responsefromserver}) =>{
       })
       const Response = await Request.json()
       if (Response.status == true){
+        SendAlert(Receiver.id,Details.id,params.id,value)
         ChangeChats(newarr)
       }
       

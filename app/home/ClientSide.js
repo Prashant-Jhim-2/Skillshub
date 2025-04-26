@@ -6,7 +6,9 @@ import { LuMessagesSquare } from "react-icons/lu";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image'
 import { Search } from 'lucide-react';
-
+import { collection, onSnapshot, orderBy, query, where} from "firebase/firestore";
+import {db} from './firebase'
+import { BiMessage } from "react-icons/bi";
 import { IoIosLogOut } from "react-icons/io";
 import { IoIosSearch } from "react-icons/io";
 import { MdOutlineAddBox } from "react-icons/md";
@@ -17,10 +19,12 @@ import { useEffect } from "react"
 import { FaChalkboardTeacher } from "react-icons/fa";
 import { MdOutlinePayments } from "react-icons/md";
 import Card from './Card'
+import Link from 'next/link';
+import { GoAlert } from "react-icons/go";
 
 const page = ({carddata}) =>{
     const Router = useRouter()
-    
+    const [AlertDisplay,ChangeAlertDisplay] = useState('hidden')
     const [isOpentxt,ChangeisOpentxt] = useState("Menu")
     const [Enrolled,ChangeEnrolled] = useState([])
     const [QueryinCard,ChangeQueryinCard] = useState('')
@@ -94,8 +98,45 @@ const page = ({carddata}) =>{
     
     console.log(Cards)
     useEffect(()=>{
-      console.log('i m working in useeffect')
+
+      console.log('i m useeffect')
+     
         CheckAuth()
+        var unsubscribe = ()=>{}
+     const call = async() =>{
+        var FirstCheck = false
+        const Session = await session 
+        const user = Session.user.id 
+        console.log(user)
+        const q = query(collection(db,'alerts'),where("User","==",user))
+        unsubscribe = onSnapshot(q,(snapshot)=>{
+            const newarr = snapshot.docs.map(doc=>({
+                id:doc.id,
+                ...doc.data()
+            }))
+
+            
+             if (FirstCheck == false){
+              ChangeAlertDisplay("hidden")
+              FirstCheck = true
+             }
+             else {
+              ChangeAlertDisplay("flex fixed")
+              setTimeout(()=>{
+                ChangeAlertDisplay("hidden")
+              },5000)
+             }
+              
+            
+           
+          
+           
+        })
+     }
+     call()
+
+     
+     return () => unsubscribe()
     },[])
 
    
@@ -169,6 +210,9 @@ const page = ({carddata}) =>{
     const GoToChat = () =>{
       Router.push('/chats')
     }
+    const GoToalert = () =>{
+      Router.push('/alerts')
+    }
 
     const GoToBecProfessor = ()=>{
       Router.push("/BecomeProfessor")
@@ -179,7 +223,10 @@ const page = ({carddata}) =>{
     return (
       <div className="flex relative flex-col items-center">
         <title>SkillsHub📝</title>
-        <div className="fixed z-20 shadow-sm bg-white p-4 flex w-full">
+        <div className={`${AlertDisplay} items-center justify-center top-0 z-10 left-0 animate-moveDownFade text-white h-12 bg-red-500 w-full `}>
+          <nav><Link href='/alerts'><button className='flex gap-2 items-center justify-center'>New Messages <BiMessage  size = {15}/></button></Link></nav>
+        </div>
+        <div id = "AlertNotify" className="fixed z-20 shadow-sm bg-white p-4 flex w-full">
           <h1 className="text-2xl">SkillsHub📝</h1>
           <button onClick={OpenOrClose} className="fixed flex gap-3 z-12 top-2 p-3 text-lg right-2">{MenuBtn}</button>
         </div>
@@ -206,6 +253,9 @@ const page = ({carddata}) =>{
               <li id="Messages" onClick={GoToChat} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2 py-3 hover:text-blue-300">
                 <LuMessagesSquare size={30} /> Messages
               </li>
+              <li onClick={GoToalert} className="mb-4 bg-white cursor-pointer text-center flex hover:text-red-600 gap-2">
+                <GoAlert  size={30} /> Alerts
+              </li>
               <li onClick={Logout} className="mb-4 flex text-rose-600 cursor-pointer gap-2 text-center py-3">
                 <IoIosLogOut size={30} /> Logout
               </li>
@@ -223,7 +273,7 @@ const page = ({carddata}) =>{
           )}
         </div>
 
-        <h2 className="mt-32 text-3xl">
+        <h2 className="mt-36 text-3xl">
           Hi <strong>{Details.FullName} 👋🏻</strong>
         </h2>
        
