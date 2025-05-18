@@ -13,6 +13,10 @@ module.exports = {
           '50%': { transform: 'translateX(0%)' },
           '100%': { transform: 'translateX(100%)' },
         },
+        glow: {
+          '0%, 100%': { boxShadow: '0 0 0px #00ff00' },
+          '50%': { boxShadow: '0 0 10px 2px #00ff00' },
+        },
         jump: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-5px)' },
@@ -24,6 +28,7 @@ module.exports = {
       },
       animation: {
         jump: 'jump 0.5s ease-in-out infinite',
+        glow: 'glow 1s ease-in-out infinite',
         slideDown: 'slideDown 0.30s ease-out',
         spinslow: 'spin 3s linear infinite',
         slide: 'slide 1.5s ease-in-out infinite',

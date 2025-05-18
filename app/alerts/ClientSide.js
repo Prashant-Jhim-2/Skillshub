@@ -1,6 +1,7 @@
 'use client'
 import {useState,useEffect} from 'react'
 import { getSession } from 'next-auth/react'
+import { VscArrowCircleLeft } from "react-icons/vsc";
 import { useRouter } from 'next/navigation'
 import {db} from './firebase'
 import {motion} from 'framer-motion'
@@ -63,25 +64,11 @@ const Page = ({Data}) =>{
         const data = props.data
        if (data.Type == "Chat"){
 
-        // Function to Fetch The Data 
-        const FetchData = async(id) =>{
-            const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${id}`)
-            const Response = await Request.json() 
-            if (Response.status == true){
-                const Details = {
-                    id:Response.Details.id ,
-                    FullName:Response.Details.FullName
-                }
-                ChangeUserDetails(Details)
-            }
-        }
-        useEffect(()=>{
-            FetchData(data.By)
-            
-        },[])
+       
+        
         return (
             <div className='flex flex-col w-80 relative border p-4 items-center justify-center shadow-lg'>
-               <p className=' flex flex-col items-center justify-center text-center'><nav><Link className='text-red-500 underline' href = {`/profile/${User.id}`}>{User.FullName}</Link></nav> sent a new message</p>
+               <p className=' flex flex-col items-center justify-center text-center'><nav><Link className='text-red-500 underline' href = {`/profile/${data.By}`}>{data.ByFullName}</Link></nav> sent a new message</p>
                <label className=' text-blue-500 shadow-lg border p-3  rounded mt-3 mb-3'>  {data.Message} </label>
                <label className=' text-xs text-gray-400 bottom-0 right-6'>{data.time}</label>
                <motion.button 
@@ -116,11 +103,15 @@ const Page = ({Data}) =>{
      call()
      return () => unsubscribe()
     },[])
+
+    const goback = ()=>{
+        Router.push('/home')
+    }
     return (
         <div className='flex flex-col items-center justify-center'>
             <h1 className='text-2xl h-12 w-full flex items-center bg-white justify-center z-30 fixed top-0 '>SkillsHub📝</h1>
            
-            <button className='fixed z-30 top-2 left-2 active:text-rose-600'>Back</button>
+            <button onClick = {goback} className='fixed flex gap-1 justify-center items-center z-30 top-2 left-2 active:text-rose-600'><VscArrowCircleLeft size = {30}/>Back</button>
             <h2 className=' mt-24 mb-6'>Alerts ( {AlertCards.length} )</h2>
             <button className='border fixed top-2 text-xs right-3 mb-6 bg-rose-600 z-30 active:bg-white active:border-black active:text-black text-white py-2 px-3 rounded' onClick={ClearAlerts}>Clear Alerts</button>
             {AlertCards.length != 0 && 

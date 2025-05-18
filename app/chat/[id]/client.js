@@ -278,10 +278,11 @@ const Page = ({Responsefromserver}) =>{
   }
   
   // Function to Send Alert of New Message 
-  const SendAlert = async (User,By,ChatID,Message) => {
+  const SendAlert = async (User,By,ChatID,Message,FullName,Email) => {
     const timestamp = dateinformat(new Date())
     const Details = {
       By,
+      ByFullName:FullName,
       Page:`/chat/${ChatID}`,
       User,
       Type:"Chat",
@@ -295,6 +296,17 @@ const Page = ({Responsefromserver}) =>{
       body:JSON.stringify(Details)
     })
     const Response = await Request.json()
+    if (Response.status == true){
+     const domain = `${window.location.origin}/alerts`
+     console.log(Email,domain)
+     const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/send-email`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email:Email,domain})
+    })
+    const Response = await Request.json()
+    console.log(Response)
+    }
   }
   // Send Chat 
   const Send = async() =>{
@@ -324,6 +336,7 @@ const Page = ({Responsefromserver}) =>{
         date:datestring
       }
       console.log(Details)
+      console.log(UserDetails)
       const newarr = [...Chats,Details]
       const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SendChat`,{
         method:"POST",
@@ -332,7 +345,7 @@ const Page = ({Responsefromserver}) =>{
       })
       const Response = await Request.json()
       if (Response.status == true){
-        SendAlert(Receiver.id,Details.id,params.id,value)
+        SendAlert(Receiver.id,Details.id,params.id,value,Details.FullName,Receiver.Email)
         ChangeChats(newarr)
       }
       

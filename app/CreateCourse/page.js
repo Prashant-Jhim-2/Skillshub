@@ -190,7 +190,8 @@ const Page = () =>{
             Description : document.getElementById("Description").value,
             Price:document.getElementById("Price").value ,
             Topics:TopicCovered,
-            PriceType : PriceType
+            PriceType : PriceType,
+            content:[]
         }
         console.log(Details)
         // Scrollup Function
