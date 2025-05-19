@@ -143,9 +143,21 @@ const DeleteVideoCard = async()=>{
       return data 
     }
   })
+  const updated = []
+  for (let i = 0 ; i < NewContent.length ; i++){
+    const content = {
+      Name: NewContent[i].Name,
+      VideoSrc: NewContent[i].VideoSrc,
+      Index: NewContent[i].Index, 
+      Duration : NewContent[i].Duration,
+      No : i
+    }
+    updated.push(content)
+  }
+  
   setTimeout(()=>{
-    SaveChanges(NewContent)
-    ChangeContent(NewContent)
+    SaveChanges(updated)
+    ChangeContent(updated)
     ChangeDeleteText('Delete')
   },2000)
   
@@ -281,7 +293,12 @@ const UploadVideo = async() =>{
   console.log(Details)
   const NewVideoArr = [...Content,Details]
   console.log(NewVideoArr)
-  ChangeContent(NewVideoArr)
+  const Detailsforshow = {
+    ...Details,
+    No:Content.length
+  }
+  const arrforshow = [...Content,Detailsforshow]
+  ChangeContent(arrforshow)
 
 
   setTimeout(()=>{ 
