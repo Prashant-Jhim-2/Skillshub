@@ -29,7 +29,7 @@ const Page = ({data}) =>{
   const [CourseName,CourseNameChange] = useState(data.Details.Name)
   const [Description,ChangeDescription] = useState(data.Details.Description)
   const [CourseImg,ChangeCourseImg] = useState(data.Details.ImgSrc)
-  const [Content,ChangeContent] = useState(data.Details.content)
+  const [Content,ChangeContent] = useState(data.videos)
   const [progress,ChangeProgress] = useState(0)
   const [VideoPlayerDisplay,ChangeVideoPlayerDisplay] = useState('hidden')
   const [VideoPlayerSrc,ChangeVideoPlayerSrc] = useState({Name:undefined,Src:undefined,Index:undefined})
@@ -51,7 +51,8 @@ const VideoRef =  useRef(null)
 
 
   // Function to Save The Changes 
-  const SaveChanges = async(event) =>{
+  const SaveChanges = async(InputContent) =>{
+     console.log(InputContent)
      changesavingtext('Saving...🚗')
      setAnimateEnabled(true)
      var ImgSrc  
@@ -81,12 +82,13 @@ const VideoRef =  useRef(null)
      if (UploadableImageFile == undefined ){
       ImgSrc = CourseImg
   }
-
+  console.log(Content)
+  console.log(VideoPlayerSrc)
   const Details = {
     Name : CourseName,
     Description:Description,
     ImgSrc:ImgSrc,
-    Content:Content
+    Content:InputContent || Content
   }
   console.log(Details)
   const id = data.Details.id 
@@ -132,14 +134,21 @@ const HandleTextChange = (event)=>{
 
 
   const VideoCard = (props)=>{
+    const [DeleteText,ChangeDeleteText] = useState("Delete")
 // Function to Delete Video Card 
 const DeleteVideoCard = async()=>{
+  ChangeDeleteText('Deleting..')
   const NewContent = Content.filter((data)=>{
     if (data.Index != props.Index){
       return data 
     }
   })
-  ChangeContent(NewContent)
+  setTimeout(()=>{
+    SaveChanges(NewContent)
+    ChangeContent(NewContent)
+    ChangeDeleteText('Delete')
+  },2000)
+  
 }
    
   console.log(Content)
@@ -149,10 +158,10 @@ const DeleteVideoCard = async()=>{
         <label className="text-xs">Duration : {props.Duration} min</label>
         <button onClick={()=>{
           console.log(props.VideoSrc)
-          ChangeVideoPlayerSrc({Name:props.Name ,Index:props.Index,Src:props.VideoSrc})
+          ChangeVideoPlayerSrc({Name:props.Name ,Index:props.Index,Src:props.VideoSrc,No:props.No})
           OpenPlayer()
-        }} className="border mt-3 w-24 active:bg-white active:text-black active:border-black flex gap-2 items-center justify-center shadow-lg rounded-lg py-2 px-3 bg-black text-white">Play  <CiPlay1 size = {20} /></button>
-        <button onClick={DeleteVideoCard} className="border flex gap-2 items-center justify-center w-24 p-2 mt-3 rounded bg-rose-600 shadow-lg active:border-rose-600 active:bg-white active:text-black text-white">Delete <AiOutlineDelete size={18} /></button>
+        }} className="border mt-3 w-24 active:bg-white active:text-black active:border-black flex gap-2 text-sm items-center justify-center shadow-lg rounded-lg py-2 px-3 bg-black text-white">Play  <CiPlay1 size = {20} /></button>
+        <button onClick={DeleteVideoCard} className="border text-sm flex gap-2 items-center justify-center w-24 p-2 mt-3 rounded bg-rose-600 shadow-lg active:border-rose-600 active:bg-white active:text-black text-white">{DeleteText} <AiOutlineDelete size={18} /></button>
       </div>
     )
   }
@@ -213,6 +222,7 @@ const DeleteVideoCard = async()=>{
 const OpenPlayer = ()=>{
  if (VideoPlayerDisplay == 'hidden' && VideoPlayerSrc != undefined){
   ChangeVideoPlayerDisplay('flex')
+  console.log(VideoPlayerSrc)
   return 0
  }
  if (VideoPlayerDisplay == 'flex'){
@@ -268,13 +278,20 @@ const UploadVideo = async() =>{
     VideoSrc:VideoSrc,
     Duration:formattedDuration
   }
-
+  console.log(Details)
   const NewVideoArr = [...Content,Details]
   console.log(NewVideoArr)
   ChangeContent(NewVideoArr)
 
+
   setTimeout(()=>{ 
+    SaveChanges(NewVideoArr)
+    ChangeProgress(0)
     OpenorClose()
+    document.getElementById('VideoName').value = ''
+    ChangeTempVideo(undefined)
+    
+   
   },2000)
   
   
@@ -293,7 +310,9 @@ if (UploadableVideoile == undefined){
       <h1 className="text-xl ">Skillshub📝</h1>
       <label className="text-xs">Courses</label>
       {enabled &&  <div className={`flex ${animateenable && 'animate-glow'} z-50 fixed top-12 bg-white p-3 border gap-2 mt-3`}>
-        <button onClick={SaveChanges} className="bg-green-600 active:bg-white active:text-green-600 active:border-green-600 active:font-bold border text-white px-4 py-2  rounded">{Savingtext}</button>
+        <button onClick={()=>{
+          SaveChanges()
+        }} className="bg-green-600 active:bg-white active:text-green-600 active:border-green-600 active:font-bold border text-white px-4 py-2  rounded">{Savingtext}</button>
        
       </div>}
       <Link href = '/home'>
@@ -325,8 +344,21 @@ if (UploadableVideoile == undefined){
       
       />
       <div className = 'flex gap-14 mt-3'>
-        <button className="border flex gap-2 items-center shadow-lg active:text-black active:bg-white  justify-center border-black bg-black text-white p-2 rounded"><GrChapterPrevious size={15} />Prev </button>
-        <button className="border active:bg-white shadow-lg active:text-black flex gap-2 items-center justify-center border-black bg-black text-white p-2 rounded-lg">Next <GrChapterNext size = {15} /></button>
+        {VideoPlayerSrc.No > 0  &&  <button onClick={()=>{
+          const NewIndex = VideoPlayerSrc.No -1 
+          if (NewIndex >= 0){
+            const NewSrc = Content[NewIndex] 
+            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:NewSrc.VideoSrc,Index:NewSrc.Index, No:NewSrc.No})
+          }
+        }} className="border flex gap-2 items-center shadow-lg active:text-black active:bg-white  justify-center border-black bg-black text-white p-2 rounded"><GrChapterPrevious size={15} />Prev </button>}
+        {VideoPlayerSrc.No < Content.length - 1 && <button className="border active:bg-white shadow-lg active:text-black flex gap-2 items-center justify-center border-black bg-black text-white p-2 rounded-lg"  onClick={()=>{
+          const NewIndex = VideoPlayerSrc.No + 1 
+          if (NewIndex < Content.length){
+            const NewSrc = Content[NewIndex] 
+            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:NewSrc.VideoSrc,Index:NewSrc.Index, No:NewSrc.No})
+          }
+
+        }}>Next <GrChapterNext size = {15} /></button>}
       </div>
      </div>
 
@@ -421,7 +453,7 @@ if (UploadableVideoile == undefined){
       {Content.map((data)=>{
         if (data != undefined){
           return (
-            <VideoCard Name = {data.Name} Duration = {data.Duration} VideoSrc = {data.VideoSrc} Index = {data.Index} />
+            <VideoCard No = {data.No} Name = {data.Name} Duration = {data.Duration} VideoSrc = {data.VideoSrc} Index = {data.Index} />
           )
         }
       })}

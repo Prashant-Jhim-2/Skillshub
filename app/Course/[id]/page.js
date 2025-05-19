@@ -16,11 +16,23 @@ export default async function Home({params}) {
   const ResponseforVideos = await RequestforVideos.json()
   const arrofvideos = ResponseforVideos.data 
   console.log(arrofvideos)
+  const newcontent = []
+  for (let i = 0 ; i < Response.data.content.length ; i++){
+    const content = {
+      Name: Response.data.content[i].Name,
+      VideoSrc: Response.data.content[i].VideoSrc,
+      Index: Response.data.content[i].Index, 
+      Duration : Response.data.content[i].Duration,
+      No : i
+    }
+    newcontent.push(content)
+  }
   const Data  = {
     Details : Response.data,
     CourseID:id ,
-    videos:arrofvideos
+    videos:newcontent 
   }
+  console.log(Data)
  
   return (
     <>
