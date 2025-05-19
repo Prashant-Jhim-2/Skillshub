@@ -14,7 +14,7 @@ import { GrChapterNext } from "react-icons/gr";
 import { CiPlay1 } from "react-icons/ci";
 import { initializeApp } from 'firebase/app';
 import { getStorage } from 'firebase/storage';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable,uploadBytes, getDownloadURL } from 'firebase/storage';
 import Link from "next/link";
 import { getSession } from "next-auth/react"
 
