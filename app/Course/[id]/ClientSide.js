@@ -173,7 +173,7 @@ const DeleteVideoCard = async()=>{
           ChangeVideoPlayerSrc({Name:props.Name ,Index:props.Index,Src:props.VideoSrc,No:props.No})
           OpenPlayer()
         }} className="border mt-3 w-24 active:bg-white active:text-black active:border-black flex gap-2 text-sm items-center justify-center shadow-lg rounded-lg py-2 px-3 bg-black text-white">Play  <CiPlay1 size = {20} /></button>
-        <button onClick={DeleteVideoCard} className="border text-sm flex gap-2 items-center justify-center w-24 p-2 mt-3 rounded bg-rose-600 shadow-lg active:border-rose-600 active:bg-white active:text-black text-white">{DeleteText} <AiOutlineDelete size={18} /></button>
+        {EditDisplay == 'flex' &&  <button onClick={DeleteVideoCard} className="border text-sm flex gap-2 items-center justify-center w-24 p-2 mt-3 rounded bg-rose-600 shadow-lg active:border-rose-600 active:bg-white active:text-black text-white">{DeleteText} <AiOutlineDelete size={18} /></button>}
       </div>
     )
   }
