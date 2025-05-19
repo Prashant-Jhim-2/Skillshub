@@ -349,7 +349,7 @@ if (UploadableVideoile == undefined){
 
 
 
-     <div id = "VideoPlayer" className={`fixed top-0 gap-2 bg-white ${VideoPlayerDisplay} flex-col items-center justify-center  w-full h-full`}> 
+     <div id = "VideoPlayer" className={`fixed top-0 gap-2 pt-3 bg-white ${VideoPlayerDisplay} flex-col items-center justify-center  w-full h-full`}> 
       <button className="border flex active:border active:bg-white active:text-black gap-2 shadow-lg border-black p-2 text-sm bg-black text-white rounded" onClick={OpenPlayer}>Close Player <IoMdCloseCircleOutline size={20}/> </button>
       <h1 className='font-bold'>{VideoPlayerSrc.Name}</h1>
       <ReactPlayer
@@ -360,7 +360,7 @@ if (UploadableVideoile == undefined){
       controls
       
       />
-      <div className = 'flex gap-14 mt-3'>
+      <div className = 'flex gap-14 mb-24 mt-3'>
         {VideoPlayerSrc.No > 0  &&  <button onClick={()=>{
           const NewIndex = VideoPlayerSrc.No -1 
           if (NewIndex >= 0){
