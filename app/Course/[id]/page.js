@@ -20,7 +20,7 @@ export default async function Home({params}) {
   for (let i = 0 ; i < Response.data.content.length ; i++){
     const content = {
       Name: Response.data.content[i].Name,
-      VideoSrc: Response.data.content[i].VideoSrc,
+      PublicID: Response.data.content[i].PublicID,
       Index: Response.data.content[i].Index, 
       Duration : Response.data.content[i].Duration,
       No : i

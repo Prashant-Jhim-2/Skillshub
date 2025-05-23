@@ -147,15 +147,17 @@ const DeleteVideoCard = async()=>{
   for (let i = 0 ; i < NewContent.length ; i++){
     const content = {
       Name: NewContent[i].Name,
-      VideoSrc: NewContent[i].VideoSrc,
+      PublicID: NewContent[i].PublicID,
       Index: NewContent[i].Index, 
       Duration : NewContent[i].Duration,
       No : i
     }
     updated.push(content)
   }
+
+ 
   
-  
+
   setTimeout(()=>{
     SaveChanges(updated)
     ChangeContent(updated)
@@ -163,17 +165,20 @@ const DeleteVideoCard = async()=>{
   },2000)
   
 }
+
+// function use public id to create a signed url
+const GetSignedUrl = async() =>{
+  const newurl = `/api/signedurl?public_id=${props.PublicID}`
+  ChangeVideoPlayerSrc({Name:props.Name,Src:newurl,Index:props.Index,No:props.No})
+  ChangeVideoPlayerDisplay('flex')
+}
    
  
     return (
       <div className="flex flex-col border shadow-lg p-3 w-full justify-start">
         <h1 className="text-lg">{props.Name}</h1>
         <label className="text-xs">Duration : {props.Duration} min</label>
-        <button onClick={()=>{
-          console.log(props.VideoSrc)
-          ChangeVideoPlayerSrc({Name:props.Name ,Index:props.Index,Src:props.VideoSrc,No:props.No})
-          OpenPlayer()
-        }} className="border mt-3 w-24 active:bg-white active:text-black active:border-black flex gap-2 text-sm items-center justify-center shadow-lg rounded-lg py-2 px-3 bg-black text-white">Play  <CiPlay1 size = {20} /></button>
+        <button onClick={GetSignedUrl} className="border mt-3 w-24 active:bg-white active:text-black active:border-black flex gap-2 text-sm items-center justify-center shadow-lg rounded-lg py-2 px-3 bg-black text-white">Play  <CiPlay1 size = {20} /></button>
         {EditDisplay == 'flex' &&  <button onClick={DeleteVideoCard} className="border text-sm flex gap-2 items-center justify-center w-24 p-2 mt-3 rounded bg-rose-600 shadow-lg active:border-rose-600 active:bg-white active:text-black text-white">{DeleteText} <AiOutlineDelete size={18} /></button>}
       </div>
     )
@@ -211,28 +216,32 @@ const DeleteVideoCard = async()=>{
   // Handle Video Upload 
   const handleVideoChange = async(event) =>{
     ChangePostText('Uploading...')
+    document.getElementById('Uploadbutton').disabled = true
     const file = event.target.files[0];
     if (file) {
-      const formdata = new FormData()
-      formdata.append('file',file)
-      formdata.append("upload_preset", "chandan")
-      formdata.append("resource_type", "video");
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/prashant-jhim/video/upload`,
-        {
-          method: "POST",
-          body: formdata,
-        }
-      );
-  
-      const data = await res.json();
-      if (data.secure_url != undefined){
-      setTimeout(()=>{
-        ChangePostText('Upload')
-        ChangeTempVideo(data.secure_url)
-      },2000)
-     
+      const reader = new FileReader();
+      reader.readAsDataURL(file)
+      reader.onloadend = async()=>{
+        const base64file = reader.result 
+        const res = await fetch('/api/upload',{
+          method:'POST',
+          body:JSON.stringify({file:base64file}),
+          headers:{
+            'Content-Type':'application/json'
+          }
+        })
+        const data = await res.json();
+        setTimeout(()=>{
+          ChangeTempVideo({
+            url:data.secure_url,
+            public_id:data.public_id
+          })
+          document.getElementById('Uploadbutton').disabled = false 
+          ChangePostText('Upload')
+        },2000)
       }
+  
+      
     }}
   //Function to Upload Image or Video 
   const handleImageChange = async(event) =>{
@@ -274,7 +283,7 @@ const UploadVideo = async() =>{
   if (TempVideo != undefined){
     
   
-  var VideoSrc = TempVideo 
+  var VideoSrc = TempVideo.url 
   const Duration = VideoRef.current.getDuration()
   const mins = Math.floor(Duration / 60);
   const seconds = Math.floor(Duration % 60);
@@ -283,8 +292,8 @@ const UploadVideo = async() =>{
   const Details = {
     Name :document.getElementById('VideoName').value,
     Index : GenerateRandomId(),
-    VideoSrc:VideoSrc,
-    Duration:formattedDuration
+    Duration:formattedDuration,
+    PublicID:TempVideo.public_id,
   }
 
   const NewVideoArr = [...Content,Details]
@@ -349,11 +358,21 @@ if (TempVideo== undefined){
       <button className="border flex active:border active:bg-white active:text-black gap-2 shadow-lg border-black p-2 text-sm bg-black text-white rounded" onClick={OpenPlayer}>Close Player <IoMdCloseCircleOutline size={20}/> </button>
       <h1 className='font-bold'>{VideoPlayerSrc.Name}</h1>
       <ReactPlayer
-      className= 'border border-black'
+     
       url = {VideoPlayerSrc.Src}
       width='70%'
       height='70%'
+  
       controls
+        className = 'shadow-lg'
+        config={{
+          file: {
+            attributes: {
+              controlsList: 'nodownload',
+              disablePictureInPicture: true
+            },
+          },
+        }}
       
       />
    
@@ -364,14 +383,14 @@ if (TempVideo== undefined){
           const NewIndex = VideoPlayerSrc.No -1 
           if (NewIndex >= 0){
             const NewSrc = Content[NewIndex] 
-            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:NewSrc.VideoSrc,Index:NewSrc.Index, No:NewSrc.No})
+            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:`/api/signedurl?public_id=${NewSrc.PublicID}`,Index:NewSrc.Index, No:NewSrc.No})
           }
         }} className="border flex gap-2 items-center shadow-lg active:text-black active:bg-white  justify-center border-black bg-black text-white p-2 rounded"><GrChapterPrevious size={15} />Prev </button>}
         {VideoPlayerSrc.No < Content.length - 1 && <button className="border active:bg-white shadow-lg active:text-black flex gap-2 items-center justify-center border-black bg-black text-white p-2 rounded-lg"  onClick={()=>{
           const NewIndex = VideoPlayerSrc.No + 1 
           if (NewIndex < Content.length){
             const NewSrc = Content[NewIndex] 
-            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:NewSrc.VideoSrc,Index:NewSrc.Index, No:NewSrc.No})
+            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:`/api/signedurl?public_id=${NewSrc.PublicID}`,Index:NewSrc.Index, No:NewSrc.No})
           }
 
         }}>Next <GrChapterNext size = {15} /></button>}
@@ -387,7 +406,7 @@ if (TempVideo== undefined){
         {TempVideo != undefined  && 
         <ReactPlayer 
         ref = {VideoRef}
-        url = {TempVideo || `https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/file%2F1737315735007-RPReplay_Final1707163746.MP4?alt=media&token=c5e0a63c-ce44-4932-a44b-a7a32326e9e8`}
+        url = {TempVideo.url || `https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/file%2F1737315735007-RPReplay_Final1707163746.MP4?alt=media&token=c5e0a63c-ce44-4932-a44b-a7a32326e9e8`}
         width='90%'
         height='90%'
         controls
@@ -408,7 +427,7 @@ if (TempVideo== undefined){
         <input id = "VideoName" className="w-64 rounded border-2 border-black h-12 p-3" type = 'text' placeholder="Enter The Name " />
        
         <input className="hidden" id = "VideoUpload" onChange={handleVideoChange} type ='file' accept="video/*"/>
-        <button onClick={()=>{
+        <button id = "Uploadbutton" onClick={()=>{
           document.getElementById('VideoUpload').click()
         }} className="border flex gap-2 active:bg-black active:text-white items-center justify-center border-black p-3 mt-6 rounded shadow-lg font-bold">{Posttext} <MdOutlineCloudUpload size = {25} /> </button>
        
@@ -469,7 +488,7 @@ if (TempVideo== undefined){
       {Content.map((data)=>{
         if (data != undefined){
           return (
-            <VideoCard No = {data.No} Name = {data.Name} Duration = {data.Duration} VideoSrc = {data.VideoSrc} Index = {data.Index} />
+            <VideoCard No = {data.No} Name = {data.Name} Duration = {data.Duration} PublicID={data.PublicID} Index = {data.Index} />
           )
         }
       })}
