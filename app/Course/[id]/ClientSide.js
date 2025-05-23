@@ -103,6 +103,7 @@ const VideoRef =  useRef(null)
     setTimeout(()=>{
       changesavingtext('Save Changes ✅')
       setAnimateEnabled(false)
+      setEnabled(false)
      
     },2000)
    }
@@ -335,7 +336,7 @@ if (TempVideo== undefined){
      {enabled && <> <button onClick = {()=>{
       document.getElementById('ImgUpload').click()
      }} className="bg-black text-white py-2 px-3 shadow-lg mb-6 mt-2 active:bg-white active:text-black active:border active:font-bold active:border-black active:border-2 rounded-lg">Upload Image 📸</button>
-     <input className="hidden" id = "ImgUpload" onChange={handleImageChange} type ='file' />
+     <input className="hidden" id = "ImgUpload" onChange={handleImageChange} type ='file' accept="image/*" />
      </> }
      { enabled && <label className=" text-xs">Course Name</label>}
       <h1 onInput={HandleTextChange} id = "CourseName" contentEditable = {enabled}  className={`text-lg ${enabled && 'border outline-black rounded p-3 border-gray-400'}`}>{data.Details.Name}</h1>
