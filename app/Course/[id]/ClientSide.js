@@ -83,15 +83,13 @@ const VideoRef =  useRef(null)
      if (UploadableImageFile == undefined ){
       ImgSrc = CourseImg
   }
-  console.log(Content)
-  console.log(VideoPlayerSrc)
+
   const Details = {
     Name : CourseName,
     Description:Description,
     ImgSrc:ImgSrc,
     Content:InputContent || Content
   }
-  console.log(Details)
   const id = data.Details.id 
   const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/UpdateCard`,{
     method:'POST',
@@ -124,7 +122,7 @@ const CheckUser = async() =>{
 
 const HandleTextChange = (event)=>{
   const id = event.target.id 
-  console.log(id)
+ 
   if (id == 'CourseName'){
     CourseNameChange(event.target.innerText)
   }
@@ -156,6 +154,7 @@ const DeleteVideoCard = async()=>{
     updated.push(content)
   }
   
+  
   setTimeout(()=>{
     SaveChanges(updated)
     ChangeContent(updated)
@@ -164,7 +163,7 @@ const DeleteVideoCard = async()=>{
   
 }
    
-  console.log(Content)
+ 
     return (
       <div className="flex flex-col border shadow-lg p-3 w-full justify-start">
         <h1 className="text-lg">{props.Name}</h1>
@@ -182,7 +181,6 @@ const DeleteVideoCard = async()=>{
   // Function to Retrieve the data of course 
   const FetchData = async() =>{
     const id = data.Details.ProfessorId 
-    console.log(id)
     // Part to Fetch Professor Data 
     const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${id}`)
     const Response = await Request.json()
@@ -200,7 +198,6 @@ const DeleteVideoCard = async()=>{
 
   // Function to Open uploadwindow or close it 
   const OpenorClose = () =>{
-    console.log(Display)
     if (Display == 'flex'){
     ChangeDisplay('hidden')
       return 0
@@ -228,7 +225,6 @@ const DeleteVideoCard = async()=>{
       );
   
       const data = await res.json();
-      console.log(data)
       if (data.secure_url != undefined){
       setTimeout(()=>{
         ChangePostText('Upload')
@@ -254,7 +250,6 @@ const DeleteVideoCard = async()=>{
 const OpenPlayer = ()=>{
  if (VideoPlayerDisplay == 'hidden' && VideoPlayerSrc != undefined){
   ChangeVideoPlayerDisplay('flex')
-  console.log(VideoPlayerSrc)
   return 0
  }
  if (VideoPlayerDisplay == 'flex'){
@@ -290,7 +285,7 @@ const UploadVideo = async() =>{
     VideoSrc:VideoSrc,
     Duration:formattedDuration
   }
-  console.log(Details)
+
   const NewVideoArr = [...Content,Details]
   console.log(NewVideoArr)
   const Detailsforshow = {
@@ -310,7 +305,7 @@ const UploadVideo = async() =>{
     
    
   },2000)
-  
+  alert("Video Has been Uploaded")
   
 }
 if (TempVideo== undefined){
