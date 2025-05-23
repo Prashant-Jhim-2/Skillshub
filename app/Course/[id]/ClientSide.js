@@ -22,6 +22,7 @@ import { getSession } from "next-auth/react"
 const Page = ({data}) =>{
   const Session = getSession()
   const [enabled, setEnabled] = useState(false);
+  const [Posttext,ChangePostText] = useState('Upload')
   const [EditDisplay,ChangeEditDisplay] = useState('hidden')
   const [Savingtext,changesavingtext] = useState('Save Changes ✅')
   const [animateenable, setAnimateEnabled] = useState(false);
@@ -211,12 +212,30 @@ const DeleteVideoCard = async()=>{
   }
   // Handle Video Upload 
   const handleVideoChange = async(event) =>{
+    ChangePostText('Uploading...')
     const file = event.target.files[0];
     if (file) {
-      ChangeUploadableVideoFile(file)
-      const Reader = new FileReader()
-      Reader.onload = () => ChangeTempVideo(Reader.result)
-      Reader.readAsDataURL(file)
+      const formdata = new FormData()
+      formdata.append('file',file)
+      formdata.append("upload_preset", "chandan")
+      formdata.append("resource_type", "video");
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/prashant-jhim/video/upload`,
+        {
+          method: "POST",
+          body: formdata,
+        }
+      );
+  
+      const data = await res.json();
+      console.log(data)
+      if (data.secure_url != undefined){
+      setTimeout(()=>{
+        ChangePostText('Upload')
+        ChangeTempVideo(data.secure_url)
+      },2000)
+     
+      }
     }}
   //Function to Upload Image or Video 
   const handleImageChange = async(event) =>{
@@ -225,6 +244,7 @@ const DeleteVideoCard = async()=>{
          ChangeUploadableImageFile(file)
          const Reader = new FileReader()
          Reader.onload = () => ChangeTempImg(Reader.result)
+
          Reader.readAsDataURL(file)
    
   }
@@ -255,30 +275,10 @@ const GenerateRandomId = () =>{
 }
 // Function to Upload Video
 const UploadVideo = async() =>{
-  if (UploadableVideoile != undefined){
-    const firebaseConfig = {
-      apiKey: process.env.NEXT_PUBLIC_apiKey,
-      authDomain:  process.env.NEXT_PUBLIC_authDomain,
-      projectId:  process.env.NEXT_PUBLIC_projectId,
-      storageBucket:  process.env.NEXT_PUBLIC_storageBucket,
-      messagingSenderId: process.env.NEXT_PUBLIC_messagingSenderId,
-      appId:  process.env.NEXT_PUBLIC_appId,
-    };
-  const app = initializeApp(firebaseConfig);
-  const storage = getStorage(app);
-  // Function To Upload Image and Get ImgSrc 
-  const UploadImg = async()=>{
-  const storageref = ref(storage,`photos/${UploadableVideoile.name}`)
-  const uploadpercent = uploadBytesResumable(storageref,UploadableVideoile)
-  uploadpercent.on('state_changed', (snapshot) => {
-    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    ChangeProgress(progress)
-  })
-  const url = await getDownloadURL(storageref)
-  return url 
-   }
+  if (TempVideo != undefined){
+    
   
-  var VideoSrc = await UploadImg()
+  var VideoSrc = TempVideo 
   const Duration = VideoRef.current.getDuration()
   const mins = Math.floor(Duration / 60);
   const seconds = Math.floor(Duration % 60);
@@ -313,7 +313,7 @@ const UploadVideo = async() =>{
   
   
 }
-if (UploadableVideoile == undefined){
+if (TempVideo== undefined){
   alert('Please Upload Video')
 }}
 
@@ -360,6 +360,9 @@ if (UploadableVideoile == undefined){
       controls
       
       />
+   
+
+       
       <div className = 'flex gap-14 mb-24 mt-3'>
         {VideoPlayerSrc.No > 0  &&  <button onClick={()=>{
           const NewIndex = VideoPlayerSrc.No -1 
@@ -408,12 +411,12 @@ if (UploadableVideoile == undefined){
         <label className="mt-12 ">Name of Video</label>
         <input id = "VideoName" className="w-64 rounded border-2 border-black h-12 p-3" type = 'text' placeholder="Enter The Name " />
        
-        <input className="hidden" id = "VideoUpload" onChange={handleVideoChange} type ='file' accept="video/mp4"/>
+        <input className="hidden" id = "VideoUpload" onChange={handleVideoChange} type ='file' accept="video/*"/>
         <button onClick={()=>{
           document.getElementById('VideoUpload').click()
-        }} className="border flex gap-2 active:bg-black active:text-white items-center justify-center border-black p-3 mt-6 rounded shadow-lg font-bold">Upload <MdOutlineCloudUpload size = {25} /> </button>
+        }} className="border flex gap-2 active:bg-black active:text-white items-center justify-center border-black p-3 mt-6 rounded shadow-lg font-bold">{Posttext} <MdOutlineCloudUpload size = {25} /> </button>
        
-       <label className="text-xs mt-4 border border-black bg-yellow-400 p-3 rounded text-grey-500">Notice : It only accepts MP4 Format</label>
+       <label className="text-xs mt-4 border border-black bg-yellow-400 p-3 rounded text-grey-500">Notice : All Videos will be converted to MP4 format</label>
         {progress > 0 && <strong className="text-green-500">Posting[ {progress}% ]</strong>}
         <button onClick={UploadVideo} className="px-4 py-2 flex items-center gap-2 justify-center rounded mt-12 border bg-black text-white">Post <TbBookUpload size = {25} /></button>
         <label className="mt-3 mb-3">OR</label>
