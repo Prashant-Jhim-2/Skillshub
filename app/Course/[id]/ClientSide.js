@@ -132,6 +132,22 @@ const HandleTextChange = (event)=>{
   }
 }
 
+// function use public id to create a signed url
+const GetSignedUrl = async(PublicID) =>{
+  const Request = await fetch('/api/signedurl',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json'
+    },
+    body:JSON.stringify({public_id:PublicID})
+  })
+  const Response = await Request.json()
+  console.log(Response)
+  if (Response.url != undefined){
+   return Response.url
+  }
+}
+
 
   const VideoCard = (props)=>{
     const [DeleteText,ChangeDeleteText] = useState("Delete")
@@ -166,19 +182,18 @@ const DeleteVideoCard = async()=>{
   
 }
 
-// function use public id to create a signed url
-const GetSignedUrl = async() =>{
-  const newurl = `/api/signedurl?public_id=${props.PublicID}`
-  ChangeVideoPlayerSrc({Name:props.Name,Src:newurl,Index:props.Index,No:props.No})
-  ChangeVideoPlayerDisplay('flex')
-}
+
    
  
     return (
       <div className="flex flex-col border shadow-lg p-3 w-full justify-start">
         <h1 className="text-lg">{props.Name}</h1>
         <label className="text-xs">Duration : {props.Duration} min</label>
-        <button onClick={GetSignedUrl} className="border mt-3 w-24 active:bg-white active:text-black active:border-black flex gap-2 text-sm items-center justify-center shadow-lg rounded-lg py-2 px-3 bg-black text-white">Play  <CiPlay1 size = {20} /></button>
+        <button onClick={async()=>{
+          const url = await GetSignedUrl(props.PublicID)
+          ChangeVideoPlayerSrc({Name:props.Name,Src:url,Index:props.Index, No:props.No})
+          OpenPlayer()
+        }} className="border mt-3 w-24 active:bg-white active:text-black active:border-black flex gap-2 text-sm items-center justify-center shadow-lg rounded-lg py-2 px-3 bg-black text-white">Play  <CiPlay1 size = {20} /></button>
         {EditDisplay == 'flex' &&  <button onClick={DeleteVideoCard} className="border text-sm flex gap-2 items-center justify-center w-24 p-2 mt-3 rounded bg-rose-600 shadow-lg active:border-rose-600 active:bg-white active:text-black text-white">{DeleteText} <AiOutlineDelete size={18} /></button>}
       </div>
     )
@@ -379,18 +394,20 @@ if (TempVideo== undefined){
 
        
       <div className = 'flex gap-14 mb-24 mt-3'>
-        {VideoPlayerSrc.No > 0  &&  <button onClick={()=>{
+        {VideoPlayerSrc.No > 0  &&  <button onClick={async()=>{
           const NewIndex = VideoPlayerSrc.No -1 
           if (NewIndex >= 0){
             const NewSrc = Content[NewIndex] 
-            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:`/api/signedurl?public_id=${NewSrc.PublicID}`,Index:NewSrc.Index, No:NewSrc.No})
+            const url = await GetSignedUrl(NewSrc.PublicID)
+            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:url,Index:NewSrc.Index, No:NewSrc.No})
           }
         }} className="border flex gap-2 items-center shadow-lg active:text-black active:bg-white  justify-center border-black bg-black text-white p-2 rounded"><GrChapterPrevious size={15} />Prev </button>}
-        {VideoPlayerSrc.No < Content.length - 1 && <button className="border active:bg-white shadow-lg active:text-black flex gap-2 items-center justify-center border-black bg-black text-white p-2 rounded-lg"  onClick={()=>{
+        {VideoPlayerSrc.No < Content.length - 1 && <button className="border active:bg-white shadow-lg active:text-black flex gap-2 items-center justify-center border-black bg-black text-white p-2 rounded-lg"  onClick={async()=>{
           const NewIndex = VideoPlayerSrc.No + 1 
           if (NewIndex < Content.length){
             const NewSrc = Content[NewIndex] 
-            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:`/api/signedurl?public_id=${NewSrc.PublicID}`,Index:NewSrc.Index, No:NewSrc.No})
+            const url = await GetSignedUrl(NewSrc.PublicID)
+            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:url,Index:NewSrc.Index, No:NewSrc.No})
           }
 
         }}>Next <GrChapterNext size = {15} /></button>}
