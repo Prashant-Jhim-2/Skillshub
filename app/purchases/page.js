@@ -57,7 +57,11 @@ const Page = ()=>{
                     <p className = 'text-sm'>Date Of Purchase : {props.DateofPurchase} </p>
                     <p className = 'text-sm'>Currency : {props.Currency}</p>
                     <p className = 'text-sm'>Amount ${props.Amount}</p>
-                    <p>Status : <label className = 'text-green-600'>{props.status}</label></p>
+                    <p>Payment Status : <label className = 'text-green-600'>{props.status}</label></p>
+                    {props.mode == 'subscription' && <label>Subscription : 
+                        {props.Active == true && <button className='p-2 border bg-green-600  rounded text-white'>Active</button>}
+                        {props.Active == false && <button className='p-2 border bg-red-600  rounded text-white'>Not Active</button>}
+                        </label>}
                    
                 </div>
                 <div className = ' self-center mt-6 flex  items-center justify-center gap-3'>
@@ -75,7 +79,7 @@ const Page = ()=>{
             <label className = 'text-xs'>Payments</label>
             <div className = 'flex mt-24 flex-wrap gap-3 items-center justify-center'>
             {Cards.length != 0 && <> 
-            {Cards.map((data)=><Card  id = {data.id} status = {data.status} Amount = {data.Amount} CourseName={data.CourseName} PaymentID={data.PaymentID} CourseID={data.CourseID} DateofPurchase={data.DateofPurchase} Currency = {data.Currency}/>)}</>}
+            {Cards.map((data)=><Card Active={data.Active} mode={data.mode}  id = {data.id} status = {data.status} Amount = {data.Amount} CourseName={data.CourseName} PaymentID={data.PaymentID} CourseID={data.CourseID} DateofPurchase={data.DateofPurchase} Currency = {data.Currency}/>)}</>}
             {Cards.length == 0 && <div className = 'flex gap-2 flex-col items-center justify-center'>
                 <Image src = '/empty.gif' width = {100} height = {100} alt = 'No Payments Found'/>
                 <h1 className = 'text-xl'>No Payments Found</h1>

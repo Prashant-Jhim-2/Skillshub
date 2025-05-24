@@ -2,6 +2,7 @@
 import {useState,useEffect} from 'react'
 import {useRouter} from 'next/navigation'
 import {signIn,getSession} from 'next-auth/react'
+import { CiLogin } from "react-icons/ci";
 
 const Signin = () =>{
   const Router = useRouter()
@@ -117,7 +118,9 @@ const ForgetPassword = async() =>{
       <div className = 'flex relative flex-col items-center'>
         <title>SkillsHub📝</title>
         <button onClick = {CreateAccount} className = 'absolute top-2 right-3 text-xl border-0 p-3 hover:bg-black hover:rounded-lg hover:text-white  active:bg-black active:border-black active:rounded-lg active:text-white transition duration-200 active:translate-y-2'>Create Account 🆕</button>
-        <h1 className = 'text-5xl mt-32 mb-12'>SkillsHub📝</h1>
+        <label className='mt-32 text-6xl'>🎓</label>
+        <h1 className = 'text-3xl mb-12  '>Educorner Tutoring</h1>
+       
         <input id ="Email" className = 'w-64 h-12 p-3 outline-none border-0 border-b-2 border-b-black text-xl' type = "text" placeholder = "Enter The Email : " />
         <input id = "Password" className = 'w-64 p-3 mt-6 outline-none mb-6 h-12 border-0 border-b-2 border-b-black text-xl'  type = {Type} placeholder = "Enter The Password" />
         <button id = "ShowBtn" onClick = {ShowPassword}>{Mode}Password</button>
@@ -125,7 +128,7 @@ const ForgetPassword = async() =>{
        
         {View && (
           <>
-                  <button id = "LoginBtn" onClick = {Login} className = {`border flex mb-6 shadow-black rounded  shadow-md transition duration-200  border-black px-3 py-2 bg-black text-white  text-xl mt-6 ${Active}`}>{InnerText}</button>
+                  <button id = "LoginBtn" onClick = {Login} className = {`border flex mb-6 shadow-black rounded flex gap-2 items-center justify-center  shadow-md transition duration-200  border-black px-3 py-2 bg-black text-white  text-xl mt-6 ${Active}`}>{InnerText} <CiLogin size={30} /></button>
                   <p>OR</p>
                   <button id = "GoogleBtn" onClick = {SignwithGoogle} className = 'mt-6  flex border shadow-black border-black p-3 bg-black text-white rounded-lg shadow-md active:bg-black active:text-white transition duration-200 active:translate-y-2'>Login With Google <img className = 'w-6' src = "google.png"/></button>
                   </>

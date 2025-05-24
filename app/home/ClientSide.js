@@ -222,12 +222,12 @@ const page = ({carddata}) =>{
     }
     return (
       <div className="flex relative flex-col items-center">
-        <title>SkillsHub📝</title>
+        <title>Educorner Tutoring📝</title>
         <div className={`${AlertDisplay} items-center justify-center top-0 z-10 left-0 animate-moveDownFade text-white h-12 bg-red-500 w-full `}>
           <nav><Link href='/alerts'><button className='flex gap-2 items-center justify-center'>New Messages <BiMessage  size = {15}/></button></Link></nav>
         </div>
         <div id = "AlertNotify" className="fixed z-20 shadow-sm bg-white p-4 flex w-full">
-          <h1 className="text-2xl">SkillsHub📝</h1>
+          <h1 className="text-2xl">EducTut 📚</h1>
           <button onClick={OpenOrClose} className="fixed flex gap-3 z-12 top-2 p-3 text-lg right-2">{MenuBtn}</button>
         </div>
 

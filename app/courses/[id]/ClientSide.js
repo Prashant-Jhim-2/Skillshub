@@ -61,7 +61,7 @@ const Page = ({DataofCard}) =>{
         Currency:"",
         DateofPurchase:'',
         mode:"",
-        NextDate:""
+        Active:false
       }
       console.log(Details)
       const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SuccessPayment`,{

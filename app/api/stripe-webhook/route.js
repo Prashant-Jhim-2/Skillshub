@@ -29,19 +29,42 @@ export async function POST(req) {
     Amount:invoice.amount_paid/100,
     url:invoice.hosted_invoice_url 
    }
-   const nextpaymentdate = new Date(invoice.period_end * 1000)
+  
    const Details = {
      id : PaymentID,
      data : PaymentDetails,
      Type:"Subscription",
-     NextDate : nextpaymentdate
+     Active : true
    }
-   console.log(Details)
+   console.log("Invoice Payment 1")
    const wait =  await UpdatePayment(Details)
 
  }
+
+ if (Request.type == 'invoice.paid'){
+  const PaymentID = Request.data.object.subscription
+  const Details = {
+    id : PaymentID,
+    Type:"Recurring",
+    Active : true
+  }
+  const wait = await UpdatePayment(Details)
+ }
+
+ if (Request.type == 'invoice.payment_failed'){
+  const PaymentID = Request.data.object.subscription
+  const Details = {
+    id : PaymentID,
+    Type:"Recurring",
+    Active : false
+  }
+  const wait = await UpdatePayment(Details)
+ }
+
+
  
  if (Request.type == "checkout.session.completed"){
+  console.log("Checkout Session 2")
     const id = Request.id 
     const timestamp = Request.data.object.created 
     const date = new Date(timestamp * 1000);
@@ -70,7 +93,7 @@ export async function POST(req) {
    
  }
  if (Request.type == "payment_intent.succeeded"){
-   
+   console.log("Payment Intent 3")
     const obj = Request.data.object
     const Details = {
         id :obj.id,
