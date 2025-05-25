@@ -235,27 +235,9 @@ const DeleteVideoCard = async()=>{
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.readAsDataURL(file)
-      reader.onloadend = async()=>{
-        const base64file = reader.result 
-        const res = await fetch('/api/upload',{
-          method:'POST',
-          body:JSON.stringify({file:base64file}),
-          headers:{
-            'Content-Type':'application/json'
-          }
-        })
-        const data = await res.json();
-        setTimeout(()=>{
-          ChangeTempVideo({
-            url:data.secure_url,
-            public_id:data.public_id
-          })
-          document.getElementById('Uploadbutton').disabled = false 
-          ChangePostText('Upload')
-        },2000)
+      reader.onloadend = ()=>{
+        ChangeTempVideo({url:reader.result})
       }
-  
       
     }}
   //Function to Upload Image or Video 

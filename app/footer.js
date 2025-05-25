@@ -8,9 +8,7 @@ const footer = () =>{
         if (event.target.id == '1'){
             window.location.href ='https://www.prashantjhim.com'
         }
-        if (event.target.id == "2"){
-            Router.push("/admin")
-        }
+        
 
      }
     return (
