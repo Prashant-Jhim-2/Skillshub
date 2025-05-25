@@ -227,7 +227,7 @@ const page = ({carddata}) =>{
           <nav><Link href='/alerts'><button className='flex gap-2 items-center justify-center'>New Messages <BiMessage  size = {15}/></button></Link></nav>
         </div>
         <div id = "AlertNotify" className="fixed z-20 shadow-sm bg-white p-4 flex w-full">
-          <h1 className="text-2xl">EducTut 📚</h1>
+          <h1 className="text-xl font-bold">Educorner 📖</h1>
           <button onClick={OpenOrClose} className="fixed flex gap-3 z-12 top-2 p-3 text-lg right-2">{MenuBtn}</button>
         </div>
 
@@ -273,12 +273,50 @@ const page = ({carddata}) =>{
           )}
         </div>
 
-        <h2 className="mt-36 text-3xl">
+        <h2 className="mt-36 hidden text-3xl">
           Hi <strong>{Details.FullName} 👋🏻</strong>
         </h2>
+      <label className='mt-36 text-6xl'>📖</label>
+       <h1 className = 'font-bold    text-center text-3xl mb-12'>Welcome to <label className='text-orange-600'>Educorner </label><label className='text-blue-600'>Tutoring📝</label></h1>
+      
+      <p className='w-3/4 text-md overflow-hidden break-words '> At The <strong>EduCorner Tutoring</strong>, we’re passionate about learning—and even more passionate about helping others learn. We believe that every student deserves access to high-quality, personalized learning—anytime, anywhere. We’re a tutoring platform dedicated to helping students reach their academic goals with the support of expert tutors, interactive tools, and a flexible learning environment.
+
+     Whether you're looking for help with a tough math problem, preparing for an important exam, or just want to get ahead in class, our team is here to guide you every step of the way. With one-on-one sessions, tailored lesson plans, and a focus on building confidence, we make learning easier, more effective, and even enjoyable.</p>
        
-       
-        <div className="mt-6 mb-6 flex gap-3 text-xl">
+       <button className='border border-black p-3 mt-6 active:bg-black active:text-white rounded font-bold shadow-lg'>Meet Your Tutor 👨🏻‍🏫</button>
+
+
+        <label className='mt-12 mb-6 text-4xl gap-3 font-bold'>We Offer 📄</label>
+       <div className='flex flex-wrap gap-6 justify-center '>
+        <div className='flex flex-col items-center justify-center'>
+          <Image src = 'https://static.wixstatic.com/media/11062b_fd36cdacc882443194a30e8802b34e22~mv2.jpg/v1/crop/x_1065,y_0,w_4260,h_4260/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_fd36cdacc882443194a30e8802b34e22~mv2.jpg' 
+          width={300} height={300} alt = 'img' className=''/>
+          <label className='text-xl'>In Home Tutoring</label>
+        </div>
+         <div className='flex flex-col items-center justify-center'>
+          <Image src = 'https://static.wixstatic.com/media/11062b_d9d4937c4aac4201b88e5b12208c0f13~mv2.jpeg/v1/crop/x_1791,y_0,w_4270,h_4268/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Online%20Class%20Teaching.jpeg' 
+          width={300} height={300} alt = 'img' className=''/>
+          <label className='text-xl'>Online Tutoring / Testing</label>
+        </div>
+
+       </div>
+
+       <div className=' w-full flex flex-col pb-12 pt-12  items-center justify-center mt-12'>
+        <h1 className='font-bold text-4xl'>Why Choose Us ?</h1>
+        <ul className='flex list-disc w-80 text-md flex-col gap-3 mt-6'>
+         <li><strong>Expert Tutors:</strong> Carefully vetted professionals passionate about teaching</li>
+
+<li><strong>Flexible Scheduling:</strong>  Learn at your pace, on your time</li>
+
+<li><strong>Customized Learning: </strong> Personalized support that fits your unique learning style</li>
+
+<li ><strong>Safe & Secure:</strong> A trusted platform for students and parents alike</li>
+        </ul>
+
+
+        <h1 className='font-bold mt-24 text-4xl'>Subjects</h1>
+       </div>
+        <div className=" mb-6 flex gap-3 text-xl">
           <button id="Enrolled" onClick={ChangeCardsArr} className="hover:border hover:bg-black py-2 hover:text-white px-3 rounded-lg">
             Enrolled
           </button>
@@ -321,8 +359,89 @@ const page = ({carddata}) =>{
             )
             }
           })}
+
+
+
+         
+
+         
         </div>
+        
 }
+
+        <label className='mt-16 font-bold text-4xl'>Plans & Pricing</label>
+        <div className='flex flex-wrap gap-6 justify-center mt-6'>
+          
+          <div className='flex w-80 border p-8 rounded shadow-lg flex-col items-center justify-center'>
+            <Image
+            src='https://static.wixstatic.com/media/11062b_885da9ad8310478c9d21a904700f3922~mv2.jpg/v1/fill/w_121,h_121,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Hands%20and%20Diamond.jpg'
+            width={100}
+            height={100}
+            />
+            <h1>Premium Plan </h1>
+            <h1 className='font-bold mb-4'>$349*</h1>
+            <p>For students who want intensive support & fast results</p>
+            <ul className='list-disc text-sm flex flex-col  items-start justify-center gap-2 mt-6'>
+              <li>Priority scheduling</li>
+              <li>3-4 tutoring sessions/week  (12 sessions/month)</li>
+              <li>1-hour sessions</li>
+              <li>Dedicated tutor match</li>
+              <li>Homework help + exam prep</li>
+              </ul>
+          </div>
+
+           <div className='flex w-80 border p-8 rounded shadow-lg flex-col items-center justify-center'>
+            <Image
+            src='https://static.wixstatic.com/media/11062b_9c09611a6512466c90f9ac8ecf632c52~mv2.png/v1/fill/w_121,h_121,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Gold-Striped%20Decorative%20Sphere.png'
+            width={100}
+            height={100}
+            />
+            <h1>Standard Plan  </h1>
+            <strong>(most popular)</strong>
+            <h1 className='font-bold mb-4'>$249*</h1>
+            <p>Ideal for weekly academic support</p>
+            <ul className='list-disc text-sm flex flex-col  items-start justify-center gap-2 mt-6'>
+              <li>2-3 tutoring sessions/week</li>
+              <li>(8 sessions/month)</li>
+              <li>1-hour sessions</li>
+              <li>Assignment/Homework help</li>
+             
+              </ul>
+          </div>
+
+           <div className='flex w-80 border p-8 rounded shadow-lg flex-col items-center justify-center'>
+            <Image
+            src='https://static.wixstatic.com/media/nsplsh_6dbb72aec7754a3c981433216dde4972~mv2.jpg/v1/crop/x_1000,y_0,w_4000,h_4000/fill/w_121,h_121,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image%20by%20Aron%20Visuals.jpg'
+            width={100}
+            height={100}
+            />
+            <h1>One-Time Session </h1>
+            <h1 className='font-bold mb-4'>$39*</h1>
+            <p>Need help with a single assignment or topic?</p>
+            <ul className='list-disc text-sm flex flex-col  items-start justify-center gap-2 mt-6'>
+              <li>1 hour session</li>
+             
+              </ul>
+          </div>
+
+
+        </div>
+ <div className='mt-16 flex flex-col items-center justify-center'>
+            <h1 className='font-bold text-3xl mb-6'>Meet Your Tutor </h1>
+            <Image src ='https://static.wixstatic.com/media/0d39ac_8784d15c9bbe4b45810a733f2048f2b0~mv2.jpg/v1/fill/w_305,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/0d39ac_8784d15c9bbe4b45810a733f2048f2b0~mv2.jpg' 
+            width={300}
+            height={300} alt = 'img' />
+            <h2 className='text-xl'>Chandan Mehta</h2>
+            <label>Founder & Physics / Math Tutor</label>
+            <p className='w-full p-12 break-words overflow-hidden text-sm'>Chandan  is a passionate and patient tutor with over 8 years of tutoring experience helping students excel in math and science/physics. He holds master’s in physics (Minor: Math) and master’s in technology (Mechanical Engineering). Chandan has worked with middle school, high school, and college-level students both in classrooms and one-on-one settings. He specializes in conceptual explanations with real-world examples, problem-solving strategies for common exam questions and step-by-step breakdowns of complex problems. Whether it's algebra, physics, calculus or mechanics he makes learning engaging and stress-free.
+
+With over combined 10 years of tutoring and technical experience and a background in theoretical physics and math, Chandan combines academic depth with a patient, encouraging teaching style that builds both skills and enthusiasm for the subject.
+
+ 
+
+As his true love lies in teaching, not selling, he decided to start “The EduCorner Tutoring” where he personally trains the tutors to use his methods and way of working. The promising results has shown that he has made a foundation for students to be successful.</p>
+            
+          </div>
       </div>
     );
 }
