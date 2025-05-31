@@ -1,7 +1,8 @@
 'use client'
 import {useState} from 'react'
 import {motion} from 'framer-motion'
-import { getSession ,signOut} from 'next-auth/react';
+
+import { getSession,signIn ,signOut} from 'next-auth/react';
 import Head from 'next/head'
 import { FcGoogle } from 'react-icons/fc'
 import { MdFiberNew } from "react-icons/md";
@@ -31,14 +32,15 @@ const page = ({carddata}) =>{
     const Router = useRouter()
     const [AlertDisplay,ChangeAlertDisplay] = useState('hidden')
     const [isOpentxt,ChangeisOpentxt] = useState("Menu")
-
+    const [LoginSuccess,ChangeLoginSuccess] = useState(false)
+    const [LoginSuccessDisplay,ChangeLoginSuccessDisplay] = useState(false)
     const [DisplayofModule,ChangeDisplayofModule] = useState(false)
     const [ifLoginOrSignup,ChangeLoginOrSignup] = useState("Login")
     const [Enrolled,ChangeEnrolled] = useState([])
     const [QueryinCard,ChangeQueryinCard] = useState('')
     const [isOpen, setIsOpen] = useState(false);
   
-    const [Details,ChangeDetails] = useState({FullName:"",ImgSrc:"https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/photos%2F3d-cartoon-character.jpg?alt=media&token=90e0d748-1074-4944-8302-32644c60407c"})
+    const [Details,ChangeDetails] = useState(undefined)
     const session = getSession();
     const [Cards,ChangeCards] = useState([])
     const [MenuBtn,ChangeMenuBtn] = useState(<>Menu <TiThMenuOutline  size={30}/></>)
@@ -64,9 +66,7 @@ const page = ({carddata}) =>{
     const CheckAuth = async() =>{
         const data = await session
         console.log(data)
-        if (data == undefined){
-          Router.push('/')
-        }
+        
         if (data != undefined){
             
             const dataofcards = carddata
@@ -97,9 +97,7 @@ const page = ({carddata}) =>{
             ChangeDetails(Response.Details)
             
            }
-           if (Response.status == false){
-            Router.push('/')
-           }
+           
         }
     }
 
@@ -149,8 +147,58 @@ const page = ({carddata}) =>{
 
    
 
-   
+   // Google Function 
+ const SignwithGoogle = async()=>{
+      const result =  signIn("google",{callbackUrl: '/home'})
+      if (result?.error){
+   ChangeLoginSuccess(false)
+   ChangeLoginSuccessDisplay(true)
 
+   setTimeout(()=>{
+    ChangeLoginSuccessDisplay(false)
+    document.getElementById("LoginBtn").disabled = false
+   },2000)
+  }
+ }
+  // Function To Fetch Data 
+ const Login = async() =>{
+  document.getElementById("LoginBtn").disabled = true
+  const Result = await signIn("credentials",{
+    redirect:false,
+    Email:document.getElementById("Email").value ,
+    Password:document.getElementById("Password").value
+  })
+  console.log(Result)
+  if (Result?.error){
+   ChangeLoginSuccess(false)
+   ChangeLoginSuccessDisplay(true)
+
+   setTimeout(()=>{
+    ChangeLoginSuccessDisplay(false)
+    document.getElementById("LoginBtn").disabled = false
+   },2000)
+  }
+  else{
+    if (Result?.ok == true){
+      ChangeLoginSuccess(true)
+      ChangeLoginSuccessDisplay(true)
+      document.getElementById("LoginBtn").disabled = false
+      
+      setTimeout(()=>{
+        ChangeDisplayofModule(false)
+         ChangeLoginSuccess(false)
+      ChangeLoginSuccessDisplay(false)
+      Router.push('/')
+       setTimeout(()=>{ 
+        Router.push('/home')
+       },500)
+      
+
+      },2000)
+    }
+  }
+  
+}
     
       
    
@@ -182,7 +230,7 @@ const page = ({carddata}) =>{
 
     // Logout Function 
     const Logout = async()=>{
-        await signOut({callbackUrl:"/"})
+        await signOut({callbackUrl:"/home"})
     }
     // Go To Profile Page 
     const GotoProfile = async() =>{
@@ -252,8 +300,9 @@ const page = ({carddata}) =>{
         </div>
         <div id = "AlertNotify" className="fixed z-20 shadow-sm bg-white  p-4 flex w-full">
           <h1 className="text-xl font-bold">Educorner 📖</h1>
-          <button onClick={OpenOrClose} className="fixed hidden gap-3   z-12 top-2 p-3 text-lg right-2">{MenuBtn}</button>
-          <div className = 'fixed flex  gap-2 text-sm items-center justify-center top-3 right-2'>
+          {Details != undefined &&           <button onClick={OpenOrClose} className="fixed flex gap-3   z-12 top-2 p-3 text-lg right-2">{MenuBtn}</button>
+}
+          {Details == undefined && <div className = 'fixed flex  gap-2 text-sm items-center justify-center top-3 right-2'>
            <motion.button
 
            onClick={(()=>{
@@ -282,7 +331,7 @@ const page = ({carddata}) =>{
     >
       Signup<MdFiberNew size={15} />
     </motion.button>
-          </div>
+          </div>}
         </div>
 
 
@@ -316,6 +365,7 @@ const page = ({carddata}) =>{
     >
       <X size={20} />
     </motion.button>
+            {LoginSuccessDisplay &&  <label id = "LoginSuccess" className={`${LoginSuccess ? "text-white bg-green-600 mb-6 rounded-lg p-2" : "text-white bg-rose-600 p-2 rounded-lg mb-6"}`}>{LoginSuccess ? "Login Successfull 🎉" : "Invalid Details 🙅‍♂️"}</label>}
             <div className = 'flex gap-2 items-center justify-center mb-4'>
               <button
 
@@ -342,9 +392,9 @@ const page = ({carddata}) =>{
 
 
             </div>
-            <input className='w-3/4 h-12 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Email : ' />
+            <input id = "Email" className='w-3/4 h-12 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Email : ' />
           {ifLoginOrSignup == "Login" && <>
-           <input className='w-3/4 h-12 mt-3 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Password: ' />
+           <input id = "Password" className='w-3/4 h-12 mt-3 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Password: ' />
            <button className='text-sm mt-3 font-bold text-rose-600'>Forget Password</button>
           </>}
           
@@ -358,6 +408,8 @@ const page = ({carddata}) =>{
       Create Account <MdFiberNew size={15} />
     </motion.button>}
     { ifLoginOrSignup == "Login" &&  <motion.button
+      id = "LoginBtn"
+      onClick={Login}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 300 }}
@@ -369,6 +421,7 @@ const page = ({carddata}) =>{
 
             <label>OR</label>
            {ifLoginOrSignup == "Signup" &&  <motion.button
+           onClick={SignwithGoogle}
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 300 }}
@@ -380,6 +433,7 @@ const page = ({carddata}) =>{
     </motion.button>}
 
 {ifLoginOrSignup == "Login" &&   <motion.button
+      onClick={SignwithGoogle}
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: 'spring', stiffness: 300 }}
@@ -441,9 +495,7 @@ const page = ({carddata}) =>{
           )}
         </div>
 
-        <h2 className="mt-36 hidden text-3xl">
-          Hi <strong>{Details.FullName} 👋🏻</strong>
-        </h2>
+        
       <label className='mt-36 text-6xl'>📖</label>
        <h1 className = 'font-bold    text-center text-xl mb-12'>Welcome to <label className='text-orange-600'>Educorner </label><label className='text-blue-600'>Tutoring📝</label></h1>
       
