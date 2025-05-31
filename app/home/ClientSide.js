@@ -1,8 +1,13 @@
 'use client'
 import {useState} from 'react'
+import {motion} from 'framer-motion'
 import { getSession ,signOut} from 'next-auth/react';
 import Head from 'next/head'
+import { FcGoogle } from 'react-icons/fc'
+import { MdFiberNew } from "react-icons/md";
+import { X } from 'lucide-react' 
 import { LuMessagesSquare } from "react-icons/lu";
+import { RiLoginBoxLine } from "react-icons/ri";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image'
 import { Search } from 'lucide-react';
@@ -26,10 +31,13 @@ const page = ({carddata}) =>{
     const Router = useRouter()
     const [AlertDisplay,ChangeAlertDisplay] = useState('hidden')
     const [isOpentxt,ChangeisOpentxt] = useState("Menu")
+
+    const [DisplayofModule,ChangeDisplayofModule] = useState(false)
+    const [ifLoginOrSignup,ChangeLoginOrSignup] = useState("Login")
     const [Enrolled,ChangeEnrolled] = useState([])
     const [QueryinCard,ChangeQueryinCard] = useState('')
     const [isOpen, setIsOpen] = useState(false);
-    const [Empty,ChangeEmpty] = useState(false) 
+  
     const [Details,ChangeDetails] = useState({FullName:"",ImgSrc:"https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/photos%2F3d-cartoon-character.jpg?alt=media&token=90e0d748-1074-4944-8302-32644c60407c"})
     const session = getSession();
     const [Cards,ChangeCards] = useState([])
@@ -220,16 +228,176 @@ const page = ({carddata}) =>{
     const GotoPurchases = () =>{
       Router.push("/purchases")
     }
+
+
+
+    //Function to Change Login or Signup module 
+    const LoginOrSignup = (event) =>{
+      if (event == "Login"){
+        ChangeLoginOrSignup("Login")
+        ChangeDisplayofModule(true)
+        
+      }
+      if (event == "Signup"){
+         ChangeLoginOrSignup("Signup")
+        ChangeDisplayofModule(true)
+       
+      }
+    }
     return (
       <div className="flex relative flex-col items-center">
         <title>Educorner Tutoring📝</title>
         <div className={`${AlertDisplay} items-center justify-center top-0 z-10 left-0 animate-moveDownFade text-white h-12 bg-red-500 w-full `}>
           <nav><Link href='/alerts'><button className='flex gap-2 items-center justify-center'>New Messages <BiMessage  size = {15}/></button></Link></nav>
         </div>
-        <div id = "AlertNotify" className="fixed z-20 shadow-sm bg-white p-4 flex w-full">
+        <div id = "AlertNotify" className="fixed z-20 shadow-sm bg-white  p-4 flex w-full">
           <h1 className="text-xl font-bold">Educorner 📖</h1>
-          <button onClick={OpenOrClose} className="fixed flex gap-3 z-12 top-2 p-3 text-lg right-2">{MenuBtn}</button>
+          <button onClick={OpenOrClose} className="fixed hidden gap-3   z-12 top-2 p-3 text-lg right-2">{MenuBtn}</button>
+          <div className = 'fixed flex  gap-2 text-sm items-center justify-center top-3 right-2'>
+           <motion.button
+
+           onClick={(()=>{
+           ChangeLoginOrSignup("Login")
+             ChangeDisplayofModule(true)
+           })}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="p-2 bg-black flex items-center gap-2 justify-center text-white font-semibold rounded-lg shadow-md hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500"
+    
+    >
+      Login<RiLoginBoxLine size={15} />
+    </motion.button>
+            <label>/</label>
+            <motion.button
+             onClick={(()=>{
+            ChangeLoginOrSignup("Signup")
+             ChangeDisplayofModule(true)
+           })}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="p-2 bg-rose-600 flex gap-2 items-center justify-center text-white  font-semibold rounded-lg shadow-sm hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
+     
+    >
+      Signup<MdFiberNew size={15} />
+    </motion.button>
+          </div>
         </div>
+
+
+       {        DisplayofModule &&   <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+         
+        >
+          <motion.div
+            className="bg-white  relative flex flex-col items-center justify-center rounded-lg p-8 w-80 shadow-lg"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          // Prevent closing on modal click
+          >
+            <motion.button
+
+            onClick={()=>{
+              ChangeDisplayofModule(false)
+            
+            }}
+      whileHover={{ scale: 1.2, rotate: 90 }}
+      whileTap={{ scale: 0.9 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      
+      className="absolute top-2 right-2 p-2 rounded-full text-gray-500 hover:text-black"
+      aria-label="Close"
+    >
+      <X size={20} />
+    </motion.button>
+            <div className = 'flex gap-2 items-center justify-center mb-4'>
+              <button
+
+              onClick={()=>{
+                ChangeLoginOrSignup("Signup")
+              }}
+            layoutId="toggle"
+            className={`p-2 ${ifLoginOrSignup == "Login" ? 'text-black bg-white' :'text-white bg-black' }   p-2 rounded-lg font-bold`}
+          
+          >
+            Signup
+        </button>
+        <label>/</label>
+       <button
+        onClick={()=>{
+                ChangeLoginOrSignup("Login")
+              }}
+            layoutId="toggle"
+          className={`p-2 ${ifLoginOrSignup == "Signup" && 'text-black bg-white'}  ${ifLoginOrSignup == "Login" && 'text-white bg-black'} p-2 rounded-lg font-bold`}
+           
+          >
+            Login
+        </button>
+
+
+            </div>
+            <input className='w-3/4 h-12 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Email : ' />
+          {ifLoginOrSignup == "Login" && <>
+           <input className='w-3/4 h-12 mt-3 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Password: ' />
+           <button className='text-sm mt-3 font-bold text-rose-600'>Forget Password</button>
+          </>}
+          
+           { ifLoginOrSignup == "Signup" && <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="p-2 mt-6 bg-rose-600 mb-3 flex gap-2 items-center justify-center text-white  font-semibold rounded-lg shadow-sm hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
+     
+    >
+      Create Account <MdFiberNew size={15} />
+    </motion.button>}
+    { ifLoginOrSignup == "Login" &&  <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="p-2 mt-6 bg-black mb-3 flex gap-2 items-center justify-center text-white  font-semibold rounded-lg shadow-sm hover:bg-black focus:outline-none focus:ring-2 focus:ring-black"
+     
+    >
+     Login <RiLoginBoxLine size={15} />
+    </motion.button>}
+
+            <label>OR</label>
+           {ifLoginOrSignup == "Signup" &&  <motion.button
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="flex items-center mt-3 justify-center gap-3 w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm text-black font-medium hover:bg-gray-50"
+  
+    >
+      <FcGoogle size={22} />
+      Sign up with Google
+    </motion.button>}
+
+{ifLoginOrSignup == "Login" &&   <motion.button
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="flex items-center mt-3 justify-center gap-3 w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm text-black font-medium hover:bg-gray-50"
+  
+    >
+      <FcGoogle size={22} />
+      Login with Google
+    </motion.button>}
+
+    
+           
+          </motion.div>
+        </motion.div>}
+
+
+
+
 
         <div className="relative">
           <div
@@ -277,7 +445,7 @@ const page = ({carddata}) =>{
           Hi <strong>{Details.FullName} 👋🏻</strong>
         </h2>
       <label className='mt-36 text-6xl'>📖</label>
-       <h1 className = 'font-bold    text-center text-3xl mb-12'>Welcome to <label className='text-orange-600'>Educorner </label><label className='text-blue-600'>Tutoring📝</label></h1>
+       <h1 className = 'font-bold    text-center text-xl mb-12'>Welcome to <label className='text-orange-600'>Educorner </label><label className='text-blue-600'>Tutoring📝</label></h1>
       
       <p className='w-3/4 text-md overflow-hidden break-words '> At The <strong>EduCorner Tutoring</strong>, we’re passionate about learning—and even more passionate about helping others learn. We believe that every student deserves access to high-quality, personalized learning—anytime, anywhere. We’re a tutoring platform dedicated to helping students reach their academic goals with the support of expert tutors, interactive tools, and a flexible learning environment.
 
@@ -301,7 +469,11 @@ const page = ({carddata}) =>{
 
        </div>
 
-       <div className=' w-full flex flex-col pb-12 pt-12  items-center justify-center mt-12'>
+       <motion.div  
+       initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      viewport={{ once: true }} className=' w-full flex flex-col pb-12 pt-12  items-center justify-center mt-12'>
         <h1 className='font-bold text-4xl'>Why Choose Us ?</h1>
         <ul className='flex list-disc w-80 text-md flex-col gap-3 mt-6'>
          <li><strong>Expert Tutors:</strong> Carefully vetted professionals passionate about teaching</li>
@@ -314,9 +486,11 @@ const page = ({carddata}) =>{
         </ul>
 
 
-        <h1 className='font-bold mt-24 text-4xl'>Subjects</h1>
-       </div>
-        <div className=" mb-6 flex gap-3 text-xl">
+       
+       </motion.div>
+  <h1 className='font-bold text-3xl'>Subjects</h1>
+        <div className="mt-6 mb-6 flex gap-3 text-xl">
+        
           <button id="Enrolled" onClick={ChangeCardsArr} className="hover:border hover:bg-black py-2 hover:text-white px-3 rounded-lg">
             Enrolled
           </button>
@@ -370,6 +544,10 @@ const page = ({carddata}) =>{
 }
 
         <label className='mt-16 font-bold text-4xl'>Plans & Pricing</label>
+
+        <p className='w-3/4 mt-6 text-xl break-words overflow-hidden'>We offer flexible and affordable tutoring options designed to fit every student’s needs and schedule. Whether you need help with one tricky subject or ongoing support throughout the year, we've got a plan for you.
+
+</p>
         <div className='flex flex-wrap gap-6 justify-center mt-6'>
           
           <div className='flex w-80 border p-8 rounded shadow-lg flex-col items-center justify-center'>
@@ -442,6 +620,56 @@ With over combined 10 years of tutoring and technical experience and a backgroun
 As his true love lies in teaching, not selling, he decided to start “The EduCorner Tutoring” where he personally trains the tutors to use his methods and way of working. The promising results has shown that he has made a foundation for students to be successful.</p>
             
           </div>
+
+
+
+
+          <div className='flex w-3/4 flex-col items-center justify-center mt-12'>
+            <h1 className='text-xl font-bold mb-12'>Frequently Asked Questions ?</h1>
+            <ul className="list-decimal pl-6 flex flex-col w-full  space-y-4 text-gray-800">
+  <li>
+    <strong>What subjects do you offer tutoring in?</strong><br />
+    We offer tutoring in a wide range of subjects including Math and Science (Physics, Chemistry, Biology) and more. We also provide test prep for IELTS and other exams.
+  </li>
+  <li>
+    <strong>Who are your tutors?</strong><br />
+    Our tutors are experienced professionals with strong academic backgrounds and a passion for education. Many have degrees in their subject area and years of one-on-one tutoring experience.
+  </li>
+  <li>
+    <strong>How do tutoring sessions work?</strong><br />
+    Tutoring sessions can be held online or in person, depending on your preference. Each session is customized to meet the student’s individual needs, focusing on their specific goals and learning style.
+  </li>
+  <li>
+    <strong>What grades or age groups do you work with?</strong><br />
+    We work with students from elementary school to college level.
+  </li>
+  <li>
+    <strong>How do I schedule a session?</strong><br />
+    You can book a session by phone or via email. Once you’re matched with a tutor, you’ll be able to coordinate directly for ongoing sessions.
+  </li>
+  <li>
+    <strong>How much do tutoring sessions cost?</strong><br />
+    Rates vary depending on the plans chosen. Please visit our Pricing page or contact us for detailed information.
+  </li>
+  <li>
+    <strong>Do you offer group tutoring or just one-on-one?</strong><br />
+    We primarily offer one-on-one tutoring but can arrange small group sessions upon request, especially for test prep or study groups.
+  </li>
+  <li>
+    <strong>What if we need to cancel or reschedule a session?</strong><br />
+    We understand things come up. Please give at least 24 hours’ notice for cancellations or rescheduling to avoid being charged for the session.
+  </li>
+</ul>
+
+          </div>
+
+
+          <label className='text-xl font-bold mt-24 '>Have more questions? Please feel free to reach us .</label>
+          <button className='mt-6'>Call us </button>
+          <label className='font-bold'>+1 437 226 0838</label>
+
+          <button className='mt-12'>Email us </button>
+          <label className='font-bold text-rose-600'>theeducornertutoring@gmail.com</label>
       </div>
     );
 }

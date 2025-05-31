@@ -13,9 +13,8 @@ const footer = () =>{
      }
     return (
     <div className = 'flex h-16 justify-center items-center border-0 border-t text-sm fixed bottom-0 z-30 bg-white w-full    gap-3 flex-wrap'>
-    <button onClick={Click} id ='1' className = 'active:text-rose-600'>@PrashantJhim</button>
-    <button onClick={Click} id ='2' className = 'active:text-rose-600'>Admin(testing)</button>
-    <button onClick={Click} id ='3' className = 'active:text-rose-600'>Report a Bug</button>
+    <label>©TheEducornerTut.com</label>
+    <label className=" rounded p-2 bg-black text-white i">Developer : Prashant Jhim</label>
    </div>
    )
 }
