@@ -1,9 +1,9 @@
 'use client'
 import {useState} from 'react'
 import {motion} from 'framer-motion'
-
+const validator = require("email-validator")
 import { getSession,signIn ,signOut} from 'next-auth/react';
-import Head from 'next/head'
+import { LuSend } from "react-icons/lu";
 import { FcGoogle } from 'react-icons/fc'
 import { MdFiberNew } from "react-icons/md";
 import { X } from 'lucide-react' 
@@ -39,13 +39,17 @@ const page = ({carddata}) =>{
     const [Enrolled,ChangeEnrolled] = useState([])
     const [QueryinCard,ChangeQueryinCard] = useState('')
     const [isOpen, setIsOpen] = useState(false);
-  
+    const [EmailisInUse,ChangeEmailisInUse] = useState(true)
+    const [ForgetPassDisplay,ChangeForgetPassDisplay] = useState(false)
+    const [ForgetPassText,ChangeForgetPassText] = useState(false)
+    const [Text,ChangeText] = useState('Link Sent Successfully 📧')
+    const [SignupDisabled,ChangeisDisabled] = useState(false)
     const [Details,ChangeDetails] = useState(undefined)
     const session = getSession();
-    const [Cards,ChangeCards] = useState([])
+    const [Cards,ChangeCards] = useState(carddata)
     const [MenuBtn,ChangeMenuBtn] = useState(<>Menu <TiThMenuOutline  size={30}/></>)
     
-
+   console.log(Cards)
     
      
   // Function To Get Enrolled Courses 
@@ -279,19 +283,114 @@ const page = ({carddata}) =>{
 
 
 
-    //Function to Change Login or Signup module 
-    const LoginOrSignup = (event) =>{
-      if (event == "Login"){
-        ChangeLoginOrSignup("Login")
-        ChangeDisplayofModule(true)
+
+     // Function to Check Email already Exist in Database 
+    const EmailInDbornot = async()=>{
+        const value = document.getElementById("Email").value 
+        console.log(value)
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckEmail`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({Email:value})
+        })
+        const Response = await Request.json()
+        if (Response.status == true){
+            return false
+        }
+        if (Response.status == false){
+            return true
+        }
+    }
+    // Email Validator 
+    const EmailValidator = async () =>{
+        const value = document.getElementById("Email").value 
+        const Status = validator.validate(value) 
+        const Check = await EmailInDbornot()
+        console.log(Status,Check)
+        if (Status == true && Check == true){
+            ChangeEmailisInUse(true)
+            return true
+            
+        }
+        if (Status == false || Check == false){
+            if (value == ""){
+                if (ifLoginOrSignup == "Signup"){
+                  ChangeEmailisInUse(false)
+                  return false
+                }
+            }
+            if (ifLoginOrSignup == "Signup"){
+                  ChangeEmailisInUse(false)
+                  return false
+                }
+        }
         
-      }
-      if (event == "Signup"){
-         ChangeLoginOrSignup("Signup")
-        ChangeDisplayofModule(true)
+    }
+
+    // Function to Send Email and Create Account 
+    const Signin = async()=>{
+        const validate = await EmailValidator()
+        if (validate == true){
+          ChangeisDisabled(true)
        
+        const domain = window.location.origin
+        const Email  = document.getElementById("Email").value 
+        const Request = await fetch("/api/email",{
+            method:"POST",
+            headers:{"Content-Type":'application/json'},
+            body:JSON.stringify({email:Email,Change:"Verify",domain,type:'verify'})
+        })
+        const Response = await Request.json()
+        if (Response.status == true){
+        // this Part Changed The style
+        
+        setTimeout(()=>{
+            ChangeisDisabled(false)
+        },2000)
+        }
+        }
+    }
+
+    // Function To Send Link To Email for Forget Password
+  const SendLink = async() =>{
+    
+    const Value = document.getElementById("Email").value
+    const domain = window.location.origin 
+    const Check = await EmailInDbornot()
+    if (Value != '' && Check == false){
+      const Request = await fetch(`/api/email`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({email:Value,domain,type:"forget"})
+      })
+      const Response = await Request.json()
+      console.log(Response)
+      if (Response.status == true){
+        ChangeForgetPassText(true)
+        ChangeText("Link Sent Successfully 📧")
+
+        setTimeout(()=>{
+          ChangeForgetPassText(false)
+        },2000)
+      }
+      else {
+        ChangeForgetPassText(true)
+        ChangeText("Something Wrong 🙅‍♂️")
+         setTimeout(()=>{
+          ChangeForgetPassText(false)
+        },2000)
       }
     }
+    else {
+      ChangeForgetPassText(true)
+      ChangeText("User Donot Exist ❌")
+      setTimeout(()=>{
+        ChangeForgetPassText(false)
+      },2000)
+    }
+  }
+
+    
     return (
       <div className="flex relative flex-col items-center">
         <title>Educorner Tutoring📝</title>
@@ -319,6 +418,7 @@ const page = ({carddata}) =>{
     </motion.button>
             <label>/</label>
             <motion.button
+            isDisabled = {SignupDisabled}
              onClick={(()=>{
             ChangeLoginOrSignup("Signup")
              ChangeDisplayofModule(true)
@@ -365,7 +465,11 @@ const page = ({carddata}) =>{
     >
       <X size={20} />
     </motion.button>
-            {LoginSuccessDisplay &&  <label id = "LoginSuccess" className={`${LoginSuccess ? "text-white bg-green-600 mb-6 rounded-lg p-2" : "text-white bg-rose-600 p-2 rounded-lg mb-6"}`}>{LoginSuccess ? "Login Successfull 🎉" : "Invalid Details 🙅‍♂️"}</label>}
+            {LoginSuccessDisplay &&  <label id = "LoginSuccess" className={`${LoginSuccess ? "text-white bg-green-600 mb-6 rounded-lg p-2" : "text-white bg-rose-600 p-2 rounded-lg mb-6"}`}>{LoginSuccess ? "Login Successfull 🎉" : "Something Wrong 🙅‍♂️"}</label>}
+
+
+            {ForgetPassText == true && <label className='text-green-600 mt-3 mb-3 '>{Text}</label>}
+            {SignupDisabled && <label className='text-red-600'>Please Wait...</label>}
             <div className = 'flex gap-2 items-center justify-center mb-4'>
               <button
 
@@ -392,13 +496,26 @@ const page = ({carddata}) =>{
 
 
             </div>
-            <input id = "Email" className='w-3/4 h-12 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Email : ' />
-          {ifLoginOrSignup == "Login" && <>
+           
+            <input onChange={EmailValidator} id = "Email" className='w-3/4 h-12 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Email : ' />
+            {!EmailisInUse &&  <label className = 'mt-3 text-sm mb-3'>Email is Invalid ❌</label>}
+          {(ifLoginOrSignup == "Login" && ForgetPassDisplay == false ) && <>
            <input id = "Password" className='w-3/4 h-12 mt-3 text-sm p-2 rounded-lg outline-black  bg-white border ' type = 'text' placeholder='Enter The Password: ' />
-           <button className='text-sm mt-3 font-bold text-rose-600'>Forget Password</button>
+           {ForgetPassDisplay == false && <button
+           onClick={()=>{
+            ChangeForgetPassDisplay(true)
+           }}
+           
+           className='text-sm mt-3 font-bold text-rose-600'>Forget Password</button>}
           </>}
+
+          {(ForgetPassDisplay && ifLoginOrSignup == "Login") && <button
+          onClick={()=>{
+            ChangeForgetPassDisplay(false)
+          }}
+          className='text-sm mt-3 mb-3 font-bold text-rose-600'>Back To Login </button>}
           
-           { ifLoginOrSignup == "Signup" && <motion.button
+           { ifLoginOrSignup == "Signup" && <motion.button onClick={Signin}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 300 }}
@@ -407,7 +524,17 @@ const page = ({carddata}) =>{
     >
       Create Account <MdFiberNew size={15} />
     </motion.button>}
-    { ifLoginOrSignup == "Login" &&  <motion.button
+   {(ForgetPassDisplay && ifLoginOrSignup == "Login") &&  <motion.button 
+      onClick={SendLink}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="p-2 mt-6 bg-rose-600 mb-3 flex gap-2 items-center justify-center text-white  font-semibold rounded-lg shadow-sm hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
+     
+    >
+      Send Link  <LuSend size={15} />
+    </motion.button>}
+    { (ifLoginOrSignup == "Login" && ForgetPassDisplay == false) &&  <motion.button
       id = "LoginBtn"
       onClick={Login}
       whileHover={{ scale: 1.05 }}
@@ -571,7 +698,8 @@ const page = ({carddata}) =>{
 
         {Cards.length > 0 && Enrolled.length >= 0 && Details?.id && 
         <div className='flex flex-wrap gap-6 justify-center'>
-          {Cards.map((data) => {
+          {carddata.map((data) => {
+            console.log(data)
             if (data != undefined){
               const condition = Enrolled.includes(data.id);
                console.log(Enrolled , data.id )
