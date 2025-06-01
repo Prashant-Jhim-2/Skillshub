@@ -70,17 +70,18 @@ const page = ({carddata}) =>{
     const CheckAuth = async() =>{
         const data = await session
         console.log(data)
+        ChangeCards(carddata)
         
         if (data != undefined){
             
-            const dataofcards = carddata
+            
             GetEnrolled(data.user.id)
-            console.log(dataofcards)
+            
             document.getElementById("Courses").style.backgroundColor = 'black'
             document.getElementById("Courses").style.color = 'white'
             document.getElementById("Enrolled").style.backgroundColor = 'white'
             document.getElementById("Enrolled").style.color = 'black'
-           ChangeCards(dataofcards)
+           
           
 
            // Part To Get User RealTime Data
@@ -228,6 +229,9 @@ const page = ({carddata}) =>{
         document.getElementById("Enrolled").style.backgroundColor = 'white'
         document.getElementById("Enrolled").style.color = 'black'
         ChangeCards(carddata)
+
+
+
     }
     
    }
@@ -696,14 +700,14 @@ const page = ({carddata}) =>{
           />
         </div>
 
-        {Cards.length > 0 && Enrolled.length >= 0 && Details?.id && 
+        {Cards.length > 0 && Enrolled.length >= 0  && 
         <div className='flex flex-wrap gap-6 justify-center'>
-          {carddata.map((data) => {
+          {Cards.map((data) => {
             console.log(data)
             if (data != undefined){
+              const details = Details || {id:'Nothinginthere'}
               const condition = Enrolled.includes(data.id);
-               console.log(Enrolled , data.id )
-              const verify = Details.id == data.ProfessorId
+              const verify = details.id == data.ProfessorId
               console.log(`Name : ${data.Name}`)
               console.log(`Already Enrolled ${condition} and Verify ${verify}`)
               console.log(verify)

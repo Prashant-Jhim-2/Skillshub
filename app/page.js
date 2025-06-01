@@ -2,14 +2,18 @@
 import {useState,useEffect} from 'react'
 import {useRouter} from 'next/navigation'
 import {signIn,getSession} from 'next-auth/react'
-import { CiLogin } from "react-icons/ci";
-
+import { RiLoginBoxLine } from "react-icons/ri";
+import { FcGoogle } from 'react-icons/fc'
+import {motion} from 'framer-motion'  
+import { MdFiberNew } from "react-icons/md";
+import { CgProfile } from "react-icons/cg";
 const Signin = () =>{
   const Router = useRouter()
   const [Mode,ChangeMode] = useState("◎ Show ")
   const [Type,ChangeType] = useState("password")
-  const [Active,ChangeActive] = useState("active:translate-y-2 active:bg-black active:text-white")
-  const [InnerText,ChangeInnerText] = useState("Login")
+  const [LoginorSignup,ChangeLoginorSignup] = useState("Login")
+  const [Alert,ChangeAlert] = useState(false)
+  const [AlertMessage,ChangeAlertMessage] = useState("")
   const [View,ChangeView] = useState(true)
   const Session = getSession()
  // Function To Check User is Login or not 
@@ -20,6 +24,15 @@ const Signin = () =>{
   }
  }
 
+ const ChangeToLoginorSignup = (event)=>{
+  const id = event.target.id
+  if (id == "Login"){
+    ChangeLoginorSignup("Login")
+  }
+  if (id == "Signup"){
+    ChangeLoginorSignup("Signup")
+  }
+ }
  // UseEffect
  useEffect(()=>{
   Precheck()
@@ -42,7 +55,12 @@ const Signin = () =>{
     alert("Invalid Email and Password")
   }
   else{
-    Router.push('/home')
+    ChangeAlert(true)
+    ChangeAlertMessage("Login Successfully ✅")
+    setTimeout(() => {
+      Router.push('/home')
+    }, 2000);
+   
   }
   
 }
@@ -98,50 +116,112 @@ const ForgetPassword = async() =>{
   const CreateAccount = ()=>{
     Router.push("/signup")
   }
-  // Function to Show Password 
-  const ShowPassword = () =>{
-    const currentMode = Mode 
-    const currentType = Type 
-    if (currentMode == "◎ Show " && currentType == "password"){
-      ChangeMode('◉ Hide ')
-      ChangeType("text")
-      return 0
-    }
-    if (currentMode == "◉ Hide " && currentType == "text"){
-      ChangeMode('◎ Show ')
-      ChangeType("password")
-      return 0
-    }
-
-  }
+  
   return (
-      <div className = 'flex relative flex-col items-center'>
+      <div className = 'flex relative h-screen w-screen flex-col justify-center items-center'>
         <title>SkillsHub📝</title>
-        <button onClick = {CreateAccount} className = 'absolute top-2 right-3 text-xl border-0 p-3 hover:bg-black hover:rounded-lg hover:text-white  active:bg-black active:border-black active:rounded-lg active:text-white transition duration-200 active:translate-y-2'>Create Account 🆕</button>
-        <label className='mt-32 text-6xl'>🎓</label>
-        <h1 className = 'text-3xl mb-12  '>Educorner Tutoring</h1>
-       
-        <input id ="Email" className = 'w-64 h-12 p-3 outline-none border-0 border-b-2 border-b-black text-xl' type = "text" placeholder = "Enter The Email : " />
-        <input id = "Password" className = 'w-64 p-3 mt-6 outline-none mb-6 h-12 border-0 border-b-2 border-b-black text-xl'  type = {Type} placeholder = "Enter The Password" />
-        <button id = "ShowBtn" onClick = {ShowPassword}>{Mode}Password</button>
-        <button id = "ForgetBtn" onClick={ForgetPassword} className = 'mt-6 text-rose-600'>Forget Password 🔎</button>
-       
-        {View && (
-          <>
-                  <button id = "LoginBtn" onClick = {Login} className = {`border flex mb-6 shadow-black rounded flex gap-2 items-center justify-center  shadow-md transition duration-200  border-black px-3 py-2 bg-black text-white  text-xl mt-6 ${Active}`}>{InnerText} <CiLogin size={30} /></button>
-                  <p>OR</p>
-                  <button id = "GoogleBtn" onClick = {SignwithGoogle} className = 'mt-6  flex border shadow-black border-black p-3 bg-black text-white rounded-lg shadow-md active:bg-black active:text-white transition duration-200 active:translate-y-2'>Login With Google <img className = 'w-6' src = "google.png"/></button>
-                  </>
-        )}
-        {!View && (
-          <>
-           <button onClick = {SendLink} id = 'SendLink' className = 'px-3 mt-12 rounded py-2 mb-6 bg-black text-white '>Send Link </button>
-        <p>OR</p>
-        <button onClick = {ForgetPassword} id = "Cancel" className = 'bg-rose-600 rounded px-3 mt-6 py-2 text-white'>Cancel</button>
+
+       {Alert && <motion.h1
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+        className="fixed top-2 z-10 border bg-white border-black rounded text-black font-bold   text-black  text-sm h-12   flex items-center justify-center  w-64"
+      >
+        {AlertMessage}
+      </motion.h1>}
+
+            <div
+        className="absolute inset-0 bg-cover bg-center  scale-110"
+        style={{ backgroundImage: "url('https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/Bgimage%2F16332411_rm347-porpla-02-a-01.jpg?alt=media&token=f1c411b1-8b64-4b5d-a45c-cc34d21f0973')" }}
+      />
+
+  
+            
+
+  {/* Content */}
+  
+        <div className='w-80 p-6 bg-white relative rounded-lg flex flex-col shadow-xl items-center justify-center border '>
+         
+          {LoginorSignup == "Login" && <>
+           <button onClick={ChangeToLoginorSignup} id = "Signup" className='text-xs p-3 flex gap-2 top-2 items-center justify-center active:border active:shadow-lg active:text-black    text-rose-600 font-bold  rounded-lg absolute top-0 right-2'>Create Account <CgProfile size={20} /> </button>
+          </>}
+          {LoginorSignup == "Signup" && <>
+           <button onClick={ChangeToLoginorSignup} id ="Login" className='text-xs p-3 flex gap-2 top-2 items-center justify-center active:border active:shadow-lg active:text-black    text-rose-600 font-bold  rounded-lg absolute top-0 right-2'> Login <CgProfile size={20} /> </button>
+          </>}
+
+
+            <h1 className='text-lg mt-12 font-bold'>Educorner 📝</h1>
+          <label className='text-xs mb-6'>Tutoring</label>
+         
+          <input id = "Email" className='w-64 text-sm border-2 rounded border-black h-12 p-2  outline-black' type = 'text' placeholder='Enter The Email : ' />
+          {LoginorSignup == "Login" && <>
+           <input id = "Password" className='w-64 mt-3 text-sm border-2 rounded border-black h-12 p-2  outline-black' type = 'text' placeholder='Enter The Password : ' />
+          <button className='text-rose-600 text-sm mt-6'>Forget Password</button>
+          </>}
+          
+    {LoginorSignup == "Login" && <>
+       <motion.button
+      id = "LoginBtn"
+      onClick={Login}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="p-3 mt-6 bg-black mb-3 flex gap-2 items-center justify-center text-white  font-semibold rounded-lg shadow-sm hover:bg-black focus:outline-none focus:ring-2 focus:ring-black"
      
-          </>
-        )}
+    >
+     Login <RiLoginBoxLine size={15} />
+    </motion.button>
+      </>}
+
+
+     {LoginorSignup == "Signup" && <>
+     <motion.button
+      
+      onClick={Login}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="p-3 mt-6 bg-rose-600 mb-3 flex gap-2 items-center justify-center text-white  font-semibold rounded-lg shadow-sm hover:bg-black focus:outline-none focus:ring-2 focus:ring-black"
+     
+    >
+     Create Account <MdFiberNew size={15} />
+    </motion.button>
+     </>}
+
+     <label>OR</label>
+     {LoginorSignup == "Login" && <>
+     <motion.button
+           onClick={SignwithGoogle}
+           whileHover={{ scale: 1.03 }}
+           whileTap={{ scale: 0.97 }}
+           transition={{ type: 'spring', stiffness: 300 }}
+           className="flex items-center mt-3 justify-center gap-3 w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm text-black font-medium hover:bg-gray-50"
+       
+         >
+           <FcGoogle size={22} />
+           Login with Google
+         </motion.button>
+     </>}
+
+           {LoginorSignup == "Signup" && <>
+           <motion.button
+      onClick={SignwithGoogle}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="flex items-center mt-3 justify-center gap-3 w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm text-black font-medium hover:bg-gray-50"
+  
+    >
+      <FcGoogle size={22} />
+      Signup with Google
+    </motion.button>
+           </>}
         </div>
+
+        
+</div>
+  
+  
   )
 }
 export default Signin

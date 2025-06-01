@@ -27,6 +27,7 @@ const Card = ({ data,enrolled,Verify}) => {
     } = data;
 
     const handleEnroll = () => {
+       
        Router.push(`/courses/${id}`);
     };
     const handlegotocourse = () =>{
