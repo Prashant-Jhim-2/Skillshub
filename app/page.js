@@ -3,15 +3,20 @@ import {useState,useEffect} from 'react'
 import {useRouter} from 'next/navigation'
 import {signIn,getSession} from 'next-auth/react'
 import { RiLoginBoxLine } from "react-icons/ri";
+import { LuSend } from "react-icons/lu";
 import { FcGoogle } from 'react-icons/fc'
+const validator = require("email-validator")
 import {motion} from 'framer-motion'  
 import { MdFiberNew } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
+import { IoArrowBackCircleOutline } from "react-icons/io5";
 const Signin = () =>{
   const Router = useRouter()
   const [Mode,ChangeMode] = useState("◎ Show ")
   const [Type,ChangeType] = useState("password")
   const [LoginorSignup,ChangeLoginorSignup] = useState("Login")
+  const [Disabled,ChangeisDisabled] = useState(false)
+  const [ForgetShow,ChangeForgetShow] = useState(false)
   const [Alert,ChangeAlert] = useState(false)
   const [AlertMessage,ChangeAlertMessage] = useState("")
   const [View,ChangeView] = useState(true)
@@ -85,13 +90,74 @@ const ForgetPassword = async() =>{
   }
 }
 
-// Function To Send Link To Email for Forget Password
+
+
+ // Function to Check Email already Exist in Database 
+    const EmailInDbornot = async()=>{
+        const value = document.getElementById("Email").value 
+        console.log(value)
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckEmail`,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({Email:value})
+        })
+        const Response = await Request.json()
+        if (Response.status == true){
+            return false
+        }
+        if (Response.status == false){
+            return true
+        }
+    }
+
+
+    // Email Validator 
+        const EmailValidator = async () =>{
+            const value = document.getElementById("Email").value 
+            const Status = validator.validate(value) 
+            const Check = await EmailInDbornot()
+            console.log(Status,Check)
+            if (Status == true && Check == true){
+               ChangeAlert(true)
+                ChangeAlertMessage("Email is Valid 📧")
+
+                setTimeout(()=>{
+                    ChangeAlert(false)
+                },2000)
+                return true
+                
+            }
+            if (Status == false || Check == false){
+                if (value == ""){
+                    if (LoginorSignup == "Signup"){
+                      
+                      ChangeAlert(true)
+                      ChangeAlertMessage("Email is not Valid ❌")
+                      setTimeout(()=>{
+                        ChangeAlert(false)
+                      },2000)
+                      return false
+                    }
+                }
+                if (LoginorSignup == "Signup"){
+                      ChangeAlert(true)
+                      ChangeAlertMessage("Email is not Valid ❌")
+                      setTimeout(()=>{
+                        ChangeAlert(false)
+                      },2000)
+                      return false
+                    }
+            }
+            
+        }
+    
+     // Function To Send Link To Email for Forget Password
   const SendLink = async() =>{
-    document.getElementById("SendLink").disabled = true
-    document.getElementById("SendLink").innerHTML = "Sending...."
+    
     const Value = document.getElementById("Email").value
     const domain = window.location.origin 
-    if (Value != ''){
+    const Check = await EmailInDbornot()
+    if (Value != '' && Check == false){
       const Request = await fetch(`/api/email`,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
@@ -100,23 +166,56 @@ const ForgetPassword = async() =>{
       const Response = await Request.json()
       console.log(Response)
       if (Response.status == true){
-        document.getElementById("SendLink").disabled = false
-        document.getElementById("SendLink").innerHTML = 'Send Link '
-        document.getElementById("Email").value=''
+        ChangeAlert(true)
+        ChangeAlertMessage("Link Sent Successfully 📧")
+
+        setTimeout(()=>{
+          ChangeAlert(false)
+        },2000)
       }
       else {
-        document.getElementById("SendLink").disabled = false
-        document.getElementById("SendLink").innerHTML = 'Send Link '
-        document.getElementById("Email").value=''
-        alert("Something Went Wrong ❌")
+        ChangeAlert(true)
+        ChangeAlertMessage("Something Wrong 🙅‍♂️")
+         setTimeout(()=>{
+          ChangeAlert(false)
+        },2000)
       }
     }
+    else {
+      ChangeAlert(true)
+      ChangeAlertMessage("User Donot Exist ❌")
+      setTimeout(()=>{
+        ChangeAlert(false)
+      },2000)
+    }
   }
-  //Function To Go to Signup Page 
-  const CreateAccount = ()=>{
-    Router.push("/signup")
-  }
-  
+
+   // Function to Send Email and Create Account 
+    const Signin = async()=>{
+        const validate = await EmailValidator()
+        if (validate == true){
+          ChangeisDisabled(true)
+       
+        const domain = window.location.origin
+        const Email  = document.getElementById("Email").value 
+        const Request = await fetch("/api/email",{
+            method:"POST",
+            headers:{"Content-Type":'application/json'},
+            body:JSON.stringify({email:Email,Change:"Verify",domain,type:'verify'})
+        })
+        const Response = await Request.json()
+        if (Response.status == true){
+        // this Part Changed The style
+        ChangeAlert(true)
+        ChangeAlertMessage("Email is Sent Successfully ✅")
+        
+        setTimeout(()=>{
+            ChangeAlert(false)
+            ChangeisDisabled(false)
+        },2000)
+        }
+        }
+    }
   return (
       <div className = 'flex relative h-screen w-screen flex-col justify-center items-center'>
         <title>SkillsHub📝</title>
@@ -154,12 +253,16 @@ const ForgetPassword = async() =>{
           <label className='text-xs mb-6'>Tutoring</label>
          
           <input id = "Email" className='w-64 text-sm border-2 rounded border-black h-12 p-2  outline-black' type = 'text' placeholder='Enter The Email : ' />
-          {LoginorSignup == "Login" && <>
+          {(LoginorSignup == "Login" && !ForgetShow) && <>
            <input id = "Password" className='w-64 mt-3 text-sm border-2 rounded border-black h-12 p-2  outline-black' type = 'text' placeholder='Enter The Password : ' />
-          <button className='text-rose-600 text-sm mt-6'>Forget Password</button>
+           {!ForgetShow &&  <button 
+          onClick={(()=>{
+            ChangeForgetShow(true)
+          })}
+          className='text-rose-600 text-sm mt-6'>Forget Password</button>}
           </>}
           
-    {LoginorSignup == "Login" && <>
+    {(LoginorSignup == "Login" && !ForgetShow )&& <>
        <motion.button
       id = "LoginBtn"
       onClick={Login}
@@ -173,11 +276,19 @@ const ForgetPassword = async() =>{
     </motion.button>
       </>}
 
+      {ForgetShow && LoginorSignup == "Login" && <button
+      onClick={()=>{
+        ChangeForgetShow(false)
+      }}
+      className='flex gap-2 mt-6 items-center justify-center text-xs text-rose-600 font-bold '>
+        <IoArrowBackCircleOutline size = {15} />Back To Login 
+        </button>}
+
 
      {LoginorSignup == "Signup" && <>
      <motion.button
-      
-      onClick={Login}
+      isdisabled={Disabled}
+      onClick={Signin}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 300 }}
@@ -187,6 +298,19 @@ const ForgetPassword = async() =>{
      Create Account <MdFiberNew size={15} />
     </motion.button>
      </>}
+
+    {(LoginorSignup == "Login" && ForgetShow )&&  <motion.button
+      
+      onClick={SendLink}
+     
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className="p-3 mt-6 bg-rose-600 mb-3 flex gap-2 items-center justify-center text-white  font-semibold rounded-lg shadow-sm  focus:outline-none focus:ring-2 focus:ring-rose-600"
+     
+    >
+     SendLink<LuSend size={15}  />
+    </motion.button>}
 
      <label>OR</label>
      {LoginorSignup == "Login" && <>
