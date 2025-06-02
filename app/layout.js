@@ -31,6 +31,7 @@ export default function RootLayout({ children }) {
         <main className="mb-24">{children}</main>
         
       </body>
+      <Footer />
     </html>
   );
 }
