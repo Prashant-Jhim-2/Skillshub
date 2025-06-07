@@ -71,24 +71,6 @@ const Signin = () =>{
 }
 
 
-// Function To Forget Password 
-const ForgetPassword = async() =>{
-  const prev = View 
-  if (prev == true){
-    ChangeView(false)
-    document.getElementById("Password").style.display = 'none'
-    document.getElementById("ShowBtn").style.display = 'none'
-    document.getElementById("ForgetBtn").style.display = 'none'
-    return 0
-  }
-  else {
-    ChangeView(true)
-    document.getElementById("Password").style.display = 'flex'
-    document.getElementById("ShowBtn").style.display = 'flex'
-    document.getElementById("ForgetBtn").style.display = 'flex'
-    return 0
-  }
-}
 
 
 
