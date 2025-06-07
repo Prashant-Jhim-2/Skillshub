@@ -4,6 +4,7 @@ import ReactPlayer from "react-player"
 import {useState,useRef,useEffect} from 'react'
 import { MdOutlineFileUpload } from "react-icons/md"
 import { CgProfile } from "react-icons/cg";;
+import { TiMessages } from "react-icons/ti";
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import { AiOutlineDelete } from "react-icons/ai";
 import { TbBookUpload } from "react-icons/tb";
@@ -17,9 +18,11 @@ import { getStorage } from 'firebase/storage';
 import { ref, uploadBytesResumable,uploadBytes, getDownloadURL } from 'firebase/storage';
 import Link from "next/link";
 import { getSession } from "next-auth/react"
+import { useParams,useRouter } from "next/navigation"
 
 
 const Page = ({data}) =>{
+  const params = useParams()
   const Session = getSession()
   const [enabled, setEnabled] = useState(false);
   const [Posttext,ChangePostText] = useState('Upload')
@@ -222,7 +225,7 @@ const DeleteVideoCard = async()=>{
     if (Display == 'flex'){
     ChangeDisplay('hidden')
       return 0
-    }
+    } 
     if (Display == "hidden"){
       ChangeDisplay('flex')
        return 0
@@ -442,12 +445,18 @@ if (TempVideo== undefined){
 
 
 
-
+     <Link href = {`/CourseChat/${params.id}`}>
+      <button className = 'bg-black flex gap-2 items-center justify-center text-white p-2 rounded' >Open Course Chat
+        <TiMessages size ={20}/>
+      </button>
+     </Link>
     
 
       <label className="font-bold mt-3">Professor</label>
       <div className="border shadow-lg rounded-lg  w-80 flex items-start justify-start gap-2 p-3">
         <Image className="rounded-[150px] h-24" src = {ProfessorData.ImgSrc} width={100} height={100} />
+
+        
 
         <div className="flex  flex-col">
         <h2 >{ProfessorData.FullName}</h2>

@@ -5,6 +5,8 @@ import { MdDeleteOutline } from "react-icons/md";
 import { CiBookmark } from "react-icons/ci";
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import { useParams, useRouter } from 'next/navigation';
+import { collection, onSnapshot } from 'firebase/firestore';
+import {db} from './firebase'
 const Page = ({ data }) => {
     const parmas = useParams()
     const [Chats,ChangeChats] = useState(data)
@@ -35,6 +37,24 @@ const Page = ({ data }) => {
 
     useEffect(()=>{
         CheckAuth()
+        const unsubscribe = onSnapshot(
+      collection(db, 'communitychats'),
+      (snapshot) => {
+       const newMessages = snapshot.docs.map((data)=>{
+        const details = data.data()
+        if (details.Courseid == parmas.id){
+            return {id:data.id, ...details}
+        }
+       })
+        ChangeChats(newMessages)
+      },
+      (error) => {
+        console.error('Error listening to communitychats:', error);
+      }
+    );
+
+    // Cleanup listener on unmount
+    return () => unsubscribe();
     },[])
     const PostChat = async() =>{
         const session = await Session 
