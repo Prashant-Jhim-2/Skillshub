@@ -242,7 +242,7 @@ const Page = ({ data }) => {
         ChangeLength(words);
       }}
       id = "Chat"
-      className="w-full h-36 text-sm p-3  border-2 rounded-lg border-black shadow-lg outline-none"
+      className="w-full h-36 text-base p-3  border-2 rounded-lg border-black shadow-lg outline-none"
       placeholder="Type your message here..."
     ></textarea>
 
