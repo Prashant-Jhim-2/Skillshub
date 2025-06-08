@@ -3,9 +3,11 @@ import { getSession } from 'next-auth/react';
 import {useState,useEffect} from 'react'
 import { MdDeleteOutline } from "react-icons/md";
 import { CiBookmark } from "react-icons/ci";
+import { serverTimestamp } from "firebase/firestore";
+
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import { useParams, useRouter } from 'next/navigation';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection,query, orderBy, onSnapshot } from 'firebase/firestore';
 import {db} from './firebase'
 const Page = ({ data }) => {
     const parmas = useParams()
@@ -37,16 +39,22 @@ const Page = ({ data }) => {
 
     useEffect(()=>{
         CheckAuth()
-        const unsubscribe = onSnapshot(
-      collection(db, 'communitychats'),
+        const q = query(
+      collection(db, "communitychats"),
+      orderBy("createdAt", "desc") // sort by createdAt in ascending order
+    );
+        const unsubscribe = onSnapshot(q,
       (snapshot) => {
        const newMessages = snapshot.docs.map((data)=>{
         const details = data.data()
-        if (details.Courseid == parmas.id){
-            return {id:data.id, ...details}
+        return {
+          ...details,
+          id: data.id // include the document ID
         }
        })
+       console.log(newMessages)
         ChangeChats(newMessages)
+           document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
       },
       (error) => {
         console.error('Error listening to communitychats:', error);
@@ -67,6 +75,7 @@ const Page = ({ data }) => {
             Profile: user,
             FullName,
             MarkedImp:[],
+            createdAt: Date.now()
         }
         
         const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/SendCommunityChat`,{
@@ -83,7 +92,10 @@ const Page = ({ data }) => {
                 id:Response.id
             }
             const newdata = [...Chats,NewChats]
-            ChangeChats(newdata);
+              document.getElementById("Chat").value = ''
+         
+           
+          
         }
 
         
