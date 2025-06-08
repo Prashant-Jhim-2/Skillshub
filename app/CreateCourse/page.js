@@ -191,7 +191,8 @@ const Page = () =>{
             Price:document.getElementById("Price").value ,
             Topics:TopicCovered,
             PriceType : PriceType,
-            content:[]
+            content:[],
+            Enrolled:[]
         }
         console.log(Details)
         // Scrollup Function

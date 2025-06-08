@@ -10,7 +10,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { collection,query, orderBy, onSnapshot } from 'firebase/firestore';
 import {db} from './firebase'
 import { Move } from 'lucide-react';
-const Page = ({ data }) => {
+const Page = ({ data ,CourseData,Enrolled}) => {
     const parmas = useParams()
     const [MovedUp,ChangeMovedUp] = useState(false)
     const [Chats,ChangeChats] = useState([])
@@ -18,7 +18,7 @@ const Page = ({ data }) => {
     const Session = getSession()
     const Router = useRouter()
     const [Details,ChangeDetails] = useState({})
-
+   console.log(CourseData)
 
     const CheckAuth = async()=>{
         const session = await Session;
@@ -210,13 +210,17 @@ const Page = ({ data }) => {
            </div>
              </div>
          </div>
-         <button className="fixed z-20 flex gap-1 items-center justify-center bg-white top-2 left-3"><VscArrowCircleLeft size = {25}/>Back</button>
+         <button
+         onClick={()=>{
+          Router.push(`/Course/${parmas.id}`)
+         }}
+         className="fixed z-20 active:text-rose-600 flex gap-1 items-center justify-center bg-white top-2 left-3"><VscArrowCircleLeft size = {25}/>Back</button>
   <div className="fixed top-0 left-0 w-full flex flex-col items-center justify-center  z-10 bg-white rounded-b shadow py-2">
   <label className="text-lg font-semibold">Educorner 📖</label>
-  <h1 className="text-xs p-2 bg-black text-white rounded font-bold mt-1">IELTS Class Chats</h1>
+  <h1 className="text-xs p-2 bg-black text-white rounded font-bold mt-1">{CourseData.Name} Chats</h1>
   
   <label className="mt-2 p-1 px-3 font-bold rounded-lg bg-green-600 text-white text-sm">
-    23 Active
+    {Enrolled.length} Enrolled
   </label>
 </div>
 
