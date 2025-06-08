@@ -210,14 +210,19 @@ const Page = ({ data }) => {
            </div>
              </div>
          </div>
-         <button className="fixed flex gap-1 items-center justify-center bg-white top-2 left-3"><VscArrowCircleLeft size = {25}/>Back</button>
-        <div className="flex flex-col mt-6 h-24  items-center justify-center w-screen  "> 
-             <label >Educorner 📖</label>
-             <h1 className="text-xs p-2 bg-black text-white rounded font-bold">Ilets Class Chats</h1>
-             
-             <label className='text-white fixed top-0 right-2 p-2 font-bold rounded-lg mt-3 bg-green-600 text-sm'>23  Active</label>
-        </div>
-        <div className = 'w-screen pt-6 h-3/4 pl-2 flex flex-col  '>
+         <button className="fixed z-20 flex gap-1 items-center justify-center bg-white top-2 left-3"><VscArrowCircleLeft size = {25}/>Back</button>
+  <div className="fixed top-0 left-0 w-full flex flex-col items-center justify-center  z-10 bg-white rounded-b shadow py-2">
+  <label className="text-lg font-semibold">Educorner 📖</label>
+  <h1 className="text-xs p-2 bg-black text-white rounded font-bold mt-1">IELTS Class Chats</h1>
+  
+  <label className="mt-2 p-1 px-3 font-bold rounded-lg bg-green-600 text-white text-sm">
+    23 Active
+  </label>
+</div>
+
+
+
+        <div className = 'w-screen pt-24 h-3/4 pl-2 flex flex-col  '>
            
 
             <div className="flex flex-col gap-6 h-full    overflow-scroll items-center  mt-4">
