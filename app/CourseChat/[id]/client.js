@@ -9,9 +9,11 @@ import { VscArrowCircleLeft } from "react-icons/vsc";
 import { useParams, useRouter } from 'next/navigation';
 import { collection,query, orderBy, onSnapshot } from 'firebase/firestore';
 import {db} from './firebase'
+import { Move } from 'lucide-react';
 const Page = ({ data }) => {
     const parmas = useParams()
-    const [Chats,ChangeChats] = useState(data)
+    const [MovedUp,ChangeMovedUp] = useState(false)
+    const [Chats,ChangeChats] = useState([])
     const [Length , ChangeLength] = useState(0)
     const Session = getSession()
     const Router = useRouter()
@@ -39,9 +41,17 @@ const Page = ({ data }) => {
 
     useEffect(()=>{
         CheckAuth()
+
+        if (MovedUp == false){
+          ChangeChats(data)
+           setTimeout(() => {
+            document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
+          }, 1000);
+            ChangeMovedUp(true)
+        }
         const q = query(
       collection(db, "communitychats"),
-      orderBy("createdAt", "desc") // sort by createdAt in ascending order
+      orderBy("createdAt", "asc") // sort by createdAt in ascending order
     );
         const unsubscribe = onSnapshot(q,
       (snapshot) => {
@@ -54,7 +64,9 @@ const Page = ({ data }) => {
        })
        console.log(newMessages)
         ChangeChats(newMessages)
-           document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
+       setTimeout(() => { 
+         document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
+       }, 1000);
       },
       (error) => {
         console.error('Error listening to communitychats:', error);
@@ -64,6 +76,8 @@ const Page = ({ data }) => {
     // Cleanup listener on unmount
     return () => unsubscribe();
     },[])
+
+
     const PostChat = async() =>{
         const session = await Session 
         const user = session.user.id 
@@ -93,6 +107,9 @@ const Page = ({ data }) => {
             }
             const newdata = [...Chats,NewChats]
               document.getElementById("Chat").value = ''
+              ChangeChats(newdata)
+              ChangeLength(0)
+              document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
          
            
           
@@ -102,15 +119,70 @@ const Page = ({ data }) => {
     }
 
     const Chat = (props) =>{
+        
         const Profile = props.Profile 
         const user = Details.id
+
+
+
+
+    // Function to Mark it Important 
+    const MarkImportant = async(id) =>{
+      const session = await Session 
+      const user = session.user.id 
+      const Courseid = id
+      const FullName = session.user.FullName 
+      const Details = {
+        FullName,
+        id:user,
+        Courseid,
+      }
+      console.log(Details)
+
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/MarkImportant`,{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({details:Details})
+      })
+      const Response = await Request.json()
+      console.log(Response)
+    }
+
+
+    // Function to delete the chat for everyone
+    const DeleteChat = async(id) =>{
+      const session = await Session 
+      const user = session.user.id 
+      const Chatid = id 
+
+      const Details = {
+        id:user,
+        Chatid,
+      }
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/DeleteCommunityChat`,{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({details:Details})
+      })
+      const Response = await Request.json()
+      if (Response.status == false){
+        alert("Something went wrong")}
+    }
         return (
             <div className=" self-start pt-6   flex flex-col  " >
                  <p className="text-[13px] font-bold">{Profile == user ? <>Me</> : <>{props.FullName}</>}</p>
                 <h1 className={`text-sm border-l-4 pl-2 ${Profile == user ? 'border-l-blue-600' : 'border-l-red-600'}`}>{props.Chat}</h1>
                 {Profile == user ? <>
-                 <button className=' flex gap-2 items-center justify-center text-xs self-start mt-3'> <CiBookmark className={`${props.MarkedImp.length !=0 ? "text-black font-bold":'bg-white text-black'}`} size={20} />  {props.MarkedImp.length == 0 ? <>Mark as Important</>  : `Marked Important [${props.MarkedImp.length}]` } </button>
-                <button className = 'flex self-start gap-2 mt-3 active:text-rose-600 text-sm items-center justify-center'><MdDeleteOutline className='text-rose-600' size = {20} />Delete for Everyone </button>
+                 <button  onClick={()=>{
+                  MarkImportant(props.id)
+                 }} className=' flex gap-2 items-center justify-center text-xs self-start mt-3'> <CiBookmark className={`${props.MarkedImp.length !=0 ? "text-black font-bold":'bg-white text-black'}`} size={20} />  {props.MarkedImp.length == 0 ? <>Mark as Important</>  : <>Marked Important {props.MarkedImp.length}</>  } </button>
+                <button onClick={()=>{
+                  DeleteChat(props.id)
+                }} className = 'flex self-start gap-2 mt-3 active:text-rose-600 text-sm items-center justify-center'><MdDeleteOutline className='text-rose-600' size = {20} />Delete for Everyone </button>
              
                 </>:<></>}  
             </div>
@@ -149,25 +221,23 @@ const Page = ({ data }) => {
            
 
             <div className="flex flex-col gap-6 h-full    overflow-scroll items-center  mt-4">
-               {Chats.map((data)=><Chat MarkedImp = {data.MarkedImp} Profile={data.Profile} user = {data.user} FullName = {data.FullName} Chat = {data.Chat}/>)}
+               {Chats.map((data)=><Chat id = {data.id} MarkedImp = {data.MarkedImp} Profile={data.Profile} user = {data.user} FullName = {data.FullName} Chat = {data.Chat}/>)}
                <label id = "End" className='text-[2px]'>End Of Chat</label>
             </div>
         </div>
 
        <div className="flex flex-col h-screen w-screen px-4 py-2 bg-white">
  
-  <div className="flex justify-end mb-1">
-    <label className="font-bold text-xs text-black">{Length} Words</label>
-  </div>
+ 
 
-  <div className="relative flex items-center overflow-auto   justify-center flex-col w-full   ">
+  <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 py-2 bg-white border-t shadow  ">
     <textarea
       onChange={(e)=>{
         const words = e.target.value.trim().split(/\s+/).filter(Boolean).length;
         ChangeLength(words);
       }}
       id = "Chat"
-      className="w-full h-36 text-sm p-3 pr-16 border-2 rounded-lg border-black shadow-lg outline-none"
+      className="w-full h-36 text-sm p-3  border-2 rounded-lg border-black shadow-lg outline-none"
       placeholder="Type your message here..."
     ></textarea>
 
