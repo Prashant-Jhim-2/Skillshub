@@ -7,9 +7,10 @@ import { serverTimestamp } from "firebase/firestore";
 
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import { useParams, useRouter } from 'next/navigation';
-import { collection,query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection,  where,query, orderBy, onSnapshot } from 'firebase/firestore';
 import {db} from './firebase'
 import { Move } from 'lucide-react';
+
 const Page = ({ data ,CourseData,Enrolled}) => {
     const parmas = useParams()
     const [MovedUp,ChangeMovedUp] = useState(false)
@@ -50,31 +51,27 @@ const Page = ({ data ,CourseData,Enrolled}) => {
             ChangeMovedUp(true)
         }
         const q = query(
-      collection(db, "communitychats"),
-      orderBy("createdAt", "asc") // sort by createdAt in ascending order
-    );
-        const unsubscribe = onSnapshot(q,
-      (snapshot) => {
-       const newMessages = snapshot.docs.map((data)=>{
-        const details = data.data()
-        return {
-          ...details,
-          id: data.id // include the document ID
-        }
-       })
-       console.log(newMessages)
-        ChangeChats(newMessages)
-       setTimeout(() => { 
-         document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
-       }, 1000);
-      },
-      (error) => {
-        console.error('Error listening to communitychats:', error);
-      }
-    );
+          collection(db, "communitychats"),
+          where("Courseid", "==", parmas.id),
+          orderBy("createdAt", "asc")
+        );
 
-    // Cleanup listener on unmount
-    return () => unsubscribe();
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          const chats = [];
+          querySnapshot.forEach((docSnap) => {
+            chats.push({ ...docSnap.data(), id: docSnap.id });
+          });
+          ChangeChats(chats);
+          setTimeout(() => {
+            document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
+          }, 1000);
+        }, (error) => {
+          console.error('Error listening to communitychats:', error);
+        });
+        // Cleanup listener on unmount
+        return () => unsubscribe();
+    
+    
     },[])
 
 
