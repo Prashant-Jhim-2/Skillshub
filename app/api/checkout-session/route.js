@@ -4,7 +4,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   try {
-    const {items,Type} = await req.json();
+    const {items,Type,SuccessURL,CancelURL} = await req.json();
    console.log(items,Type)
      
     const product = await stripe.products.create({
@@ -34,8 +34,8 @@ export async function POST(req) {
         price:price.id,quantity:1
       }],
       mode: Type,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+      success_url: SuccessURL,
+      cancel_url: CancelURL,
     });
     
     return new Response(JSON.stringify({ id: session.id }), {

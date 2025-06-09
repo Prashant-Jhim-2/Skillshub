@@ -43,7 +43,7 @@ const Page = ({DataofCard}) =>{
       const request = await fetch('/api/checkout-session',{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({items,Type})
+        body:JSON.stringify({items,Type,SuccessURL:`${process.env.NEXT_PUBLIC_BASE_URL}/Course/${params.id}`,CancelURL:`${process.env.NEXT_PUBLIC_BASE_URL}/courses/${params.id}`})
       })
       const response = await request.json()
       console.log(response.id)
