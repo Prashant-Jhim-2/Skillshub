@@ -14,6 +14,7 @@ import { Move } from 'lucide-react';
 const Page = ({ data ,CourseData,Enrolled}) => {
     const parmas = useParams()
     const [MovedUp,ChangeMovedUp] = useState(false)
+    const [EnrolledDisplay,ChangeEnrolledDisplay] = useState(false)
     const [Chats,ChangeChats] = useState([])
     const [Length , ChangeLength] = useState(0)
     const Session = getSession()
@@ -52,15 +53,16 @@ const Page = ({ data ,CourseData,Enrolled}) => {
         }
         const q = query(
           collection(db, "communitychats"),
-          where("Courseid", "==", parmas.id),
-          orderBy("createdAt", "asc")
+          where("Courseid", "==", parmas.id)
         );
 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
-          const chats = [];
+          let chats = [];
           querySnapshot.forEach((docSnap) => {
             chats.push({ ...docSnap.data(), id: docSnap.id });
           });
+          // Sort chats by createdAt in ascending order
+          chats.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
           ChangeChats(chats);
           setTimeout(() => {
             document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
@@ -191,22 +193,33 @@ const Page = ({ data ,CourseData,Enrolled}) => {
 
 
 
-         <div className = 'w-full hidden  h-screen flex items-center justify-center bg-white/30 backdrop-blur fixed z-40'>
+        {EnrolledDisplay && <>
+         <div className = 'w-full   h-screen flex items-center justify-center bg-white/30 backdrop-blur fixed z-40'>
 
 
 
           <div className='w-80 bg-white overflow-auto relative border flex items-center justify-center flex-col gap-2 p-4 rounded-lg shadow-lg'>
-            <button className='text-sm absolute top-2 p-2  bg-black text-white rounded left-2'>Back</button>
+            <button
+            onClick={()=>{
+              ChangeEnrolledDisplay(false)
+            }}
+            className='text-sm absolute top-2 p-2  bg-black text-white rounded left-2'>Back</button>
             <label className='border-b-2 mb-6 border-b-black'>Enrolled Students</label>
            <div className='w-full flex flex-col gap-2 pb-6   h-80 overflow-scroll'>
-            <button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>Prashant Jhim  <strong className='text-sm text-green-500'>Active</strong></button><button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>Prashant Jhim  <strong className='text-sm text-green-500'>Active</strong></button><button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>Prashant Jhim  <strong className='text-sm text-green-500'>Active</strong></button><button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>Prashant Jhim  <strong className='text-sm text-green-500'>Active</strong></button>
-            <button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>Prashant Jhim  <strong className='text-sm text-green-500'>Active</strong></button><button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>Prashant Jhim  <strong className='text-sm text-green-500'>Active</strong></button><button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>Prashant Jhim  <strong className='text-sm text-green-500'>Active</strong></button>
+            {Enrolled.map((data)=>{
+              return (
+                <button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>{data.id == Details.id ? <>Me</> : <>{data.FullName}</>}  <strong className='text-sm text-green-500'>Active</strong></button>
+              )
+            })}
+            
+            
            
             
             
            </div>
              </div>
          </div>
+        </>}
          <button
          onClick={()=>{
           Router.push(`/Course/${parmas.id}`)
@@ -216,7 +229,9 @@ const Page = ({ data ,CourseData,Enrolled}) => {
   <label className="text-lg font-semibold">Educorner 📖</label>
   <h1 className="text-xs p-2 bg-black text-white rounded font-bold mt-1">{CourseData.Name} Chats</h1>
   
-  <label className="mt-2 p-1 px-3 font-bold rounded-lg bg-green-600 text-white text-sm">
+  <label onClick = {()=>{
+    ChangeEnrolledDisplay(true)
+  }} className="mt-2 p-1 px-3 font-bold rounded-lg bg-green-600 text-white text-sm">
     {Enrolled.length} Enrolled
   </label>
 </div>
@@ -237,6 +252,7 @@ const Page = ({ data ,CourseData,Enrolled}) => {
  
 
   <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-2xl px-4 py-2 bg-white border-t shadow  ">
+  
     <textarea
       onChange={(e)=>{
         const words = e.target.value.trim().split(/\s+/).filter(Boolean).length;
@@ -253,6 +269,7 @@ const Page = ({ data ,CourseData,Enrolled}) => {
     className="self-end mt-3 bg-black text-white text-sm p-3 rounded shadow">
       Send
     </button>
+   
   </div>
 </div>
 
