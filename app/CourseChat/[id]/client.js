@@ -3,7 +3,7 @@ import { getSession } from 'next-auth/react';
 import {useState,useEffect} from 'react'
 import { MdDeleteOutline } from "react-icons/md";
 import { CiBookmark } from "react-icons/ci";
-import { serverTimestamp } from "firebase/firestore";
+import { RiFileMarkedFill } from "react-icons/ri";
 
 import { VscArrowCircleLeft } from "react-icons/vsc";
 import { useParams, useRouter } from 'next/navigation';
@@ -78,6 +78,10 @@ const Page = ({ data ,CourseData,Enrolled}) => {
 
 
     const PostChat = async() =>{
+        document.getElementById("Sendbtn").disabled = true
+        document.getElementById("Sendbtn").style.cursor = "not-allowed"
+        document.getElementById("Sendbtn").style.opacity = "0.5"
+        document.getElementById("Sendbtn").innerText = "Sending..."
         const session = await Session 
         const user = session.user.id 
         const FullName = session.user.FullName 
@@ -109,6 +113,14 @@ const Page = ({ data ,CourseData,Enrolled}) => {
               ChangeChats(newdata)
               ChangeLength(0)
               document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
+
+              setTimeout(() => {
+                document.getElementById("Sendbtn").disabled = false
+                document.getElementById("Sendbtn").innerText = "Send"
+                document.getElementById("Sendbtn").style.cursor = "pointer"
+                document.getElementById("Sendbtn").style.opacity = "1"
+              }
+              , 1000)
          
            
           
@@ -121,8 +133,15 @@ const Page = ({ data ,CourseData,Enrolled}) => {
         
         const Profile = props.Profile 
         const user = Details.id
+       const [MarkedImp, ChangeMarkedImp] = useState(props.MarkedImp)
 
+        const FirstChat = props.MarkedImp.length == 0 ? {FullName:'noone'} : props.MarkedImp[0]
 
+        const isUserInArray = (arr, userId) => {
+          return arr.some(obj => obj.id === userId);
+        };
+
+        const MarkedOrNot = isUserInArray(MarkedImp, user) 
 
 
     // Function to Mark it Important 
@@ -149,6 +168,29 @@ const Page = ({ data ,CourseData,Enrolled}) => {
       console.log(Response)
     }
 
+    // Function to Mark it Important 
+    const UnMarkImportant = async(id) =>{
+      const session = await Session 
+      const user = session.user.id 
+      const Courseid = id
+      const FullName = session.user.FullName 
+      const Details = {
+        FullName,
+        id:user,
+        Courseid,
+      }
+      console.log(Details)
+
+      const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/UnmarkImportant`,{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({details:Details})
+      })
+      const Response = await Request.json()
+      console.log(Response)
+    }
 
     // Function to delete the chat for everyone
     const DeleteChat = async(id) =>{
@@ -175,15 +217,40 @@ const Page = ({ data ,CourseData,Enrolled}) => {
             <div className=" self-start pt-6   flex flex-col  " >
                  <p className="text-[13px] font-bold">{Profile == user ? <>Me</> : <>{props.FullName}</>}</p>
                 <h1 className={`text-sm border-l-4 pl-2 ${Profile == user ? 'border-l-blue-600' : 'border-l-red-600'}`}>{props.Chat}</h1>
-                {Profile == user ? <>
-                 <button  onClick={()=>{
+                
+
+                {MarkedOrNot == true ? <>
+                <button onClick={
+                  ()=>{
+                    UnMarkImportant(props.id)
+                    
+                  }
+                } className='flex mt-3 self-start gap-2 text-sm items-center justify-center'>< RiFileMarkedFill size = {20} /> Unmark it </button>
+                </> : <><button onClick = {()=>{
                   MarkImportant(props.id)
-                 }} className=' flex gap-2 items-center justify-center text-xs self-start mt-3'> <CiBookmark className={`${props.MarkedImp.length !=0 ? "text-black font-bold":'bg-white text-black'}`} size={20} />  {props.MarkedImp.length == 0 ? <>Mark as Important</>  : <>Marked Important {props.MarkedImp.length}</>  } </button>
+                  
+                }} className = 'flex items-center justify-center text-sm  gap-2 self-start mt-3'><CiBookmark size = {20} />Mark as Important</button></>}
+                
+                {Profile == user ? <>
                 <button onClick={()=>{
                   DeleteChat(props.id)
                 }} className = 'flex self-start gap-2 mt-3 active:text-rose-600 text-sm items-center justify-center'><MdDeleteOutline className='text-rose-600' size = {20} />Delete for Everyone </button>
-             
-                </>:<></>}  
+              </>:<></>}  
+
+
+
+
+                {props.MarkedImp.length != 0 && <>
+                  <label className = 'flex mt-3 border p-1 rounded border-rose-600 bg-rose-600  text-white font-bold text-xs items-center justify-center gap-2 '>
+
+                    {props.MarkedImp.length == 1 ? <>
+                    {FirstChat.id != Details.id ? <>{FirstChat.FullName}</> :<>You</>} Marked It Important
+                    </>
+                    :<>
+                    {FirstChat.id != Details.id ? <>{FirstChat.FullName}</> :<>You</>} and 1 other Marked It Important
+                    </>}
+                  </label>
+                </>}
             </div>
         )
     }
@@ -265,6 +332,7 @@ const Page = ({ data ,CourseData,Enrolled}) => {
 
    
     <button
+    id = "Sendbtn"
     onClick={PostChat}
     className="self-end mt-3 bg-black text-white text-sm p-3 rounded shadow">
       Send
