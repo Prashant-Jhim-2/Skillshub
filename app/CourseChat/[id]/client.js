@@ -46,9 +46,11 @@ const Page = ({ data ,CourseData,Enrolled}) => {
 
         if (MovedUp == false){
           ChangeChats(data)
-           setTimeout(() => {
+          if (data.length > 3 ){
+             setTimeout(() => {
             document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
           }, 1000);
+          }
             ChangeMovedUp(true)
         }
         const q = query(
@@ -64,9 +66,11 @@ const Page = ({ data ,CourseData,Enrolled}) => {
           // Sort chats by createdAt in ascending order
           chats.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
           ChangeChats(chats);
-          setTimeout(() => {
+          if (chats.length > 3 ){
+            setTimeout(() => {
             document.getElementById("End").scrollIntoView({ behavior: 'smooth' });
           }, 1000);
+          }
         }, (error) => {
           console.error('Error listening to communitychats:', error);
         });
