@@ -247,7 +247,7 @@ const Page = ({ data ,CourseData,Enrolled}) => {
                     {FirstChat.id != Details.id ? <>{FirstChat.FullName}</> :<>You</>} Marked It Important
                     </>
                     :<>
-                    {FirstChat.id != Details.id ? <>{FirstChat.FullName}</> :<>You</>} and 1 other Marked It Important
+                    {FirstChat.id != Details.id ? <>{FirstChat.FullName}</> :<>You</>} and {props.MarkImportant.length - 1} other Marked It Important
                     </>}
                   </label>
                 </>}
