@@ -15,11 +15,15 @@ const Page = ({ data ,CourseData,Enrolled}) => {
     const parmas = useParams()
     const [MovedUp,ChangeMovedUp] = useState(false)
     const [EnrolledDisplay,ChangeEnrolledDisplay] = useState(false)
+    const [Markedonly,ChangeMarkedOnly] = useState(false)
     const [Chats,ChangeChats] = useState([])
     const [Length , ChangeLength] = useState(0)
     const Session = getSession()
     const Router = useRouter()
     const [Details,ChangeDetails] = useState({})
+
+    // Part To Change Name of Hidden Name 
+    const [Div,ChangeDiv] = useState({Name:"Enrolled Students",data:Enrolled})
    console.log(CourseData)
 
     const CheckAuth = async()=>{
@@ -196,6 +200,7 @@ const Page = ({ data ,CourseData,Enrolled}) => {
       console.log(Response)
     }
 
+
     // Function to delete the chat for everyone
     const DeleteChat = async(id) =>{
       const session = await Session 
@@ -245,7 +250,12 @@ const Page = ({ data ,CourseData,Enrolled}) => {
 
 
                 {props.MarkedImp.length != 0 && <>
-                  <label className = 'flex mt-3 border p-1 rounded border-rose-600 bg-rose-600  text-white font-bold text-xs items-center justify-center gap-2 '>
+                  <label
+                     onClick = {()=>{
+                      ChangeDiv({Name:"Marked Important",data:props.MarkedImp})
+                      ChangeEnrolledDisplay(true)
+                     }}
+                     className = 'flex mt-3 border p-1 rounded border-rose-600 bg-rose-600  text-white font-bold text-xs items-center justify-center gap-2 '>
 
                     {props.MarkedImp.length == 1 ? <>
                     {FirstChat.id != Details.id ? <>{FirstChat.FullName}</> :<>You</>} Marked It Important
@@ -279,11 +289,11 @@ const Page = ({ data ,CourseData,Enrolled}) => {
               ChangeEnrolledDisplay(false)
             }}
             className='text-sm absolute top-2 p-2  bg-black text-white rounded left-2'>Back</button>
-            <label className='border-b-2 mb-6 border-b-black'>Enrolled Students</label>
+            <label className='border-b-2 mb-6 border-b-black'>{Div.Name}</label>
            <div className='w-full flex flex-col gap-2 pb-6   h-80 overflow-scroll'>
-            {Enrolled.map((data)=>{
+            {Div.data.map((data)=>{
               return (
-                <button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>{data.id == Details.id ? <>Me</> : <>{data.FullName}</>}  <strong className='text-sm text-green-500'>Active</strong></button>
+                <button className='gap-2 h-16  p-3 rounded border-black border w-full   flex items-center justify-center'>{data.id == Details.id ? <>Me</> : <>{data.FullName}</>}  </button>
               )
             })}
             
@@ -309,6 +319,22 @@ const Page = ({ data ,CourseData,Enrolled}) => {
   }} className="mt-2 p-1 px-3 font-bold rounded-lg bg-green-600 text-white text-sm">
     {Enrolled.length} Enrolled
   </label>
+  <button
+  onClick={()=>{
+     if (Markedonly == false){
+      ChangeMarkedOnly(true)
+     
+      return 0
+     }
+     if (Markedonly == true){
+      ChangeMarkedOnly(false)
+     
+     
+      return 0
+     }
+  }}
+  
+  className='fixed top-2 bg-black text-xs active:bg-white active:border active:border-black active:text-black rounded  text-white p-2 right-2'> {Markedonly == false ? <>✅ Marked Only</>:<>All Chats 🔁</>} </button>
 </div>
 
 
@@ -317,7 +343,23 @@ const Page = ({ data ,CourseData,Enrolled}) => {
            
 
             <div className="flex flex-col gap-6 h-full    overflow-scroll items-center  mt-4">
-               {Chats.map((data)=><Chat id = {data.id} MarkedImp = {data.MarkedImp} Profile={data.Profile} user = {data.user} FullName = {data.FullName} Chat = {data.Chat}/>)}
+               {Markedonly == true ? <>
+               {Chats.map((data)=>{
+                if (data.MarkedImp.length != 0 ){
+                  return (
+                  <Chat id = {data.id} MarkedImp = {data.MarkedImp} Profile={data.Profile} user = {data.user} FullName = {data.FullName} Chat = {data.Chat}/>
+                )
+                }
+               })}
+               </>:<>
+               {Chats.map((data)=>{
+               
+                  return (
+                  <Chat id = {data.id} MarkedImp = {data.MarkedImp} Profile={data.Profile} user = {data.user} FullName = {data.FullName} Chat = {data.Chat}/>
+                )
+                
+               })}
+               </>}
                <label id = "End" className='text-[2px]'>End Of Chat</label>
             </div>
         </div>
