@@ -1,506 +1,479 @@
 'use client'
 import Image from "next/image"
-import ReactPlayer from "react-player"
-import {useState,useRef,useEffect} from 'react'
-import { MdOutlineFileUpload } from "react-icons/md"
-import { CgProfile } from "react-icons/cg";;
+import {useState,useEffect, useRef} from 'react'
 import { TiMessages } from "react-icons/ti";
-import { VscArrowCircleLeft } from "react-icons/vsc";
-import { AiOutlineDelete } from "react-icons/ai";
-import { TbBookUpload } from "react-icons/tb";
-import { MdOutlineCloudUpload } from "react-icons/md";
+
+import { CgProfile } from "react-icons/cg";
+import { MdOutlineFileUpload } from "react-icons/md";
 import { IoMdCloseCircleOutline } from "react-icons/io";
-import { GrChapterPrevious } from "react-icons/gr";
-import { GrChapterNext } from "react-icons/gr";
-import { CiPlay1 } from "react-icons/ci";
-import { initializeApp } from 'firebase/app';
-import { getStorage } from 'firebase/storage';
-import { ref, uploadBytesResumable,uploadBytes, getDownloadURL } from 'firebase/storage';
+import { MdZoomIn, MdZoomOut } from "react-icons/md";
 import Link from "next/link";
 import { getSession } from "next-auth/react"
-import { useParams,useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { createClient } from '@supabase/supabase-js'
 
+import { VscArrowCircleLeft } from "react-icons/vsc";
+
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
+
+// Function to upload file to Supabase Storage
+const UploadToSupabase = async (file) => {
+  try {
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${Date.now()}.${fileExt}`
+    const filePath = `newpdfs/${fileName}`
+
+    // Upload file to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('newpdfs')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      })
+
+    if (error) throw error
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('newpdfs')
+      .getPublicUrl(filePath)
+
+    return {
+      status: true,
+      url: publicUrl
+    }
+  } catch (error) {
+    console.error('Upload error:', error)
+    return {
+      status: false,
+      error: 'Failed to upload file'
+    }
+  }
+}
 
 const Page = ({data}) =>{
+  const Router = useRouter()
   const params = useParams()
-  const Session = getSession()
-  const [enabled, setEnabled] = useState(false);
-  const [Posttext,ChangePostText] = useState('Upload')
-  const [EditDisplay,ChangeEditDisplay] = useState('hidden')
-  const [Savingtext,changesavingtext] = useState('Save Changes ✅')
-  const [animateenable, setAnimateEnabled] = useState(false);
-  // State to Store data of course or changes in it 
-  const [CourseName,CourseNameChange] = useState(data.Details.Name)
-  const [Description,ChangeDescription] = useState(data.Details.Description)
-  const [CourseImg,ChangeCourseImg] = useState(data.Details.ImgSrc)
-  const [Content,ChangeContent] = useState(data.videos)
-  const [progress,ChangeProgress] = useState(0)
-  const [VideoPlayerDisplay,ChangeVideoPlayerDisplay] = useState('hidden')
-  const [VideoPlayerSrc,ChangeVideoPlayerSrc] = useState({Name:undefined,Src:undefined,Index:undefined})
-
-  // State to Store The Data
- // Ref for Video Duration 
-const VideoRef =  useRef(null)
-  // Temporary Storage for Video and Image 
-  const [TempImg,ChangeTempImg] = useState(undefined)
-  const [TempVideo,ChangeTempVideo] = useState(undefined)
-  const [UploadableImageFile,ChangeUploadableImageFile] = useState(undefined)
-  const [UploadableVideoile,ChangeUploadableVideoFile] = useState(undefined)
-
-
-  const [Display,ChangeDisplay] = useState('hidden')
+  const [Session, setSession] = useState(null)
   const [ProfessorData,ChangeProfessorData] = useState({FullName:"",ImgSrc:"",id:""})
-  
-  console.log(enabled)
+  const [Display,ChangeDisplay] = useState('hidden')
+  const [Chapters, ChangeChapters] = useState(data.chapterData)
+  const [UploadTitle, ChangeUploadTitle] = useState('')
+  const [UploadIndex, ChangeUploadIndex] = useState('')
+  const [SelectedFile, ChangeSelectedFile] = useState(null)
+  const [PreviewUrl, ChangePreviewUrl] = useState('')
+  const [Uploading, ChangeUploading] = useState(false)
+  const [PdfViewer, ChangePdfViewer] = useState({display: 'hidden', url: ''})
+  const [isProfessor, setIsProfessor] = useState(false)
+  const [isEnrolled, setIsEnrolled] = useState(false)
+  const [hasAccess, setHasAccess] = useState(false)
+  const fileInputRef = useRef(null)
+  const iframeRef = useRef(null)
+  const [Videos,ChangeVideos] = useState(data.videos)
 
+  const id = params.id 
 
-  // Function to Save The Changes 
-  const SaveChanges = async(InputContent) =>{
-     console.log(InputContent)
-     changesavingtext('Saving...🚗')
-     setAnimateEnabled(true)
-     var ImgSrc  
-     if (UploadableImageFile != undefined){
-      // Part Of Uploading Image 
-      const firebaseConfig = {
-                  apiKey: process.env.NEXT_PUBLIC_apiKey,
-                  authDomain:  process.env.NEXT_PUBLIC_authDomain,
-                  projectId:  process.env.NEXT_PUBLIC_projectId,
-                  storageBucket:  process.env.NEXT_PUBLIC_storageBucket,
-                  messagingSenderId: process.env.NEXT_PUBLIC_messagingSenderId,
-                  appId:  process.env.NEXT_PUBLIC_appId,
-                };
-        const app = initializeApp(firebaseConfig);
-        const storage = getStorage(app);
-        // Function To Upload Image and Get ImgSrc 
-        const UploadImg = async()=>{
-         const storageref = ref(storage,`photos/${UploadableImageFile.name}`)
-         await uploadBytes(storageref,UploadableImageFile)
-         const url = await getDownloadURL(storageref)
-         return url 
-               }
-
-      ImgSrc = await UploadImg()
+  // Function to check if user is enrolled
+  const checkEnrollment = async (userId) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_PORT}/GetEnrolledStudents/${id}`)
+      const result = await response.json()
       
-     }
-     if (UploadableImageFile == undefined ){
-      ImgSrc = CourseImg
-  }
-
-  const Details = {
-    Name : CourseName,
-    Description:Description,
-    ImgSrc:ImgSrc,
-    Content:InputContent || Content
-  }
-  const id = data.Details.id 
-  const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/UpdateCard`,{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json'
-    },
-    body:JSON.stringify({id,data:Details})
-  })
-  const Response = await Request.json()
-   if (Response.status == true){
-    setTimeout(()=>{
-      changesavingtext('Save Changes ✅')
-      setAnimateEnabled(false)
-      setEnabled(false)
-     
-    },2000)
-   }
-}
-
-
-// Function to Check if User is Professor or not
-const CheckUser = async() =>{
-  const session = await Session 
-  if (session != undefined){
-    const id = session.user.id 
-    if (id == data.Details.ProfessorId){
-      ChangeEditDisplay('flex')
+      if (result.data) {
+        const isEnrolled = result.data.some(student => student.id === userId)
+        setIsEnrolled(isEnrolled)
+        return isEnrolled
+      }
+      return false
+    } catch (error) {
+      console.error('Error checking enrollment:', error)
+      return false
     }
   }
-}
 
-const HandleTextChange = (event)=>{
-  const id = event.target.id 
- 
-  if (id == 'CourseName'){
-    CourseNameChange(event.target.innerText)
-  }
-  if (id == 'Description'){
-    ChangeDescription(event.target.innerText)
-  }
-}
-
-// function use public id to create a signed url
-const GetSignedUrl = async(PublicID) =>{
-  const Request = await fetch('/api/signedurl',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json'
-    },
-    body:JSON.stringify({public_id:PublicID})
-  })
-  const Response = await Request.json()
-  console.log(Response)
-  if (Response.url != undefined){
-   return Response.url
-  }
-}
-
-
-  const VideoCard = (props)=>{
-    const [DeleteText,ChangeDeleteText] = useState("Delete")
-// Function to Delete Video Card 
-const DeleteVideoCard = async()=>{
-  ChangeDeleteText('Deleting..')
-  const NewContent = Content.filter((data)=>{
-    if (data.Index != props.Index){
-      return data 
+  // Function to handle file selection
+  const handleFileChange = (event) => {
+    const file = event.target.files[0]
+    if (file && file.type === 'application/pdf') {
+      ChangeSelectedFile(file)
+      const url = URL.createObjectURL(file)
+      ChangePreviewUrl(url)
+    } else {
+      alert('Please select a PDF file')
     }
-  })
-  const updated = []
-  for (let i = 0 ; i < NewContent.length ; i++){
-    const content = {
-      Name: NewContent[i].Name,
-      PublicID: NewContent[i].PublicID,
-      Index: NewContent[i].Index, 
-      Duration : NewContent[i].Duration,
-      No : i
-    }
-    updated.push(content)
   }
 
- 
-  
+  // Function to handle upload
+  const handleUpload = async () => {
+    if (!UploadTitle || !SelectedFile) {
+      alert('Please provide both title and PDF file')
+      return
+    }
 
-  setTimeout(()=>{
-    SaveChanges(updated)
-    ChangeContent(updated)
-    ChangeDeleteText('Delete')
-  },2000)
-  
-}
+    try {
+      ChangeUploading(true)
+      const uploadResult = await UploadToSupabase(SelectedFile)
+      
+      if (uploadResult.status) {
+        // Create chapter object
+        const newChapter = {
+          title: UploadTitle,
+          index: parseInt(UploadIndex) || Chapters.length + 1,
+          pdfUrl: uploadResult.url,
+          courseId: params.id
+        };
 
+        // Send to API
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/upload-chapter`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(newChapter)
+        });
+        
+        const Response = await Request.json();
+        
+        if (Response.status === true) {
+          // Add the new chapter with its ID to the chapters list
+          ChangeChapters([...Chapters, { ...newChapter, id: Response.id }]);
+          
+          // Reset form
+          ChangeUploadTitle('');
+          ChangeUploadIndex('');
+          ChangeSelectedFile(null);
+          ChangePreviewUrl('');
+          ChangeDisplay('hidden');
+        } else {
+          alert('Failed to save chapter details');
+        }
+      } else {
+        alert('Upload failed: ' + uploadResult.error);
+      }
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Upload failed. Please try again.');
+    } finally {
+      ChangeUploading(false);
+    }
+  }
 
-   
- 
+  // Function to Check if User is Professor or not
+  const CheckUser = async() => {
+    try {
+      const session = await getSession()
+      setSession(session)
+      
+      if (session?.user?.id === data.Details.ProfessorId) {
+        setIsProfessor(true)
+        setIsEnrolled(true)
+        setHasAccess(true)
+        
+      } else {
+        setIsProfessor(false)
+        // Check if user is enrolled
+        const enrolled = await checkEnrollment(session?.user?.id)
+        setHasAccess(enrolled)
+        if (!enrolled) {
+          // Redirect to home if not enrolled and not professor
+          Router.push('/home')
+        }
+      }
+    } catch (error) {
+      console.error('Error checking user session:', error)
+      setIsProfessor(false)
+      setIsEnrolled(false)
+      setHasAccess(false)
+      ChangeDisplay('hidden')
+    }
+  }
+
+  // Function to Retrieve the data of course 
+  const FetchData = async() => {
+    const id = data.Details.ProfessorId 
+    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${id}`)
+    const Response = await Request.json()
+    if (Response.status == true){
+      const Details = Response.Details 
+      ChangeProfessorData(Details)
+    }
+  }
+
+  // Function to handle zoom
+  const handleZoom = (type) => {
+    const newZoom = type === 'in' ? PdfViewer.zoom + 20 : PdfViewer.zoom - 20;
+    if (newZoom >= 50 && newZoom <= 200) {
+      ChangePdfViewer(prev => ({...prev, zoom: newZoom}));
+      if (iframeRef.current) {
+        iframeRef.current.style.transform = `scale(${newZoom / 100})`;
+        iframeRef.current.style.transformOrigin = 'top left';
+      }
+    }
+  };
+
+  // Function to handle PDF viewing
+  const handlePdfView = (pdfUrl) => {
+    ChangePdfViewer({
+      display: 'flex',
+      url: pdfUrl
+    });
+  };
+
+  useEffect(() => {
+    CheckUser()
+    FetchData()
+  }, [])
+
+  // If user doesn't have access, don't render the content
+  if (!hasAccess) {
     return (
-      <div className="flex flex-col border shadow-lg p-3 w-full justify-start">
-        <h1 className="text-lg">{props.Name}</h1>
-        <label className="text-xs">Duration : {props.Duration} min</label>
-        <button onClick={async()=>{
-          const url = await GetSignedUrl(props.PublicID)
-          ChangeVideoPlayerSrc({Name:props.Name,Src:url,Index:props.Index, No:props.No})
-          OpenPlayer()
-        }} className="border mt-3 w-24 active:bg-white active:text-black active:border-black flex gap-2 text-sm items-center justify-center shadow-lg rounded-lg py-2 px-3 bg-black text-white">Play  <CiPlay1 size = {20} /></button>
-        {EditDisplay == 'flex' &&  <button onClick={DeleteVideoCard} className="border text-sm flex gap-2 items-center justify-center w-24 p-2 mt-3 rounded bg-rose-600 shadow-lg active:border-rose-600 active:bg-white active:text-black text-white">{DeleteText} <AiOutlineDelete size={18} /></button>}
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p className="mb-4">You need to be enrolled in this course to view its content.</p>
+          <Link href="/home">
+            <button className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800">
+              Return to Home
+            </button>
+          </Link>
+        </div>
       </div>
     )
   }
 
-  // Function to Retrieve the data of course 
-  const FetchData = async() =>{
-    const id = data.Details.ProfessorId 
-    // Part to Fetch Professor Data 
-    const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${id}`)
-    const Response = await Request.json()
-    console.log(Response)
-    if (Response.status == true){
-      const Details = Response.Details 
-      console.log(Details)
-     
-      ChangeProfessorData(Details)
-    }
-
-  }
-
-  
-
-  // Function to Open uploadwindow or close it 
-  const OpenorClose = () =>{
-    if (Display == 'flex'){
-    ChangeDisplay('hidden')
-      return 0
-    } 
-    if (Display == "hidden"){
-      ChangeDisplay('flex')
-       return 0
-    }
-  }
-  // Handle Video Upload 
-  const handleVideoChange = async(event) =>{
-    ChangePostText('Uploading...')
-    document.getElementById('Uploadbutton').disabled = true
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = ()=>{
-        ChangeTempVideo({url:reader.result})
-      }
-      
-    }}
-  //Function to Upload Image or Video 
-  const handleImageChange = async(event) =>{
-    const file = event.target.files[0];
-        if (file) {
-         ChangeUploadableImageFile(file)
-         const Reader = new FileReader()
-         Reader.onload = () => ChangeTempImg(Reader.result)
-
-         Reader.readAsDataURL(file)
-   
-  }
-}
-
-// Function to Open Video Player 
-const OpenPlayer = ()=>{
- if (VideoPlayerDisplay == 'hidden' && VideoPlayerSrc != undefined){
-  ChangeVideoPlayerDisplay('flex')
-  return 0
- }
- if (VideoPlayerDisplay == 'flex'){
-  ChangeVideoPlayerDisplay('hidden')
-  return 0
- }
-}
-
-// Random Upload ID Generator 
-const GenerateRandomId = () =>{
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = "" 
-  for (let i = 0 ;  i <=16 ; i++){
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    result += characters.charAt(randomIndex);
-  }
-  return result 
-}
-// Function to Upload Video
-const UploadVideo = async() =>{
-  if (TempVideo != undefined){
-    
-  
-  var VideoSrc = TempVideo.url 
-  const Duration = VideoRef.current.getDuration()
-  const mins = Math.floor(Duration / 60);
-  const seconds = Math.floor(Duration % 60);
-  const formattedDuration = `${mins}:${seconds < 10 ? '0' : ''}${seconds}`;
-
-  const Details = {
-    Name :document.getElementById('VideoName').value,
-    Index : GenerateRandomId(),
-    Duration:formattedDuration,
-    PublicID:TempVideo.public_id,
-  }
-
-  const NewVideoArr = [...Content,Details]
-  console.log(NewVideoArr)
-  const Detailsforshow = {
-    ...Details,
-    No:Content.length
-  }
-  const arrforshow = [...Content,Detailsforshow]
-  ChangeContent(arrforshow)
-
-
-  setTimeout(()=>{ 
-    SaveChanges(NewVideoArr)
-    ChangeProgress(0)
-    OpenorClose()
-    document.getElementById('VideoName').value = ''
-    ChangeTempVideo(undefined)
-    
-   
-  },2000)
-  alert("Video Has been Uploaded")
-  
-}
-if (TempVideo== undefined){
-  alert('Please Upload Video')
-}}
-
-  
-  useEffect(()=>{
-    FetchData()
-    CheckUser()
-  },[])
   return (
-    <div className="flex flex-col items-center justify-center">
-      <h1 className="text-xl ">Skillshub📝</h1>
-      <label className="text-xs">Courses</label>
-      {enabled &&  <div className={`flex ${animateenable && 'animate-glow'} z-50 fixed top-12 bg-white p-3 border gap-2 mt-3`}>
-        <button onClick={()=>{
-          SaveChanges()
-        }} className="bg-green-600 active:bg-white active:text-green-600 active:border-green-600 active:font-bold border text-white px-4 py-2  rounded">{Savingtext}</button>
-       
-      </div>}
-      <Link href = '/home'>
-      <button className="fixed flex   gap-2 items-center justify-center top-2 left-2 active:text-rose-600"><VscArrowCircleLeft size = {20}/>Back</button>
-      </Link>
-     
-      <Image  className="mt-24 shadow-lg border" src = {TempImg || data.Details.ImgSrc} width={250} height = {250} />
-     {enabled && <> <button onClick = {()=>{
-      document.getElementById('ImgUpload').click()
-     }} className="bg-black text-white py-2 px-3 shadow-lg mb-6 mt-2 active:bg-white active:text-black active:border active:font-bold active:border-black active:border-2 rounded-lg">Upload Image 📸</button>
-     <input className="hidden" id = "ImgUpload" onChange={handleImageChange} type ='file' accept="image/*" />
-     </> }
-     { enabled && <label className=" text-xs">Course Name</label>}
-      <h1 onInput={HandleTextChange} id = "CourseName" contentEditable = {enabled}  className={`text-lg ${enabled && 'border outline-black rounded p-3 border-gray-400'}`}>{data.Details.Name}</h1>
-      <h2  className="mt-9 font-bold">Description</h2>
-      <label  id = "Description" onInput={HandleTextChange} contentEditable = {enabled} className= {`w-80 text-center mb-12 ${enabled && ' border border-gray-400 outline-black rounded p-3'}`}>{data.Details.Description}</label>
-
-
-
-     <div id = "VideoPlayer" className={`fixed top-0 gap-2 pt-3 bg-white ${VideoPlayerDisplay} flex-col items-center justify-center  w-full h-full`}> 
-      <button className="border flex active:border active:bg-white active:text-black gap-2 shadow-lg border-black p-2 text-sm bg-black text-white rounded" onClick={OpenPlayer}>Close Player <IoMdCloseCircleOutline size={20}/> </button>
-      <h1 className='font-bold'>{VideoPlayerSrc.Name}</h1>
-      <ReactPlayer
-     
-      url = {VideoPlayerSrc.Src}
-      width='70%'
-      height='70%'
-  
-      controls
-        className = 'shadow-lg'
-        config={{
-          file: {
-            attributes: {
-              controlsList: 'nodownload',
-              disablePictureInPicture: true
-            },
-          },
-        }}
-      
-      />
-   
-
-       
-      <div className = 'flex gap-14 mb-24 mt-3'>
-        {VideoPlayerSrc.No > 0  &&  <button onClick={async()=>{
-          const NewIndex = VideoPlayerSrc.No -1 
-          if (NewIndex >= 0){
-            const NewSrc = Content[NewIndex] 
-            const url = await GetSignedUrl(NewSrc.PublicID)
-            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:url,Index:NewSrc.Index, No:NewSrc.No})
-          }
-        }} className="border flex gap-2 items-center shadow-lg active:text-black active:bg-white  justify-center border-black bg-black text-white p-2 rounded"><GrChapterPrevious size={15} />Prev </button>}
-        {VideoPlayerSrc.No < Content.length - 1 && <button className="border active:bg-white shadow-lg active:text-black flex gap-2 items-center justify-center border-black bg-black text-white p-2 rounded-lg"  onClick={async()=>{
-          const NewIndex = VideoPlayerSrc.No + 1 
-          if (NewIndex < Content.length){
-            const NewSrc = Content[NewIndex] 
-            const url = await GetSignedUrl(NewSrc.PublicID)
-            ChangeVideoPlayerSrc({Name:NewSrc.Name,Src:url,Index:NewSrc.Index, No:NewSrc.No})
-          }
-
-        }}>Next <GrChapterNext size = {15} /></button>}
-      </div>
-     </div>
-
-
-      <div id  = "UploadWindow" className={`w-full h-full overflow-scroll pb-24 ${Display} flex-col items-center bg-white top-0 border-black fixed border  z-60  `}>
-        <h1 className="text-2xl mt-6">Skillshub📝</h1>
-        <h1 className="text-sm ">Upload Content</h1>
-        
-        <h1 className="mt-12 mb-3 text-xl ">Hi <strong className="text-red-600">{ProfessorData.FullName}</strong> </h1>
-        {TempVideo != undefined  && 
-        <ReactPlayer 
-        ref = {VideoRef}
-        url = {TempVideo.url || `https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/file%2F1737315735007-RPReplay_Final1707163746.MP4?alt=media&token=c5e0a63c-ce44-4932-a44b-a7a32326e9e8`}
-        width='90%'
-        height='90%'
-        controls
-        className = 'shadow-lg'
-        config={{
-          file: {
-            attributes: {
-              controlsList: 'nodownload',
-              disablePictureInPicture: true
-            },
-          },
-        }}
-        
-        />}
-
-       
-        <label className="mt-12 ">Name of Video</label>
-        <input id = "VideoName" className="w-64 rounded border-2 border-black h-12 p-3" type = 'text' placeholder="Enter The Name " />
-       
-        <input className="hidden" id = "VideoUpload" onChange={handleVideoChange} type ='file' accept="video/*"/>
-        <button id = "Uploadbutton" onClick={()=>{
-          document.getElementById('VideoUpload').click()
-        }} className="border flex gap-2 active:bg-black active:text-white items-center justify-center border-black p-3 mt-6 rounded shadow-lg font-bold">{Posttext} <MdOutlineCloudUpload size = {25} /> </button>
-       
-       <label className="text-xs mt-4 border border-black bg-yellow-400 p-3 rounded text-grey-500">Notice : All Videos will be converted to MP4 format</label>
-        {progress > 0 && <strong className="text-green-500">Posting[ {progress}% ]</strong>}
-        <button onClick={UploadVideo} className="px-4 py-2 flex items-center gap-2 justify-center rounded mt-12 border bg-black text-white">Post <TbBookUpload size = {25} /></button>
-        <label className="mt-3 mb-3">OR</label>
-       
-        <button onClick={OpenorClose} className="text-white shadow-lg bg-rose-600  p-3 rounded active:bg-white active:text-black active:font-bold active:border active:border-black">Cancel</button>
-      </div>
-
-
-
-
-
-     <Link href = {`/CourseChat/${params.id}`}>
-      <button className = 'bg-black flex gap-2 items-center justify-center text-white p-2 rounded' >Open Course Chat
-        <TiMessages size ={20}/>
-      </button>
-     </Link>
-    
-
-      <label className="font-bold mt-3">Professor</label>
-      <div className="border shadow-lg rounded-lg  w-80 flex items-start justify-start gap-2 p-3">
-        <Image className="rounded-[150px] h-24" src = {ProfessorData.ImgSrc} width={100} height={100} />
-
-        
-
-        <div className="flex  flex-col">
-        <h2 >{ProfessorData.FullName}</h2>
-        <Link href = {`/profile/${ProfessorData.id}`}>
-        <button className="bg-black  active:bg-white active:text-black active:border-black flex items-center justify-center gap-2 border shadow-lg text-white px-3 py-2 rounded mt-3">View Profile<CgProfile size ={20} /></button></Link>
+    <div className="flex flex-col items-center justify-center relative min-h-screen">
+      {/* Header */}
+      <div className="relative w-full mt-12">
+        <div className="flex items-center justify-center mb-6">
+          <h1 className="text-2xl font-bold">Educorner Tutoring📝</h1>
         </div>
       </div>
-      <button onClick={OpenorClose} className={`mt-12         ${EditDisplay}    items-center justify-center gap-2 border px-3 py-2 bg-black text-white rounded-lg active:bg-white active:text-black  shadow-lg active:border-black`}>Upload Content  <MdOutlineFileUpload size={30} /></button>
-      <div className={`fixed top-2  right-2 ${EditDisplay} gap-2 items-center justify-center`}>
-      <label>Edit</label>
-      <button
-      onClick={() => setEnabled(!enabled)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-        enabled ? 'bg-green-500' : 'bg-gray-300'
-      }`}
-    >
 
-      <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-          enabled ? 'translate-x-6' : 'translate-x-1'
-        }`}
-      />
-    </button>
-  
+      <Link href="/home">
+            <button className="flex absolute left-2 top-2 gap-2 items-center justify-center text-gray-600 hover:text-black">
+              <VscArrowCircleLeft size={20}/>Back to Course
+            </button>
+          </Link>
+
+      {/* Main Content */}
+      <div className="w-full max-w-4xl px-4 py-6 space-y-8">
+        {/* Course Image */}
+        <div className="flex flex-col items-center">
+          <Image 
+            className="rounded-lg shadow-lg border" 
+            src={data.Details.ImgSrc} 
+            width={300} 
+            height={300} 
+            alt="Course Image"
+          />
+        </div>
+
+        {/* Course Details */}
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold">{data.Details.Name}</h1>
+          <h2 className="text-xl font-bold">Description</h2>
+          <p className="w-full max-w-2xl mx-auto">
+            {data.Details.Description}
+          </p>
+        </div>
+
+        {/* Course Chat Button */}
+        <div className="flex justify-center">
+          <Link href={`/CourseChat/${params.id}`}>
+            <button className="bg-black flex gap-2 items-center justify-center text-white p-3 rounded-lg hover:bg-gray-800 transition-colors">
+              Open Course Chat
+              <TiMessages size={20}/>
+            </button>
+          </Link>
+        </div>
+
+        {/* Professor Section */}
+        <div className=" w-full flex flex-col items-center justify-center">
+          <h2 className="text-xl font-bold text-center">Professor</h2>
+
+          <div className="  w-80  flex  items-center justify-center gap-4 p-4 bg-white">
+            <Image 
+              className=" h-24 w-24 object-cover" 
+              src={ProfessorData.ImgSrc} 
+              width={100} 
+              height={100}
+              alt="Professor Profile"
+            />
+
+            <div className="flex flex-col">
+              <h2 className="text-lg font-semibold">{ProfessorData.FullName}</h2>
+              <label className="text-xs text-gray-500">Professor Till 2023</label>
+              <Link href={`/profile/${ProfessorData.id}`}>
+                <button className="bg-black active:bg-white active:text-black active:border-black flex items-center justify-center gap-2 border shadow-lg text-white px-3 py-2 rounded mt-3">
+                  View Profile
+                  <CgProfile size={20} />
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Course Content Section */}
+        <div className="space-y-4 w-full flex flex-col items-center justify-center">
+          {isProfessor && (
+            <div className="flex flex-col gap-2 items-center justify-center w-80">
+              <button 
+                onClick={() => ChangeDisplay('flex')} 
+                className="flex items-center justify-center gap-2 border px-3 mb-12 py-2 bg-black text-white rounded-lg active:bg-white active:text-black active:border-black shadow-lg"
+              >
+                <MdOutlineFileUpload size={20} />
+                Add Chapter
+              </button>
+            </div>
+          )}
+          <h2 className="text-2xl font-bold">Chapters</h2>
+
+          {/* Chapters List */}
+          <div className="flex flex-col items-center justify-center gap-4 w-80 mx-auto">
+            {Chapters.map((chapter) => (
+              <div key={chapter.id} className="flex flex-col border shadow-lg p-4 w-full justify-start bg-white rounded-lg hover:shadow-xl transition-shadow">
+                <div className="flex items-center gap-3">
+                  <div className="bg-black text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold">
+                    {chapter.index}
+                  </div>
+                  <h1 className="text-lg font-semibold">{chapter.title}</h1>
+                </div>
+                <button 
+                  onClick={() => handlePdfView(chapter.pdfUrl)}
+                  className="bg-black active:bg-white active:text-black active:border-black flex items-center justify-center gap-2 border shadow-lg text-white px-3 py-2 rounded mt-3"
+                >
+                  View Chapter
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Upload Content Button - Only show for professor */}
+        {isProfessor && (
+          <button 
+            onClick={() => ChangeDisplay('flex')} 
+            className={`mt-4 ${Display} items-center justify-center gap-2 border px-4 py-2 bg-black text-white rounded-lg active:bg-white active:text-black active:border-black shadow-lg mx-auto`}
+          >
+            Upload Content <MdOutlineFileUpload size={30} />
+          </button>
+        )}
+
+        {/* Upload Modal - Only accessible for professor */}
+        {isProfessor && (
+          <div className={`fixed inset-0 top-0 bg-black bg-opacity-50 ${Display} items-center justify-center z-50`}>
+            <div className="bg-white p-6 rounded-lg w-full max-w-2xl mx-4">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-4">
+                  <h2 className="text-xl font-bold">Upload Chapter</h2>
+                </div>
+                <button onClick={() => ChangeDisplay('hidden')} className="text-gray-500 hover:text-gray-700">
+                  <IoMdCloseCircleOutline size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Chapter Title</label>
+                  <input
+                    type="text"
+                    value={UploadTitle}
+                    onChange={(e) => ChangeUploadTitle(e.target.value)}
+                    className="mt-1 h-12 block w-full active:rounded-md border-b border-b-black outline-black p-2 shadow-sm focus:border-black focus:ring-black"
+                    placeholder="Enter chapter title"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Chapter Index (Optional)</label>
+                  <input
+                    type="number"
+                    value={UploadIndex}
+                    onChange={(e) => ChangeUploadIndex(e.target.value)}
+                    className="mt-1 h-12 block w-full active:rounded-md border-b border-b-black p-2 shadow-sm focus:border-black focus:ring-black"
+                    placeholder="Enter chapter index"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">PDF File</label>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept=".pdf"
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current.click()}
+                    className="mt-1 block w-full border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-black"
+                  >
+                    {SelectedFile ? SelectedFile.name : 'Click to select PDF file'}
+                  </button>
+                </div>
+
+                {PreviewUrl && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">PDF Preview</label>
+                    <iframe
+                      src={PreviewUrl}
+                      className="w-full h-96 border rounded-lg"
+                      title="PDF Preview"
+                    />
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-4 mt-6">
+                  <button
+                    onClick={() => ChangeDisplay('hidden')}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpload}
+                    disabled={Uploading}
+                    className={`px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 ${Uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {Uploading ? 'Uploading...' : 'Upload'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PDF Viewer Modal */}
+        <div className={`fixed inset-0 bg-black ${PdfViewer.display} items-center justify-center z-50`}>
+          <div className="w-full h-full flex flex-col">
+            <div className="flex justify-between items-center p-4 bg-white shadow-md">
+              <h2 className="text-xl font-bold">Chapter Content</h2>
+              <button 
+                onClick={() => ChangePdfViewer({display: 'hidden', url: ''})} 
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <IoMdCloseCircleOutline size={24} />
+              </button>
+            </div>
+            <div className="flex-1 w-full h-full relative">
+              {PdfViewer.display === 'flex' && (
+                <iframe
+                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(PdfViewer.url)}&embedded=true`}
+                  className="w-full h-full absolute inset-0"
+                  title="PDF Viewer"
+                  allow="fullscreen"
+                />
+              )}
+            </div>
+          </div>
+        </div>
       </div>
-     
-      <label className="mt-12 mb-3 font-bold">Course Content</label>
-    
-
-     
-    {Content.length == 0 && <div className="w-80 flex   flex-col gap-4 items-center justify-center">
-        <Image src = '/empty.png' width = {100} height={100} />
-       <h2 className="text-xl">No Content Uploaded 🚫</h2>
-      </div>}
-
-    {Content.length != 0 && <div className="w-80 flex flex-col gap-3 items-center justify-center">
-      {Content.map((data)=>{
-        if (data != undefined){
-          return (
-            <VideoCard No = {data.No} Name = {data.Name} Duration = {data.Duration} PublicID={data.PublicID} Index = {data.Index} />
-          )
-        }
-      })}
-      </div>}
     </div>
   )
 }
