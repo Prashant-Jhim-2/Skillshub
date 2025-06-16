@@ -16,11 +16,13 @@ import { collection, onSnapshot, orderBy, query, where} from "firebase/firestore
 import {db} from './firebase'
 import { BiMessage } from "react-icons/bi";
 import { IoIosLogOut } from "react-icons/io";
-import { IoIosSearch } from "react-icons/io";
+import { IoBookOutline } from "react-icons/io5";
 import { MdOutlineAddBox } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import { TiThMenuOutline } from "react-icons/ti";
 import { FaRegWindowClose } from "react-icons/fa";
+import { FaInstagram } from "react-icons/fa";
+import { FaFacebook } from "react-icons/fa";
 import { useEffect } from "react"
 import { FaChalkboardTeacher } from "react-icons/fa";
 import { MdOutlinePayments } from "react-icons/md";
@@ -406,10 +408,10 @@ const page = ({carddata}) =>{
 
         <div className="relative w-screen flex flex-col justify-center items-center ">
           <title>Educorner Tutoring📝</title>
-          <div className='flex relative items-center justify-center gap-2 w-full '>
-          <h1 className="font-bold text-lg  absolute left-2 top-4">
+          <div className='flex flex-col relative items-center justify-center gap-2 w-full '>
+          <h1 className="font-bold text-xl w-full flex gap-1 items-center justify-start  absolute left-2 top-4">
             <span className="text-orange-600">Educorner</span>{" "}
-            <span className="text-blue-600">Tutoring</span>
+            <span className="text-blue-600 flex gap-2 items-center justify-center">Tutoring <IoBookOutline size={20} /></span>
           </h1>
           
 
@@ -689,14 +691,61 @@ const page = ({carddata}) =>{
 
 
           
-      <label className='mt-36 text-6xl'>📖</label>
-       <h1 className = 'font-bold    text-center text-xl mb-12'>Welcome to <label className='text-orange-600'>Educorner </label><label className='text-blue-600'>Tutoring📝</label></h1>
-      
-      <p className='w-3/4 text-md overflow-hidden break-words '> At The <strong>EduCorner Tutoring</strong>, we're passionate about learning—and even more passionate about helping others learn. We believe that every student deserves access to high-quality, personalized learning—anytime, anywhere. We're a tutoring platform dedicated to helping students reach their academic goals with the support of expert tutors, interactive tools, and a flexible learning environment.
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="flex flex-col items-center justify-center mt-36"
+      >
+        <motion.div
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-7xl mb-8"
+        >
+          📚
+        </motion.div>
+        
+        <motion.h1 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="font-bold text-center text-2xl md:text-3xl mb-12"
+        >
+          Welcome to <span className="text-orange-600">Educorner</span>{" "}
+          <span className="text-blue-600">Tutoring</span>
+        </motion.h1>
+        
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="w-11/12 md:w-3/4 text-base md:text-lg text-gray-700 leading-relaxed text-center"
+        >
+          At <span className="font-semibold text-gray-900">EduCorner Tutoring</span>, we're passionate about learning—and even more passionate about helping others learn. We believe that every student deserves access to high-quality, personalized learning—anytime, anywhere. We're a tutoring platform dedicated to helping students reach their academic goals with the support of expert tutors, interactive tools, and a flexible learning environment.
 
-     Whether you're looking for help with a tough math problem, preparing for an important exam, or just want to get ahead in class, our team is here to guide you every step of the way. With one-on-one sessions, tailored lesson plans, and a focus on building confidence, we make learning easier, more effective, and even enjoyable.</p>
+          Whether you're looking for help with a tough math problem, preparing for an important exam, or just want to get ahead in class, our team is here to guide you every step of the way. With one-on-one sessions, tailored lesson plans, and a focus on building confidence, we make learning easier, more effective, and even enjoyable.
+        </motion.p>
+        
+        <motion.button 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="mt-10 px-6 py-3 bg-gradient-to-r from-orange-600 to-blue-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group"
+        >
+          Meet Your Tutor 
+          <span className="group-hover:translate-x-1 transition-transform duration-300">👨🏻‍🏫</span>
+        </motion.button>
+
+        
+      </motion.div>
+
+
+
+
        
-       <button className='border border-black p-3 mt-6 active:bg-black active:text-white rounded font-bold shadow-lg'>Meet Your Tutor 👨🏻‍🏫</button>
 
 
         <label className='mt-12 mb-6 text-4xl gap-3 font-bold'>We Offer 📄</label>
@@ -713,6 +762,9 @@ const page = ({carddata}) =>{
         </div>
 
        </div>
+
+
+       
 
        <motion.div  
        initial={{ opacity: 0, y: 50 }}
@@ -920,14 +972,14 @@ As his true love lies in teaching, not selling, he decided to start "The EduCorn
 
 
       <div className="w-full mt-12 bg-black text-white py-12 px-6 flex h-auto flex-col z-40 gap-8 items-start justify-start">
-        <h1 className='text-xl text-white font-bold'>Educorner Tutoring</h1>
-        <p className='text-white'>© 2025 Educorner Tutoring. All rights reserved.</p>
-        <p className='text-white'>Terms of Service | Privacy Policy</p>
-        <button>Become a Tutor</button>
-        <div className='flex gap-2'>
+        <h1 className='text-xl flex gap-2 items-center justify-center text-white font-bold'>Educorner Tutoring <IoBookOutline size={20} /></h1>
+        <p className='text-white text-lg'>© 2025 Educorner Tutoring. All rights reserved.</p>
+        <p className='text-white text-sm'>Terms of Service | Privacy Policy</p>
+        <button className='text-white text-sm'>Become a Tutor</button>
+        <div className='flex gap-2 text-sm'>
         <label>Follow us on</label>
-        <a>Instagram</a>
-        <a>Facebook</a>
+        <a className='flex items-center gap-2'><FaInstagram size={20} />Instagram</a>
+        <a className='flex items-center gap-2'><FaFacebook size={20} />Facebook</a>
         
         </div>
       </div>
