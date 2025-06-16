@@ -39,6 +39,7 @@ const page = ({carddata}) =>{
     const [Enrolled,ChangeEnrolled] = useState([])
     const [QueryinCard,ChangeQueryinCard] = useState('')
     const [isOpen, setIsOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [EmailisInUse,ChangeEmailisInUse] = useState(true)
     const [ForgetPassDisplay,ChangeForgetPassDisplay] = useState(false)
     const [ForgetPassText,ChangeForgetPassText] = useState(false)
@@ -91,14 +92,7 @@ const page = ({carddata}) =>{
            if (Response.status == true){
            
             const Type = Response.Details.Type 
-            console.log(Type)
-            if (Type == "Customer"){
-              document.getElementById('AddCourse').style.display = 'none'
-            }
-            if (Type == "Professor"){
-              document.getElementById('BecomeProfessor').style.display = 'none'
-
-            }
+           
             ChangeDetails(Response.Details)
             
            }
@@ -394,29 +388,122 @@ const page = ({carddata}) =>{
     }
   }
 
-    
+    // Add this new function for menu toggle
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+
     return (
-      <div className="flex relative flex-col justify-center items-center" style={{
+      <div className="flex relative h-auto flex-col justify-center items-center" style={{
         backgroundImage: `url('https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/Bgimage%2F16332411_rm347-porpla-02-a-01.jpg?alt=media&token=f1c411b1-8b64-4b5d-a45c-cc34d21f0973')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       }}>
         <div className="absolute inset-0 bg-white/95"></div>
-        <div className="relative flex flex-col justify-center items-center ">
+
+       
+
+        <div className="relative w-screen flex flex-col justify-center items-center ">
           <title>Educorner Tutoring📝</title>
-          <h1 className="font-bold  fixed top-2 left-2 z-50 text-lg h-12 p-2 self-start">
+          <div className='flex relative items-center justify-center gap-2 w-full '>
+          <h1 className="font-bold text-lg  absolute left-2 top-4">
             <span className="text-orange-600">Educorner</span>{" "}
             <span className="text-blue-600">Tutoring</span>
           </h1>
-          <div className={`${AlertDisplay} items-center justify-center top-0 z-10 left-0 animate-moveDownFade text-white h-12 bg-red-500 w-full `}>
-            <nav><Link href='/alerts'><button className='flex gap-2 items-center justify-center'>New Messages <BiMessage  size = {15}/></button></Link></nav>
-          </div>
-          <div id = "AlertNotify" className="fixed z-20 shadow-sm bg-white  p-4 flex w-full">
-            <h1 className="text-xl font-bold">Educorner 📖</h1>
-            {Details != undefined &&           <button onClick={OpenOrClose} className="fixed flex gap-3   z-50 top-2 p-3 text-lg right-2">{MenuBtn}</button>
+          
+
+          {Details != undefined && 
+           <div className="relative z-50">
+           <button 
+               onClick={toggleMenu}
+               className="fixed top-4 right-4 bg-black text-white flex gap-2 text-lg items-center justify-center font-bold p-2 rounded-lg"
+           >
+               <span className="font-medium">{isMenuOpen ? 'Close' : 'Menu'}</span>
+               {isMenuOpen ? <FaRegWindowClose size={18} /> : <TiThMenuOutline size={20} />}
+           </button>
+
+           {/* Backdrop with blur */}
+           {isMenuOpen && (
+               <motion.div
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 1 }}
+                   exit={{ opacity: 0 }}
+                   onClick={toggleMenu}
+                   className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-40"
+               />
+           )}
+
+           {/* Slide-down menu */}
+           <motion.div
+               initial={{ height: 0, opacity: 0, y: -20 }}
+               animate={{ 
+                   height: isMenuOpen ? "auto" : 0,
+                   opacity: isMenuOpen ? 1 : 0,
+                   y: isMenuOpen ? 0 : -20
+               }}
+               transition={{ 
+                   duration: 0.3,
+                   ease: [0.4, 0, 0.2, 1]
+               }}
+               className="fixed top-16 right-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl overflow-hidden w-[90vw] sm:w-80 md:w-96 z-50 border border-gray-100"
+           >
+               <div className="p-5">
+                   <ul className="space-y-2">
+                       <li>
+                           <Link href={`/profile/${Details.id}`} className="flex items-center gap-3 hover:text-blue-600 p-3 rounded-xl hover:bg-gray-50/80 transition-all duration-300 group">
+                               <CgProfile size={22} className="text-gray-500 group-hover:text-blue-600 transition-colors" /> 
+                               <span className="font-medium">Profile</span>
+                           </Link>
+                       </li>
+                       <li>
+                           <Link href="/CreateCourse" className="flex items-center gap-3 hover:text-orange-600 p-3 rounded-xl hover:bg-gray-50/80 transition-all duration-300 group">
+                               <MdOutlineAddBox size={22} className="text-gray-500 group-hover:text-orange-600 transition-colors" /> 
+                               <span className="font-medium">Add Course</span>
+                           </Link>
+                       </li>
+                       <li>
+                           <Link href="/become-professor" className="flex items-center gap-3 hover:text-blue-600 p-3 rounded-xl hover:bg-gray-50/80 transition-all duration-300 group">
+                               <FaChalkboardTeacher size={22} className="text-gray-500 group-hover:text-blue-600 transition-colors" /> 
+                               <span className="font-medium">Become Professor</span>
+                           </Link>
+                       </li>
+                       <li>
+                           <Link href="/purchases" className="flex items-center gap-3 hover:text-red-600 p-3 rounded-xl hover:bg-gray-50/80 transition-all duration-300 group">
+                               <MdOutlinePayments size={22} className="text-gray-500 group-hover:text-red-600 transition-colors" /> 
+                               <span className="font-medium">Purchases</span>
+                           </Link>
+                       </li>
+                       <li>
+                           <Link href="/chats" className="flex items-center gap-3 hover:text-blue-600 p-3 rounded-xl hover:bg-gray-50/80 transition-all duration-300 group">
+                               <LuMessagesSquare size={22} className="text-gray-500 group-hover:text-blue-600 transition-colors" /> 
+                               <span className="font-medium">Messages</span>
+                           </Link>
+                       </li>
+                       <li>
+                           <Link href="/alerts" className="flex items-center gap-3 hover:text-red-600 p-3 rounded-xl hover:bg-gray-50/80 transition-all duration-300 group">
+                               <GoAlert size={22} className="text-gray-500 group-hover:text-red-600 transition-colors" /> 
+                               <span className="font-medium">Alerts</span>
+                           </Link>
+                       </li>
+                       <li className="pt-2 border-t border-gray-100">
+                           <button 
+                               onClick={Logout}
+                               className="flex items-center gap-3 text-rose-600 hover:text-rose-700 p-3 rounded-xl hover:bg-gray-50/80 transition-all duration-300 w-full text-left group"
+                           >
+                               <IoIosLogOut size={22} className="group-hover:text-rose-700 transition-colors" /> 
+                               <span className="font-medium">Logout</span>
+                           </button>
+                       </li>
+                   </ul>
+               </div>
+           </motion.div>
+           
+       </div>         
+
+          
 }
-            {Details == undefined && <div className = 'fixed flex bg-white  gap-2 text-sm items-center z-50 justify-center top-3 right-2'>
+            {Details == undefined && <div className = ' flex absolute bg-white self-end  gap-2 text-sm items-center z-50 justify-center top-2 right-2'>
              <motion.button
 
              onClick={(()=>{
@@ -447,7 +534,12 @@ const page = ({carddata}) =>{
          Signup<MdFiberNew size={15} />
        </motion.button>
              </div>}
+
           </div>
+          <div className={`${AlertDisplay} items-center justify-center top-0 z-10 left-0 animate-moveDownFade text-white h-12 bg-red-500 w-full `}>
+            <nav><Link href='/alerts'><button className='flex gap-2 items-center justify-center'>New Messages <BiMessage  size = {15}/></button></Link></nav>
+          </div>
+          
 
 
          {        DisplayofModule &&   <motion.div
@@ -595,47 +687,6 @@ const page = ({carddata}) =>{
 
 
 
-          <div className="relative">
-            <div
-              className={`fixed z-20 top-[55px] border-0 border-t flex flex-col gap-2 items-center right-0 w-full h-full xl:w-96 2xl:w-96 lg:w-96 xs:w-full sm:w-full text-black bg-white transform ${
-                isOpen ? "translate-x-0" : "translate-x-full"
-              } transition-transform duration-300 ease-in-out`}
-            >
-              <ul className="text-2xl w-full justify-center items-center flex flex-col py-6">
-                <li onClick={GotoProfile} className="mb-4 bg-white cursor-pointer text-center flex hover:text-blue-400 gap-2">
-                  <CgProfile size={30} /> Profile
-                </li>
-                <li id="AddCourse" onClick={AddCourse} className="mb-4 cursor-pointer bg-white text-center flex gap-2 py-3 hover:text-orange-300">
-                  <MdOutlineAddBox size={30} /> Add Course
-                </li>
-                <li id="BecomeProfessor" onClick={GoToBecProfessor} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2 py-3 hover:text-blue-300">
-                  <FaChalkboardTeacher size={30} /> Become Professor
-                </li>
-                <li id="Purchases" onClick={GotoPurchases} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2 py-3 hover:text-red-600">
-                  <MdOutlinePayments size={30} /> Purchases
-                </li>
-                <li id="Messages" onClick={GoToChat} className="mb-4 cursor-pointer bg-white items-center justify-center text-center flex gap-2 py-3 hover:text-blue-300">
-                  <LuMessagesSquare size={30} /> Messages
-                </li>
-                <li onClick={GoToalert} className="mb-4 bg-white cursor-pointer text-center flex hover:text-red-600 gap-2">
-                  <GoAlert  size={30} /> Alerts
-                </li>
-                <li onClick={Logout} className="mb-4 flex text-rose-600 cursor-pointer gap-2 text-center py-3">
-                  <IoIosLogOut size={30} /> Logout
-                </li>
-              </ul>
-            </div>
-
-            {isOpen && (
-              <div
-                onClick={() => {
-                  setIsOpen(false);
-                  ChangeisOpentxt("Menu");
-                }}
-                className="fixed z-10 top-14 inset-0 bg-black opacity-35"
-              ></div>
-            )}
-          </div>
 
           
       <label className='mt-36 text-6xl'>📖</label>
@@ -859,12 +910,26 @@ As his true love lies in teaching, not selling, he decided to start "The EduCorn
           </div>
 
 
-          <label className='text-xl font-bold mt-24 '>Have more questions? Please feel free to reach us .</label>
+          <label className='text-xl text-center font-bold mt-24 '>Have more questions? Please feel free to reach us .</label>
           <button className='mt-6'>Call us </button>
           <label className='font-bold'>+1 437 226 0838</label>
 
           <button className='mt-12'>Email us </button>
           <label className='font-bold text-rose-600'>theeducornertutoring@gmail.com</label>
+      </div>
+
+
+      <div className="w-full mt-12 bg-black text-white py-12 px-6 flex h-auto flex-col z-40 gap-8 items-start justify-start">
+        <h1 className='text-xl text-white font-bold'>Educorner Tutoring</h1>
+        <p className='text-white'>© 2025 Educorner Tutoring. All rights reserved.</p>
+        <p className='text-white'>Terms of Service | Privacy Policy</p>
+        <button>Become a Tutor</button>
+        <div className='flex gap-2'>
+        <label>Follow us on</label>
+        <a>Instagram</a>
+        <a>Facebook</a>
+        
+        </div>
       </div>
     </div>
   );
