@@ -53,6 +53,7 @@ const page = ({carddata}) =>{
     const [MenuBtn,ChangeMenuBtn] = useState(<>Menu <TiThMenuOutline  size={30}/></>)
     
    console.log(Cards)
+   console.log(Details)
     
      
   // Function To Get Enrolled Courses 
@@ -72,33 +73,32 @@ const page = ({carddata}) =>{
 
     const CheckAuth = async() =>{
         const data = await session
-        console.log(data)
+        console.log("Session data:", data)
         ChangeCards(carddata)
         
         if (data != undefined){
-            
-            
+            console.log("User is authenticated")
             GetEnrolled(data.user.id)
             
-            document.getElementById("Courses").style.backgroundColor = 'black'
-            document.getElementById("Courses").style.color = 'white'
-            document.getElementById("Enrolled").style.backgroundColor = 'white'
-            document.getElementById("Enrolled").style.color = 'black'
+         
            
-          
-
-           // Part To Get User RealTime Data
-           const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${data.user.id}`)
-           const Response = await Request.json()
-           console.log(Response.Details)
-           if (Response.status == true){
-           
-            const Type = Response.Details.Type 
-           
-            ChangeDetails(Response.Details)
-            
-           }
-           
+            // Part To Get User RealTime Data
+            try {
+                const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/CheckID/${data.user.id}`)
+                const Response = await Request.json()
+                console.log("API Response:", Response)
+                if (Response.status == true){
+                    console.log("User details found:", Response.Details)
+                    const Type = Response.Details.Type 
+                    ChangeDetails(Response.Details)
+                } else {
+                    console.log("API returned false status")
+                }
+            } catch (error) {
+                console.error("Error fetching user details:", error)
+            }
+        } else {
+            console.log("No session data found")
         }
     }
 
@@ -394,7 +394,7 @@ const page = ({carddata}) =>{
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
-
+    
     return (
       <div className="flex relative h-auto flex-col justify-center items-center" style={{
         backgroundImage: `url('https://firebasestorage.googleapis.com/v0/b/fosystem2-86a07.appspot.com/o/Bgimage%2F16332411_rm347-porpla-02-a-01.jpg?alt=media&token=f1c411b1-8b64-4b5d-a45c-cc34d21f0973')`,
@@ -404,16 +404,16 @@ const page = ({carddata}) =>{
       }}>
         <div className="absolute inset-0 bg-white/95"></div>
 
-       
+
 
         <div className="relative w-screen flex flex-col justify-center items-center ">
           <title>Educorner Tutoring📝</title>
           <div className='flex flex-col relative items-center justify-center gap-2 w-full '>
-          <h1 className="font-bold text-xl w-full flex gap-1 items-center justify-start  absolute left-2 top-4">
+          <h1 className="font-bold text-xl w-full flex gap-1 items-center justify-start  absolute left-4 top-4">
             <span className="text-orange-600">Educorner</span>{" "}
             <span className="text-blue-600 flex gap-2 items-center justify-center">Tutoring <IoBookOutline size={20} /></span>
           </h1>
-          
+
 
           {Details != undefined && 
            <div className="relative z-50">
@@ -541,7 +541,7 @@ const page = ({carddata}) =>{
           <div className={`${AlertDisplay} items-center justify-center top-0 z-10 left-0 animate-moveDownFade text-white h-12 bg-red-500 w-full `}>
             <nav><Link href='/alerts'><button className='flex gap-2 items-center justify-center'>New Messages <BiMessage  size = {15}/></button></Link></nav>
           </div>
-          
+            
 
 
          {        DisplayofModule &&   <motion.div
@@ -733,7 +733,7 @@ const page = ({carddata}) =>{
           transition={{ duration: 0.6, delay: 0.4 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="mt-10 px-6 py-3 bg-gradient-to-r from-orange-600 to-blue-600 text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group"
+          className="mt-10 px-6 py-3 bg-black text-white rounded-lg font-bold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group"
         >
           Meet Your Tutor 
           <span className="group-hover:translate-x-1 transition-transform duration-300">👨🏻‍🏫</span>
@@ -748,20 +748,50 @@ const page = ({carddata}) =>{
        
 
 
-        <label className='mt-12 mb-6 text-4xl gap-3 font-bold'>We Offer 📄</label>
-       <div className='flex flex-wrap gap-6 justify-center '>
-        <div className='flex flex-col items-center justify-center'>
-          <Image src = 'https://static.wixstatic.com/media/11062b_fd36cdacc882443194a30e8802b34e22~mv2.jpg/v1/crop/x_1065,y_0,w_4260,h_4260/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_fd36cdacc882443194a30e8802b34e22~mv2.jpg' 
-          width={300} height={300} alt = 'img' className=''/>
-          <label className='text-xl'>In Home Tutoring</label>
-        </div>
-         <div className='flex flex-col items-center justify-center'>
-          <Image src = 'https://static.wixstatic.com/media/11062b_d9d4937c4aac4201b88e5b12208c0f13~mv2.jpeg/v1/crop/x_1791,y_0,w_4270,h_4268/fill/w_400,h_400,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Online%20Class%20Teaching.jpeg' 
-          width={300} height={300} alt = 'img' className=''/>
-          <label className='text-xl'>Online Tutoring / Testing</label>
-        </div>
+       <motion.div
+       initial={{ opacity: 0, y: 20 }}
+       whileInView={{ opacity: 1, y: 0 }}
+       transition={{ duration: 0.6, ease: 'easeOut' }}
+       viewport={{ once: true }}
+       className='flex w-full flex-col mt-12 items-center justify-center'>
+        <label className='text-3xl mt-12 self-center font-bold'>We Offer 📄</label>
+        <div className='flex flex-wrap gap-6 justify-center'>
+          
+          {/* In-Home Tutoring */}
+          <div className="flex flex-col w-96 bg-white/80 backdrop-blur-sm p-8 hover:shadow-2xl transition-all duration-300  shadow-xl border border-gray-200  p-2 items-center justify-center gap-8 mt-12">
+            <h2 className="text-xl w-full text-center leading-relaxed font-bold text-gray-800 ">In-Home Tutoring</h2>
+            <div className="relative w-72 h-72 rounded overflow-hidden shadow-xl">
+              <Image
+                src="https://static.wixstatic.com/media/11062b_fd36cdacc882443194a30e8802b34e22~mv2.jpg/v1/crop/x_1065,y_0,w_4260,h_4260/fill/w_800,h_800,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/11062b_fd36cdacc882443194a30e8802b34e22~mv2.jpg"
+                alt="Home Tutoring"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <p className="text-center leading-relaxed text-gray-600 ">
+              Experience personalized learning in the comfort of your home with our expert tutors. 
+              We bring quality education right to your doorstep.
+            </p>
+          </div>
 
-       </div>
+          {/* Online Tutoring / Testing */}
+          <div className="flex flex-col w-96 bg-white/80 backdrop-blur-sm p-8 hover:shadow-2xl transition-all duration-300  shadow-xl border border-gray-200  p-2 items-center justify-center gap-8 mt-12">
+            <h2 className="text-xl w-full text-center leading-relaxed font-bold text-gray-800 ">Online Tutoring</h2>
+            <div className="relative w-72 h-72 rounded overflow-hidden shadow-xl">
+              <Image
+                src="https://static.wixstatic.com/media/11062b_d9d4937c4aac4201b88e5b12208c0f13~mv2.jpeg/v1/crop/x_1791,y_0,w_4270,h_4268/fill/w_800,h_800,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Online%20Class%20Teaching.jpeg"
+                alt="Home Tutoring"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <p className="text-center leading-relaxed text-gray-600 ">
+            Connect with expert tutors from anywhere in the world through our interactive online platform. 
+            Enjoy flexible scheduling, real-time collaboration, and personalized learning in a virtual classroom.
+            </p>
+          </div>
+        </div>
+       </motion.div>
 
 
        
@@ -770,153 +800,285 @@ const page = ({carddata}) =>{
        initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      viewport={{ once: true }} className=' w-full flex flex-col pb-12 pt-12  items-center justify-center mt-12'>
-        <h1 className='font-bold text-4xl'>Why Choose Us ?</h1>
-        <ul className='flex list-disc w-80 text-md flex-col gap-3 mt-6'>
-         <li><strong>Expert Tutors:</strong> Carefully vetted professionals passionate about teaching</li>
+      viewport={{ once: true }} className='xs:w-96 sm:w-96 lg:w-full xl:w-full 2xl:w-full flex flex-col pb-12 pt-12  items-center justify-center mt-12'>
+        <h1 className='font-bold text-4xl mb-6'>Why Choose Us ?</h1>
+        <div className='flex flex-col items-center justify-center gap-6 w-full max-w-2xl'>
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.5, delay: 0.1 }}
+             className='w-full border border-gray-100 shadow-xl rounded-xl p-6 bg-white/90 backdrop-blur-sm hover:shadow-2xl hover:shadow-orange-200/20 transition-all duration-300 group'
+           >
+             <div className="flex items-center gap-4">
+               <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors duration-300">
+                 <FaChalkboardTeacher className="text-orange-600" size={24} />
+               </div>
+               <div>
+                 <h3 className="text-xl font-bold text-gray-800 mb-1">Expert Tutors</h3>
+                 <p className="text-gray-600">Carefully vetted professionals passionate about teaching</p>
+               </div>
+             </div>
+           </motion.div>
 
-<li><strong>Flexible Scheduling:</strong>  Learn at your pace, on your time</li>
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.5, delay: 0.2 }}
+             className='w-full border border-gray-100 shadow-xl rounded-xl p-6 bg-white/90 backdrop-blur-sm hover:shadow-2xl hover:shadow-blue-200/20 transition-all duration-300 group'
+           >
+             <div className="flex items-center gap-4">
+               <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-300">
+                 <MdOutlinePayments className="text-blue-600" size={24} />
+               </div>
+               <div>
+                 <h3 className="text-xl font-bold text-gray-800 mb-1">Flexible Scheduling</h3>
+                 <p className="text-gray-600">Learn at your pace, on your time</p>
+               </div>
+             </div>
+           </motion.div>
 
-<li><strong>Customized Learning: </strong> Personalized support that fits your unique learning style</li>
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.5, delay: 0.3 }}
+             className='w-full border border-gray-100 shadow-xl rounded-xl p-6 bg-white/90 backdrop-blur-sm hover:shadow-2xl hover:shadow-purple-200/20 transition-all duration-300 group'
+           >
+             <div className="flex items-center gap-4">
+               <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors duration-300">
+                 <IoBookOutline className="text-purple-600" size={24} />
+               </div>
+               <div>
+                 <h3 className="text-xl font-bold text-gray-800 mb-1">Customized Learning</h3>
+                 <p className="text-gray-600">Personalized support that fits your unique learning style</p>
+               </div>
+             </div>
+           </motion.div>
 
-<li ><strong>Safe & Secure:</strong> A trusted platform for students and parents alike</li>
-        </ul>
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.5, delay: 0.4 }}
+             className='w-full border border-gray-100 shadow-xl rounded-xl p-6 bg-white/90 backdrop-blur-sm hover:shadow-2xl hover:shadow-green-200/20 transition-all duration-300 group'
+           >
+             <div className="flex items-center gap-4">
+               <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors duration-300">
+                 <GoAlert className="text-green-600" size={24} />
+               </div>
+               <div>
+                 <h3 className="text-xl font-bold text-gray-800 mb-1">Safe & Secure</h3>
+                 <p className="text-gray-600">A trusted platform for students and parents alike</p>
+               </div>
+             </div>
+           </motion.div>
+         </div>
+        
 
 
        
        </motion.div>
-  <h1 className='font-bold text-3xl'>Subjects</h1>
-        <div className="mt-6 mb-6 flex gap-3 text-xl">
+
+       <motion.div  className='w-full flex flex-col items-center justify-center'
+       initial={{ opacity: 0, y: 20 }}
+       whileInView={{ opacity: 1, y: 0 }}
+       transition={{ duration: 0.6, ease: 'easeOut' }}
+       viewport={{ once: true }}
+       >
+ <h1 className='font-bold mt-12 mb-6 text-3xl'>Subjects</h1>
+       
+
+       <div className="mb-12 border  items-center justify-center h-16 shadow-lg text-lg rounded-lg w-80 flex gap-3 text-xl">
+       <Search />
+         <input
+           type="text"
+           placeholder="Search courses..."
+           className=" h-full outline-none"
+           value={QueryinCard}
+           onChange={(e) => {
+             const query = e.target.value.toLowerCase();
+             ChangeQueryinCard(query);
+             const filteredCards = carddata.filter((card) =>
+               card.Name.toLowerCase().includes(query)
+             );
+             ChangeCards(filteredCards);
+           }}
+         />
+       </div>
+
+       {Cards.length > 0 && Enrolled.length >= 0  && 
+       <div className='flex flex-wrap gap-8 p-6 justify-center'>
+         {Cards.map((data) => {
+           console.log(data)
+           if (data != undefined){
+             const details = Details || {id:'Nothinginthere'}
+             const condition = Enrolled.includes(data.id);
+             const verify = details.id == data.ProfessorId
+             console.log(`Name : ${data.Name}`)
+             console.log(`Already Enrolled ${condition} and Verify ${verify}`)
+             console.log(verify)
+             
+           return (
+           <Card Verify = {verify} enrolled = {condition}  data={data} />
+           )
+           }
+         })}
+
+
+
         
-          <button id="Enrolled" onClick={ChangeCardsArr} className="hover:border hover:bg-black py-2 hover:text-white px-3 rounded-lg">
-            Enrolled
-          </button>
-          <button id="Courses" onClick={ChangeCardsArr} className="hover:border hover:bg-black py-2 hover:text-white px-3 rounded-lg">
-            Courses
-          </button>
-        </div>
 
-        <div className="mb-6 border  items-center justify-center h-16 shadow-lg text-lg rounded-lg w-80 flex gap-3 text-xl">
-        <Search />
-          <input
-            type="text"
-            placeholder="Search courses..."
-            className=" h-full outline-none"
-            value={QueryinCard}
-            onChange={(e) => {
-              const query = e.target.value.toLowerCase();
-              ChangeQueryinCard(query);
-              const filteredCards = carddata.filter((card) =>
-                card.Name.toLowerCase().includes(query)
-              );
-              ChangeCards(filteredCards);
-            }}
-          />
-        </div>
-
-        {Cards.length > 0 && Enrolled.length >= 0  && 
-        <div className='flex flex-wrap gap-6 justify-center'>
-          {Cards.map((data) => {
-            console.log(data)
-            if (data != undefined){
-              const details = Details || {id:'Nothinginthere'}
-              const condition = Enrolled.includes(data.id);
-              const verify = details.id == data.ProfessorId
-              console.log(`Name : ${data.Name}`)
-              console.log(`Already Enrolled ${condition} and Verify ${verify}`)
-              console.log(verify)
-              
-            return (
-            <Card Verify = {verify} enrolled = {condition}  data={data} />
-            )
-            }
-          })}
-
-
-
-         
-
-         
-        </div>
         
+       </div>
 }
+
+       </motion.div>
+
+
+ 
+        
+
 
         <label className='mt-16 font-bold text-4xl'>Plans & Pricing</label>
 
-        <p className='w-3/4 mt-6 text-xl break-words overflow-hidden'>We offer flexible and affordable tutoring options designed to fit every student's needs and schedule. Whether you need help with one tricky subject or ongoing support throughout the year, we've got a plan for you.
+        <p className='w-3/4 mt-6 mb-12 text-xl break-words overflow-hidden'>We offer flexible and affordable tutoring options designed to fit every student's needs and schedule. Whether you need help with one tricky subject or ongoing support throughout the year, we've got a plan for you.
 
 </p>
-        <div className='flex flex-wrap gap-6 justify-center mt-6'>
+        <div className='flex bg-white flex-wrap gap-16 justify-center mt-6'>
           
-          <div className='flex w-80 border p-8 rounded shadow-lg flex-col items-center justify-center'>
+          <div className='relative flex shadow-2xl w-80 bg-white/80  border-2 border-orange-600 p-8 rounded-xl flex-col items-center justify-center'>
             <Image
-            src='https://static.wixstatic.com/media/11062b_885da9ad8310478c9d21a904700f3922~mv2.jpg/v1/fill/w_121,h_121,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Hands%20and%20Diamond.jpg'
-            width={100}
-            height={100}
+              className = 'rounded-full'
+              src='https://static.wixstatic.com/media/11062b_885da9ad8310478c9d21a904700f3922~mv2.jpg/v1/fill/w_121,h_121,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Hands%20and%20Diamond.jpg'
+              width={100}
+              height={100}
             />
-            <h1>Premium Plan </h1>
-            <h1 className='font-bold mb-4'>$349*</h1>
-            <p>For students who want intensive support & fast results</p>
-            <ul className='list-disc text-sm flex flex-col  items-start justify-center gap-2 mt-6'>
+           
+            <label className='absolute text-lg text-orange-600 -top-4 bg-white font-bold '>Premium Plan</label>
+            <div className="mt-4 text-center">
+              <span className="text-4xl font-bold text-orange-600">$349</span>
+              <span className="text-sm text-gray-500 ml-1">/month</span>
+              <div className="text-xs text-gray-400 mt-1">*Tax included</div>
+            </div>
+            <p className="text-center text-gray-600 mt-2">For students who want intensive support & fast results</p>
+            <ul className='list-disc text-sm flex flex-col items-start justify-center gap-2 mt-6'>
               <li>Priority scheduling</li>
               <li>3-4 tutoring sessions/week  (12 sessions/month)</li>
               <li>1-hour sessions</li>
               <li>Dedicated tutor match</li>
               <li>Homework help + exam prep</li>
-              </ul>
+            </ul>
           </div>
 
-           <div className='flex w-80 border p-8 rounded shadow-lg flex-col items-center justify-center'>
+           <div className='flex relative w-80 border-2 bg-white/80 shadow-2xl bg-white rounded-xl border-blue-600 p-8 flex-col items-start justify-center'>
             <Image
-            src='https://static.wixstatic.com/media/11062b_9c09611a6512466c90f9ac8ecf632c52~mv2.png/v1/fill/w_121,h_121,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Gold-Striped%20Decorative%20Sphere.png'
-            width={100}
-            height={100}
+              className = 'self-center'
+              src='https://static.wixstatic.com/media/11062b_9c09611a6512466c90f9ac8ecf632c52~mv2.png/v1/fill/w_121,h_121,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Gold-Striped%20Decorative%20Sphere.png'
+              width={100}
+              height={100}
             />
-            <h1>Standard Plan  </h1>
-            <strong>(most popular)</strong>
-            <h1 className='font-bold mb-4'>$249*</h1>
-            <p>Ideal for weekly academic support</p>
-            <ul className='list-disc text-sm flex flex-col  items-start justify-center gap-2 mt-6'>
+             <label className='absolute text-lg self-center text-blue-600 -top-4 bg-white font-bold'>Standard Plan</label>
+            <label className='absolute text-sm self-center text-blue-600 top-2 bg-white font-bold'>( Most Popular )</label>
+            <div className="mt-4 text-center w-full">
+              <span className="text-4xl font-bold text-blue-600">$249</span>
+              <span className="text-sm text-gray-500 ml-1">/month</span>
+              <div className="text-xs text-gray-400 mt-1">*Tax included</div>
+            </div>
+            <p className="text-center text-gray-600 mt-2">Ideal for weekly academic support</p>
+            <ul className='list-disc text-sm flex flex-col items-start justify-center gap-2 mt-6'>
               <li>2-3 tutoring sessions/week</li>
               <li>(8 sessions/month)</li>
               <li>1-hour sessions</li>
               <li>Assignment/Homework help</li>
-             
-              </ul>
+            </ul>
           </div>
 
-           <div className='flex w-80 border p-8 rounded shadow-lg flex-col items-center justify-center'>
+           <div className='flex relative w-80 border-2  shadow-2xl bg-white/80 rounded-xl border-purple-600 p-8 flex-col items-center justify-center'>
             <Image
-            src='https://static.wixstatic.com/media/nsplsh_6dbb72aec7754a3c981433216dde4972~mv2.jpg/v1/crop/x_1000,y_0,w_4000,h_4000/fill/w_121,h_121,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image%20by%20Aron%20Visuals.jpg'
-            width={100}
-            height={100}
+              className = 'rounded-full'
+              src='https://static.wixstatic.com/media/nsplsh_6dbb72aec7754a3c981433216dde4972~mv2.jpg/v1/crop/x_1000,y_0,w_4000,h_4000/fill/w_121,h_121,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/Image%20by%20Aron%20Visuals.jpg'
+              width={100}
+              height={100}
             />
-            <h1>One-Time Session </h1>
-            <h1 className='font-bold mb-4'>$39*</h1>
-            <p>Need help with a single assignment or topic?</p>
-            <ul className='list-disc text-sm flex flex-col  items-start justify-center gap-2 mt-6'>
+            <label className='absolute text-lg text-purple-600 -top-4 bg-white font-bold'>One-Time Session</label>
+            <div className="mt-4 text-center">
+              <span className="text-4xl font-bold text-purple-600">$39</span>
+              <span className="text-sm text-gray-500 ml-1">/session</span>
+              <div className="text-xs text-gray-400 mt-1">*Tax included</div>
+            </div>
+            <p className="text-center text-gray-600 mt-2">Need help with a single assignment or topic?</p>
+            <ul className='list-disc text-sm flex flex-col items-start justify-center gap-2 mt-6'>
               <li>1 hour session</li>
-             
-              </ul>
+              <li>Expert tutor</li>
+              <li>Flexible scheduling</li>
+            </ul>
           </div>
 
 
         </div>
- <div className='mt-16 flex flex-col items-center justify-center'>
-            <h1 className='font-bold text-3xl mb-6'>Meet Your Tutor </h1>
-            <Image src ='https://static.wixstatic.com/media/0d39ac_8784d15c9bbe4b45810a733f2048f2b0~mv2.jpg/v1/fill/w_305,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/0d39ac_8784d15c9bbe4b45810a733f2048f2b0~mv2.jpg' 
-            width={300}
-            height={300} alt = 'img' />
-            <h2 className='text-xl'>Chandan Mehta</h2>
-            <label>Founder & Physics / Math Tutor</label>
-            <p className='w-full p-12 break-words overflow-hidden text-sm'>Chandan  is a passionate and patient tutor with over 8 years of tutoring experience helping students excel in math and science/physics. He holds master's in physics (Minor: Math) and master's in technology (Mechanical Engineering). Chandan has worked with middle school, high school, and college-level students both in classrooms and one-on-one settings. He specializes in conceptual explanations with real-world examples, problem-solving strategies for common exam questions and step-by-step breakdowns of complex problems. Whether it's algebra, physics, calculus or mechanics he makes learning engaging and stress-free.
+
+
+
+
+ <div className='mt-24 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm p-12 rounded-2xl shadow-xl w-full mx-auto'>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className='font-bold text-4xl mb-12  text-black text-center'
+            >
+              Meet Your Tutor
+            </motion.h1>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              className="relative w-[400px] h-[400px] mb-12"
+            >
+              <div className="absolute inset-0  blur-2xl"></div>
+              <Image 
+                src='https://static.wixstatic.com/media/0d39ac_8784d15c9bbe4b45810a733f2048f2b0~mv2.jpg/v1/fill/w_305,h_270,al_c,q_80,usm_0.66_1.00_0.01,enc_avif,quality_auto/0d39ac_8784d15c9bbe4b45810a733f2048f2b0~mv2.jpg' 
+                width={400}
+                height={400}
+                alt='Chandan Mehta'
+                className=" border-4 border-white shadow-2xl object-cover"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex flex-col items-center w-full"
+            >
+              <h2 className='text-3xl font-bold text-gray-800 mb-4'>Chandan Mehta</h2>
+              <div className="flex flex-wrap items-center gap-3 mb-8">
+                <span className="px-2 py-1 bg-orange-100 text-orange-600 rounded-full text-xs font-medium">Founder</span>
+                <span className="px-2 py-1 bg-blue-100 text-blue-600 rounded-full text-xs font-medium">Physics Tutor</span>
+                <span className="px-2 py-1 bg-purple-100 text-purple-600 rounded-full text-xs font-medium">Math Tutor</span>
+              </div>
+              
+              <div className="space-y-6 text-gray-600 leading-relaxed text-center">
+                <p className="text-lg">
+                Chandan  is a passionate and patient tutor with over 8 years of tutoring experience helping students excel in math and science/physics. He holds master’s in physics (Minor: Math) and master’s in technology (Mechanical Engineering). Chandan has worked with middle school, high school, and college-level students both in classrooms and one-on-one settings. He specializes in conceptual explanations with real-world examples, problem-solving strategies for common exam questions and step-by-step breakdowns of complex problems. Whether it's algebra, physics, calculus or mechanics he makes learning engaging and stress-free.
 
 With over combined 10 years of tutoring and technical experience and a background in theoretical physics and math, Chandan combines academic depth with a patient, encouraging teaching style that builds both skills and enthusiasm for the subject.
+                </p>
+                
+               
 
- 
+                <p className="mt-8 text-gray-700">
+                  With over 10 years of combined tutoring and technical experience, Chandan combines academic depth with a patient, 
+                  encouraging teaching style that builds both skills and enthusiasm for the subject.
+                </p>
 
-As his true love lies in teaching, not selling, he decided to start "The EduCorner Tutoring" where he personally trains the tutors to use his methods and way of working. The promising results has shown that he has made a foundation for students to be successful.</p>
-            
+                <div className="mt-10 p-6 bg-gray-50 rounded-xl border border-gray-100">
+                  <p className="text-gray-600 italic">
+                    "As my true love lies in teaching, not selling, I founded EduCorner Tutoring to personally train students in my 
+                    proven methods. "
+                  </p>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
 

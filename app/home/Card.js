@@ -37,7 +37,7 @@ const Card = ({ data,enrolled,Verify}) => {
 
 
     return (
-        <div className="w-80 mb-6  relative rounded overflow-hidden shadow-lg bg-white">
+        <div className="w-[350px] mb-6  relative rounded overflow-hidden shadow-lg bg-white">
             <div className="relative w-full h-48">
                 <Image className="object-cover" src={ImgSrc} alt={Name} layout="fill" />
             </div>
