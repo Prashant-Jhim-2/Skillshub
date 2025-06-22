@@ -7,28 +7,118 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegArrowAltCircleUp } from "react-icons/fa";
 import { IoEyeOutline } from "react-icons/io5";
 import { IoClose } from "react-icons/io5";
+import { MdUploadFile } from "react-icons/md";
 
 import { getSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
-
+import { BsBookHalf } from "react-icons/bs";
 
 
 const Page = ()=>{
     const [Preview,ChangePreview] = useState(false);
+    const [Drafts,ChangeDrafts] = useState([]);
+    const [IsSaving,ChangeIsSaving] = useState(false);
+    const [LoadingContext,ChangeLoadingContext] = useState('Loading');
+    const [QuizName,ChangeQuizName] = useState("");
+    const [DueDate,ChangeDueDate] = useState("");
+    const [DueTime,ChangeDueTime] = useState("");
+    const [TimeLimit,ChangeTimeLimit] = useState("");
     const [Authorized,ChangeAuthorized] = useState(true);
     const [isOpen, setIsOpen] = useState(true);
     const [Questions,ChangeQuestions] = useState([]);
     const [Marks,ChangeMarks] = useState(0);
+    const [Course,ChangeCourseDetails] = useState({id:undefined,Name:undefined});
     const [Courses,ChangeCourse] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showDraftsModal, setShowDraftsModal] = useState(false);
 
     // Function To Clear All Question 
     const ClearQuestion = ()=>{
         ChangeQuestions([])
+        ChangeQuizName("")
+        ChangeDueDate("")
+        ChangeDueTime("")
+        ChangeTimeLimit("")
         ChangeMarks(0)
     }
 
+    // Function to Delete Draft 
+    const DeleteDraft = async(id)=>{
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/DeleteDraft/${id}`);
+        const Response = await Request.json();
+        if (Response.status === true){
+            alert("Draft Deleted Successfully")
+            FetchDrafts()
+        }
+    }
+
+    // Function to Post Quiz 
+    const PostQuiz = async(status)=>{
+     
+        const session = await getSession();
+        const user = session.user;  
+        const id = user.id;
+        
+        
+       const Quiz = {
+        status:status,
+        ProfessorID:id ,
+        CourseName:Course.Name,
+        CourseID:Course.id,
+        Name:QuizName,
+        DueDate:DueDate,
+        DueTime:DueTime,
+        TimeLimit:TimeLimit,
+        Questions:Questions,
+        Marks:parseInt(Marks),
+       }
+       console.log(Quiz)
+       
+ 
+       if (QuizName === "" || DueDate === "" || DueTime === "" || TimeLimit === "" || Questions.length === 0 || Marks === 0 || Course.id === undefined || Course.id === 'Choose Course') {
+        alert("Please fill all the fields")
+        return;
+       }
+       else {
+        setLoading(true)
+        ChangeLoadingContext("Saving Quiz...")
+
+        if (status === false){
+            ChangeIsSaving(true)
+        }
+        if (status === true){
+            ChangeIsSaving(false)
+        }
+        const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/PostQuiz`,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(Quiz)
+        })
+        const Response = await Request.json();
+        if (Response.status == true){
+           setTimeout(()=>{
+            setLoading(false)
+            ChangeLoadingContext("Loading")
+            
+            ChangeQuestions([])
+            ChangeMarks(0)
+            if (status === false){
+                FetchDrafts()
+                alert("Quiz Saved Successfully")
+            }
+            if (status === true){
+                alert("Quiz Posted Successfully")
+            }
+           },4000)
+           
+        }
+
+       }
+    }
+   
     // Function to Fetch No of Course Which Professor is Teaching  
     const FetchCourse = async()=>{
         try {
@@ -69,11 +159,59 @@ const Page = ()=>{
             setLoading(false);
         }
     }
+     // Function to Fetch Drafts 
+     const FetchDrafts = async()=>{
+        const session = await getSession();
+        if (session && session.user) {
+            const user = session.user;
+            const id = user.id;
+            const Request = await fetch(`${process.env.NEXT_PUBLIC_PORT}/FetchDrafts/${id}`);
+            const Response = await Request.json();
+            if (Response.status === true){
+                ChangeDrafts(Response.data)
+                console.log(Response)
+        }
+    }
+}
+
+    // Function to Load Draft Quiz Data
+    const LoadDraftQuiz = (draftData) => {
+        // Show loading state briefly
+        setLoading(true);
+        ChangeLoadingContext("Loading Draft...");
+        
+        setTimeout(() => {
+            // Load all the quiz data from draft
+            ChangeQuizName(draftData.Name || "");
+            ChangeDueDate(draftData.DueDate || "");
+            ChangeDueTime(draftData.DueTime || "");
+            ChangeTimeLimit(draftData.TimeLimit || "");
+            ChangeQuestions(draftData.Questions || []);
+            ChangeMarks(draftData.Marks || 0);
+            
+            // Set course details
+            if (draftData.CourseID && draftData.CourseName) {
+                ChangeCourseDetails({
+                    id: draftData.CourseID,
+                    Name: draftData.CourseName
+                });
+            }
+            
+            // Close the modal
+            setShowDraftsModal(false);
+            
+            // Hide loading and show success message
+            setLoading(false);
+            ChangeLoadingContext("Loading");
+            alert("Draft loaded successfully! You can now continue editing your quiz.");
+        }, 1000);
+    }
 
     useEffect(()=>{
         console.log("Fetching Course");
         setLoading(true); // Set loading to true when starting
         FetchCourse();
+        FetchDrafts()
     },[])
 
    
@@ -456,10 +594,28 @@ const generateRandomId = () => {
                     <span className="text-gray-600">/Quiz</span>
                 </h1>
                 <div className='flex p-12 rounded-xl shadow-2xl flex-col bg-white items-center justify-center gap-4'>
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+                    {LoadingContext == "Loading" ? <><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
                     <h1 className='text-lg'>Loading Quiz Creator...</h1>
-                    <p className='text-sm text-gray-600'>Please wait while we fetch your courses</p>
-                </div>
+                    <p className='text-sm text-gray-600'>Please wait while we fetch your courses</p></>:
+                    LoadingContext == "Loading Draft..." ? <>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        <h1 className='text-lg'>Loading Draft...</h1>
+                        <p className='text-sm text-gray-600'>Please wait while we load your draft quiz</p>
+                    </> :
+                    <>{IsSaving ? 
+                        <>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                            <h1 className='text-lg'>Saving Quiz...</h1>
+                            <p className='text-sm text-gray-600'>Please wait while we save your quiz</p>
+                        </> : <>
+                        
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                            <h1 className='text-lg'>Posting Quiz...</h1>
+                            <p className='text-sm text-gray-600'>Please wait while we post your quiz</p>
+                        </>
+                    }</>
+                 }
+                    </div>
             </div>
         )
     }
@@ -475,26 +631,129 @@ const generateRandomId = () => {
                 backgroundRepeat: 'no-repeat'
             }}
             className="flex relative w-full min-h-screen flex-col items-center px-4">
-                <h1 className="flex bg-white/80 backdrop-blur-sm p-2 rounded-md gap-1 absolute self-center font-bold text-lg top-4 z-30">
+
+                <button 
+                    onClick={() => setShowDraftsModal(true)}
+                    className = 'absolute top-4 right-4 flex items-center gap-1 rounded text-sm bg-white/80 text-black  border-2 border-black  shadow-2xl transition-all duration-300 hover:bg-gray-50 active:scale-125 rounded-md px-3 py-2'>
+                    Drafts <LuSaveAll size={16} />
+                </button>
+                <h1 className="flex bg-white/80 backdrop-blur-sm p-2 rounded-md gap-1 absolute self-center font-bold text-lg top-20 z-30">
                     <label className="text-orange-600">EduCorner</label> 
                     <label className="text-blue-600">Tutoring</label> 
                     <span className="text-gray-600">/Quiz</span>
                 </h1>
                 
-                <div className='flex bg-white relative flex-col border shadow-2xl mt-24 rounded-xl xs:w-full w-full lg:w-1/2 md:w-3/4 sm:w-full xs:w-full px-6 py-16 items-start justify-start '>
+                <div className='flex bg-white relative flex-col border shadow-2xl mt-36 rounded-xl xs:w-full w-full lg:w-1/2 md:w-3/4 sm:w-full xs:w-full px-6 py-16 items-start justify-start '>
                     <label className='absolute bottom-2 right-2 font-bold p-2 bg-green-200 text-green-800 rounded-md text-sm'>{Marks} Marks</label>
                     <h1 className='text-lg sm:text-xl font-bold mb-4'>Create Quiz</h1> 
+                    <button onClick={()=>PostQuiz(false)} className='absolute transition-colors duration-300 flex items-center gap-1 top-2 left-2  rounded active:bg-white active:border-2 active:border-black active:text-black  text-sm bg-green-500 text-white px-3 py-2'>Save <LuSaveAll size={16} /></button>
                     <input 
+                        id = 'QuizName'
+                        value={QuizName}
+                        onChange={(e)=>{
+                            ChangeQuizName(e.target.value)
+                        }}
                         className='w-full p-6 border-2 rounded-md border-black resize-none' 
                         placeholder='Enter Quiz Name' 
                     />
-                    <select className='absolute top-2 right-2 flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-md rounded-md px-2 py-1 sm:px-3 sm:py-2 border border-gray-300 hover:bg-gray-50 transition-colors'>
+                    <select 
+                        value={Course.id && Course.Name ? `${Course.id}:SubjectName:${Course.Name}` : "Choose Course"}
+                        onChange={(e)=>{
+                       
+                        const split = e.target.value.split(":SubjectName:")
+                        const id = split[0] 
+                        const SubjectName = split[1]
+                        console.log({id:id,Name:SubjectName})
+                        ChangeCourseDetails({id:id,Name:SubjectName})
+                    }} className='absolute top-2 right-2 flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-md rounded-md px-2 py-1 sm:px-3 sm:py-2 border border-gray-300 hover:bg-gray-50 transition-colors'>
                         <option>Choose Course</option>
-                       {Courses.map((data)=><option key={data.id} value={data.id}>{data.Name}</option>)}
+                       {Courses.map((data)=><option Name = {data.Name} key={data.id} value={data.id+ ":SubjectName:"+data.Name}>{data.Name}</option>)}
                     </select>
+
+                    {/* Drafts Modal */}
+                    {showDraftsModal && (
+                        <div className = 'inset-0 flex flex-col items-center justify-center w-screen h-screen fixed top-0 left-0 right-0 bottom-0 bg-black/50 z-40 backdrop-blur-sm'>
+                            <div className = 'flex w-3/4 relative flex-col bg-white rounded-md h-[80vh] overflow-hidden'>
+                                {/* Sticky Header */}
+                                <div className='flex items-center justify-between p-4 border-b bg-white sticky top-0 z-10'>
+                                    <label className='text-xl font-bold'>Drafts</label>
+                                    <button 
+                                        onClick={() => setShowDraftsModal(false)}
+                                        className='px-3 py-2 rounded-lg border-2 border-black text-sm hover:bg-gray-100 transition-colors'>
+                                        Close
+                                    </button>
+                                </div>
+                                
+                                {/* Scrollable Content */}
+                                <div className='flex-1 overflow-y-auto p-4 space-y-3'>
+                                    {Drafts.length != 0 ? <>{Drafts.map((data)=>{
+                                        return (
+                                            <div key={data.id} className='flex border-2 w-full border-black rounded-md p-2 flex-col items-center justify-center gap-2'>
+                                            <label className='text-md font-bold'>{data.Name}</label>
+                                            <label className='text-xs mb-3'>Subject : {data.CourseName}</label>
+                                           <div className='flex items-center justify-center gap-2'>
+
+                                           <button 
+                                                onClick={() => LoadDraftQuiz(data)}
+                                                className='bg-black flex items-center gap-2 justify-center transition-colors duration-300 active:bg-white border shadow-2xl border-black active:text-black text-white px-3 py-2 sm:px-4 sm:py-2 flex items-center justify-center gap-1 sm:gap-2 rounded-md transition-all duration-300 text-sm sm:text-base'>
+                                                Open Draft <BsBookHalf size={16} />
+                                            </button>
+                                            <button
+                                            onClick = {()=>DeleteDraft(data.id)}
+                                            className = 'bg-red-600 active:bg-white active:text-rose-600 active:border-2 active:border-black transition-all duration-100 text-white px-3 py-2 sm:px-4 sm:py-2 flex items-center justify-center gap-1 sm:gap-2 rounded-md  text-sm sm:text-base'>Delete</button>
+                                           </div>
+                                        </div>
+                                        )
+                                    })}</>:<>
+                                    <div className='flex flex-col mt-36 items-center justify-center gap-2'>
+                                        <Image src = '/empty.gif' alt = 'No Drafts Found' width={100} height={100} />
+                                        <label className='text-lg  font-bold'>No Drafts Found</label>
+                                       </div>
+                                    </>}
+
+                                   
+
+                                   
+                                   
+
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className='flex mt-3 flex-wrap items-center gap-2'>
+                        <label>Due Date</label>
+                        <input
+                        id = 'DueDate'
+                        value={DueDate}
+                        onChange={(e)=>{
+                            console.log(e.target.value)
+                            ChangeDueDate(e.target.value)
+                        }} type="date" className='border-2 border-black rounded-md p-2' />
+                        <input
+                        id = 'DueTime'
+                        value={DueTime}
+                        onChange={(e)=>{
+                            console.log(e.target.value)
+                            ChangeDueTime(e.target.value)
+                        }} type="time" placeholder='00:00' className='border-2 border-black rounded-md p-2' />
+                    </div>
+
+                    <div className='flex mt-6 items-center gap-2'>
+                        <label>Time Limit</label>
+                        <input 
+                        id = 'TimeLimit'
+                        value={TimeLimit}
+                        onChange = {(e)=>{
+                          
+                            ChangeTimeLimit(e.target.value)
+                        }}
+                        min={1} type = 'number' className='border-2 border-black w-16 rounded-md p-2' />
+                        <label>Minutes</label>
+                    </div>
                     <div className='flex mt-6 gap-2 w-full'>
-                        <button className='flex-1 bg-black text-white px-3 py-2 sm:px-4 sm:py-2 flex items-center justify-center gap-1 sm:gap-2 rounded-md transition-all duration-300 text-sm sm:text-base'>
-                            Save <LuSaveAll size={16} className="sm:w-5 sm:h-5" />
+                        <button onClick={()=>PostQuiz(true)} className='flex-1 bg-black text-white px-3 py-2 sm:px-4 sm:py-2 flex items-center justify-center gap-1 sm:gap-2 rounded-md transition-all duration-300 text-sm sm:text-base'>
+                        Post <MdUploadFile size={16} className="sm:w-5 sm:h-5" />
                         </button>
                         <button onClick={ClearQuestion} className='flex-1 bg-red-600 text-white px-3 py-2 sm:px-4 sm:py-2 flex items-center justify-center gap-1 sm:gap-2 rounded-md transition-all duration-300 text-sm sm:text-base'>
                             Clear <RiDeleteBinLine size={16} className="sm:w-5 sm:h-5" />
@@ -505,22 +764,27 @@ const generateRandomId = () => {
                         Preview Quiz
                     </button>
                 </div>
+
+
+                
                 
                 {!isOpen ?  
                     <button 
                         onClick={() => setIsOpen(true)}
-                        className='mt-6 flex items-center font-bold bg-white/80 justify-center gap-2 p-3 sm:p-4 w-full max-w-sm sm:max-w-md text-lg sm:text-xl border-2 border-dashed border-gray-400 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 text-gray-600 hover:text-blue-600'
+                        className='mt-6 flex items-center font-bold bg-white/80 justify-center gap-2 p-3 sm:p-4 w-full max-w-sm sm:max-w-md text-lg sm:text-xl border-2 border-dashed border-gray-400 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all duration-300 text-gray-600'
                     >
                         New Question <CiSquarePlus size={32} className="sm:w-10 sm:h-10" />
                     </button>
                     :
                     <>
                         {Questions.length > 0 && (
-                            <div className='space-y-4 w-full flex mt-12 flex-col gap-6 items-center justify-center'>
-                                <h2 className='text-xl p-2 bg-white rounded-md font-bold text-gray-800'>Posted Questions ({Questions.length})</h2>
-                                {Questions.map((data,index) => (
-                                    <QuestionCard index={index} key={data.id} data={data} />
-                                ))}
+                            <div className='w-full max-w-4xl mx-auto mt-12 flex flex-col gap-6 items-center justify-center'>
+                                <h2 className='text-lg sm:text-xl p-2 bg-white rounded-md font-bold text-gray-800 shadow-sm'>Posted Questions ({Questions.length})</h2>
+                                <div className='w-full space-y-4'>
+                                    {Questions.map((data,index) => (
+                                        <QuestionCard index={index} key={data.id} data={data} />
+                                    ))}
+                                </div>
                             </div>
                         )}
                         <PostQuestion/>
