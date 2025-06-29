@@ -17,7 +17,7 @@ export const metadata = {
   icons: {
     icon: "/Hamster.gif",
   },
-  title: "Skillshub 📝",
+  title: "TryMyBoard 📝",
   description: "Website by Prashant Jhim",
 };
 

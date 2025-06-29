@@ -13,10 +13,11 @@ import { getSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { BsBookHalf } from "react-icons/bs";
-
+import { useRouter } from 'next/navigation';
 
 const Page = ()=>{
     const [Preview,ChangePreview] = useState(false);
+    const Router = useRouter()
     const [Drafts,ChangeDrafts] = useState([]);
     const [IsSaving,ChangeIsSaving] = useState(false);
     const [LoadingContext,ChangeLoadingContext] = useState('Loading');
@@ -111,6 +112,7 @@ const Page = ()=>{
             }
             if (status === true){
                 alert("Quiz Posted Successfully")
+                Router.push(`/Quiz/${Response.id}`)
             }
            },4000)
            
@@ -589,8 +591,7 @@ const generateRandomId = () => {
             }}
             className="flex relative w-full min-h-screen flex-col items-center justify-center px-4">
                 <h1 className="flex bg-white/80 backdrop-blur-sm p-2 rounded-md gap-1 absolute self-center font-bold text-lg top-4 z-30">
-                    <label className="text-orange-600">EduCorner</label> 
-                    <label className="text-blue-600">Tutoring</label> 
+                    <label className="text-orange-600">TryMyBoard</label> 
                     <span className="text-gray-600">/Quiz</span>
                 </h1>
                 <div className='flex p-12 rounded-xl shadow-2xl flex-col bg-white items-center justify-center gap-4'>
@@ -638,8 +639,7 @@ const generateRandomId = () => {
                     Drafts <LuSaveAll size={16} />
                 </button>
                 <h1 className="flex bg-white/80 backdrop-blur-sm p-2 rounded-md gap-1 absolute self-center font-bold text-lg top-20 z-30">
-                    <label className="text-orange-600">EduCorner</label> 
-                    <label className="text-blue-600">Tutoring</label> 
+                    <label className="text-orange-600">TryMyBoard</label> 
                     <span className="text-gray-600">/Quiz</span>
                 </h1>
                 
@@ -806,8 +806,7 @@ const generateRandomId = () => {
             }}
             className="flex relative w-full min-h-screen flex-col items-center px-4">
                 <h1 className="flex bg-white/80 backdrop-blur-sm p-2 rounded-md gap-1 absolute self-center font-bold text-lg top-4 z-30">
-                    <label className="text-orange-600">EduCorner</label> 
-                    <label className="text-blue-600">Tutoring</label> 
+                    <label className="text-orange-600">TryMyBoard</label> 
                     <span className="text-gray-600">/Quiz</span>
                 </h1>
 
@@ -846,8 +845,7 @@ const generateRandomId = () => {
             }}
             className='flex flex-col items-center justify-center h-screen'>
                  <h1 className="flex bg-white/80 backdrop-blur-sm p-2 rounded-md gap-1 absolute self-center font-bold text-lg top-4 z-30">
-                        <label className="text-orange-600">EduCorner</label> 
-                        <label className="text-blue-600">Tutoring</label> 
+                        <label className="text-orange-600">TryMyBoard</label> 
                         <span className="text-gray-600">/Quiz</span>
                     </h1>
                <div className='flex  p-12 rounded-xl shadow-2xl  flex-col  bg-white items-center justify-center gap-4'>
@@ -874,8 +872,7 @@ const generateRandomId = () => {
             }}
             className='flex flex-col items-center justify-center h-screen'>
                  <h1 className="flex bg-white/80 backdrop-blur-sm p-2 rounded-md gap-1 absolute self-center font-bold text-lg top-4 z-30">
-                        <label className="text-orange-600">EduCorner</label> 
-                        <label className="text-blue-600">Tutoring</label> 
+                        <label className="text-orange-600">TryMyBoard</label> 
                         <span className="text-gray-600">/Quiz</span>
                     </h1>
                <div className='flex  p-12 rounded-xl shadow-2xl  flex-col  bg-white items-center justify-center gap-4'>

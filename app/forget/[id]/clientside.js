@@ -133,7 +133,7 @@ const Page = ({Details}) =>{
     return (
     <div className = 'flex relative flex-col items-center justify-center'>
         <button className = 'fixed top-2 left-2'>Back</button>
-        <h1 className = 'text-3xl mt-6'>Skillshub📝</h1>
+        <h1 className = 'text-3xl mt-6'>TryMyBoard📝</h1>
         <p className = 'text-3xl hidden mt-36 px-2 rounded items-center justify-center flex h-12   animate-blink '>{Text}</p>
          <motion.div
          className = 'w-32 hidden h-32 rounded-full bg-blue-500 '

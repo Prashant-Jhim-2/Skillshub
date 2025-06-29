@@ -109,7 +109,7 @@ const Page = ({Data}) =>{
     }
     return (
         <div className='flex flex-col items-center justify-center'>
-            <h1 className='text-2xl h-12 w-full flex items-center bg-white justify-center z-30 fixed top-0 '>SkillsHub📝</h1>
+            <h1 className='text-2xl h-12 w-full flex items-center bg-white justify-center z-30 fixed top-0 '>TryMyBoard📝</h1>
            
             <button onClick = {goback} className='fixed flex gap-1 justify-center items-center z-30 top-2 left-2 active:text-rose-600'><VscArrowCircleLeft size = {30}/>Back</button>
             <h2 className=' mt-24 mb-6'>Alerts ( {AlertCards.length} )</h2>

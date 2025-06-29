@@ -91,7 +91,7 @@ const Page = () => {
 
   return (
     <div className="flex flex-col items-center justify-center ">
-      <h1 className="text-lg mt-2">Educorner 📖</h1>
+      <h1 className="text-lg mt-2">TryMyBoard 📖</h1>
       <label className="text-xs bg-black text-white p-2 rounded">Community Chat</label>
       <button
       onClick={()=>{

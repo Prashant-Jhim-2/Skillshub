@@ -311,7 +311,7 @@ const Page = ({ data ,CourseData,Enrolled}) => {
          }}
          className="fixed z-20 active:text-rose-600 flex gap-1 items-center justify-center bg-white top-2 left-3"><VscArrowCircleLeft size = {25}/>Back</button>
   <div className="fixed top-0 left-0 w-full flex flex-col items-center justify-center  z-10 bg-white rounded-b shadow py-2">
-  <label className="text-lg font-semibold">Educorner 📖</label>
+  <label className="text-lg font-semibold">TryMyBoard 📖</label>
   <h1 onClick={
     ()=>{
       Router.push(`/Course/${parmas.id}`)

@@ -35,7 +35,7 @@ const Page = ({Details}) =>{
         <div className = 'flex flex-col items-center justify-center'>
             <button onClick = {GoBack} className = 'fixed  flex gap top-2 items-center justify-center left-2'> <VscArrowCircleLeft size={30}/> Back</button>
             <div ref = {contentRef} className = "flex flex-col items-center justify-center">
-            <h1 className = ' text-3xl mt-6'>Skillshub📝</h1>
+            <h1 className = ' text-3xl mt-6'>TryMyBoard📝</h1>
             <div className = 'flex flex-col mt-12 items-center justify-center'>
                 <h1 className = 'cursor-pointer text-2xl'><Link href = {`/courses/${Details.Payments.CourseID}`}>{Details.Course.Name}</Link></h1>
                 <Image

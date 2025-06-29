@@ -334,7 +334,7 @@ const Page = ({details}) =>{
         <div className = 'flex flex-col items-center justify-center'>
             <button onClick={goback} className = 'fixed flex items-center justify-center active:text-rose-600 z-30 bg-white px-3 py-2 rounded top-2 left-2'><VscArrowCircleLeft size={30} /> Back</button>
             
-            <h1 className = 'text-2xl mt-6'>Skillshub📝</h1>
+            <h1 className = 'text-2xl mt-6'>TryMyBoard📝</h1>
             <p className = 'text-sm'></p>
             <p className = 'text-sm'>Professor Profile👨🏻‍💻</p>
 

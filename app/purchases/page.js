@@ -75,7 +75,7 @@ const Page = ()=>{
     return (
         <div className = 'flex flex-col items-center justify-center '>
             <button onClick = {handleBackButtonClick} className = 'flex active:text-rose-600 items-center justify-center gap-1 fixed top-2 left-2'><VscArrowCircleLeft size={30} /> Back</button>
-            <h1 className = 'text-xl mt-6'>SkillsHub📝 </h1>
+            <h1 className = 'text-xl mt-6'>TryMyBoard📝 </h1>
             <label className = 'text-xs'>Payments</label>
             <div className = 'flex mt-24 flex-wrap gap-3 items-center justify-center'>
             {Cards.length != 0 && <> 

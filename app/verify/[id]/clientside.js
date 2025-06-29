@@ -27,7 +27,7 @@ const Page = ({data}) =>{
         }
         return (
             <div className = 'flex flex-col items-center justify-center'>
-                <h1 className = 'text-2xl mt-6'>Skillshub📝</h1>
+                <h1 className = 'text-2xl mt-6'>TryMyBoard📝</h1>
                 <p id = "alert" className ='mt-3 hidden bg-green-600 px-3 py-2 text-white border border-black'>Details has been updated 📤</p>
                 <p className ='text-xl mt-36'>Click The Button To Update Details</p>
                 <button onClick = {CompleteChange} className = 'border active:bg-white active:text-black  border-black px-3 py-2 animate-jump transition duration-200 rounded-lg bg-black text-white mt-12'>Update 🔁</button>
@@ -117,7 +117,7 @@ const Page = ({data}) =>{
         return (
             <div className = 'flex items-center justify-center flex-col'>
                 <button className = 'fixed top-2 left-2'>Back To Login</button>
-                <h1 className = 'text-3xl mt-12'>Skillshub📝</h1>
+                <h1 className = 'text-3xl mt-12'>TryMyBoard📝</h1>
                 <div className = 'flex relative gap-3 mt-12 flex-col '>
                 <label>FullName</label>
                 <input id = "FullName"  className = 'w-80 border-b text-xl outline-black px-2 border-black h-12' type = 'text' placeholder= "Enter The FullName" />

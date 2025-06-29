@@ -200,7 +200,7 @@ const Signin = () =>{
     }
   return (
       <div className = 'flex relative h-screen w-screen flex-col justify-center items-center'>
-        <title>SkillsHub📝</title>
+        <title>TryMyBoard📝</title>
 
        {Alert && <motion.h1
         initial={{ y: -100, opacity: 0 }}
@@ -231,7 +231,7 @@ const Signin = () =>{
           </>}
 
 
-            <h1 className='text-lg mt-12 font-bold'>Educorner 📝</h1>
+            <h1 className='text-lg mt-12 font-bold'>TryMyBoard 📝</h1>
           <label className='text-xs mb-6'>Tutoring</label>
          
           <input id = "Email" className='w-64 text-sm border-2 rounded border-black h-12 p-2  outline-black' type = 'text' placeholder='Enter The Email : ' />

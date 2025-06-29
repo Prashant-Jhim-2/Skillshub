@@ -407,11 +407,11 @@ const page = ({carddata}) =>{
 
 
         <div className="relative w-screen flex flex-col justify-center items-center ">
-          <title>Educorner Tutoring📝</title>
+          <title>TryMyBoard📝</title>
           <div className='flex flex-col relative items-center justify-center gap-2 w-full '>
           <h1 className="font-bold text-xl w-full flex gap-1 items-center justify-start  absolute left-4 top-4">
-            <span className="text-orange-600">Educorner</span>{" "}
-            <span className="text-blue-600 flex gap-2 items-center justify-center">Tutoring <IoBookOutline size={20} /></span>
+            <span className="text-orange-600">TryMyBoard</span>{" "}
+            <span className="text-blue-600 flex gap-2 items-center justify-center"><IoBookOutline size={20} /></span>
           </h1>
 
 
@@ -712,7 +712,7 @@ const page = ({carddata}) =>{
           transition={{ duration: 0.6, delay: 0.2 }}
           className="font-bold text-center text-2xl md:text-3xl mb-12"
         >
-          Welcome to <span className="text-orange-600">Educorner</span>{" "}
+          Welcome to <span className="text-orange-600">TryMyBoard</span>{" "}
           <span className="text-blue-600">Tutoring</span>
         </motion.h1>
         
@@ -722,7 +722,7 @@ const page = ({carddata}) =>{
           transition={{ duration: 0.6, delay: 0.3 }}
           className="w-11/12 md:w-3/4 text-base md:text-lg text-gray-700 leading-relaxed text-center"
         >
-          At <span className="font-semibold text-gray-900">EduCorner Tutoring</span>, we're passionate about learning—and even more passionate about helping others learn. We believe that every student deserves access to high-quality, personalized learning—anytime, anywhere. We're a tutoring platform dedicated to helping students reach their academic goals with the support of expert tutors, interactive tools, and a flexible learning environment.
+          At <span className="font-semibold text-gray-900">TryMyBoard Tutoring</span>, we're passionate about learning—and even more passionate about helping others learn. We believe that every student deserves access to high-quality, personalized learning—anytime, anywhere. We're a tutoring platform dedicated to helping students reach their academic goals with the support of expert tutors, interactive tools, and a flexible learning environment.
 
           Whether you're looking for help with a tough math problem, preparing for an important exam, or just want to get ahead in class, our team is here to guide you every step of the way. With one-on-one sessions, tailored lesson plans, and a focus on building confidence, we make learning easier, more effective, and even enjoyable.
         </motion.p>
@@ -1059,7 +1059,7 @@ const page = ({carddata}) =>{
               
               <div className="space-y-6 text-gray-600 leading-relaxed text-center">
                 <p className="text-lg">
-                Chandan  is a passionate and patient tutor with over 8 years of tutoring experience helping students excel in math and science/physics. He holds master’s in physics (Minor: Math) and master’s in technology (Mechanical Engineering). Chandan has worked with middle school, high school, and college-level students both in classrooms and one-on-one settings. He specializes in conceptual explanations with real-world examples, problem-solving strategies for common exam questions and step-by-step breakdowns of complex problems. Whether it's algebra, physics, calculus or mechanics he makes learning engaging and stress-free.
+                Chandan  is a passionate and patient tutor with over 8 years of tutoring experience helping students excel in math and science/physics. He holds master's in physics (Minor: Math) and master's in technology (Mechanical Engineering). Chandan has worked with middle school, high school, and college-level students both in classrooms and one-on-one settings. He specializes in conceptual explanations with real-world examples, problem-solving strategies for common exam questions and step-by-step breakdowns of complex problems. Whether it's algebra, physics, calculus or mechanics he makes learning engaging and stress-free.
 
 With over combined 10 years of tutoring and technical experience and a background in theoretical physics and math, Chandan combines academic depth with a patient, encouraging teaching style that builds both skills and enthusiasm for the subject.
                 </p>
@@ -1073,7 +1073,7 @@ With over combined 10 years of tutoring and technical experience and a backgroun
 
                 <div className="mt-10 p-6 bg-gray-50 rounded-xl border border-gray-100">
                   <p className="text-gray-600 italic">
-                    "As my true love lies in teaching, not selling, I founded EduCorner Tutoring to personally train students in my 
+                    "As my true love lies in teaching, not selling, I founded TryMyBoard Tutoring to personally train students in my 
                     proven methods. "
                   </p>
                 </div>
@@ -1134,8 +1134,8 @@ With over combined 10 years of tutoring and technical experience and a backgroun
 
 
       <div className="w-full mt-12 bg-black text-white py-12 px-6 flex h-auto flex-col z-40 gap-8 items-start justify-start">
-        <h1 className='text-xl flex gap-2 items-center justify-center text-white font-bold'>Educorner Tutoring <IoBookOutline size={20} /></h1>
-        <p className='text-white text-lg'>© 2025 Educorner Tutoring. All rights reserved.</p>
+        <h1 className='text-xl flex gap-2 items-center justify-center text-white font-bold'>TryMyBoard Tutoring <IoBookOutline size={20} /></h1>
+        <p className='text-white text-lg'>© 2025 TryMyBoard Tutoring. All rights reserved.</p>
         <p className='text-white text-sm'>Terms of Service | Privacy Policy</p>
         <button className='text-white text-sm'>Become a Tutor</button>
         <div className='flex gap-2 text-sm'>

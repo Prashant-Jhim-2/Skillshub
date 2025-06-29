@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Logo & App Name */}
           <div>
-            <h2 className="text-2xl font-bold text-white">Educorner Tutoring</h2>
+            <h2 className="text-2xl font-bold text-white">TryMyBoard</h2>
             <p className="mt-2 text-sm text-gray-400">
               Empowering students through personalized learning.
             </p>
@@ -37,7 +37,9 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-500">
-          © {new Date().getFullYear()} Educorner Tutoring. All rights reserved.
+          <p className="text-sm text-gray-400">
+            © {new Date().getFullYear()} TryMyBoard. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

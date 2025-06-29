@@ -197,9 +197,9 @@ const View = () =>{
     return (
     <div className = 'flex flex-col  bg-grey mb-24 items-center'>
       <p id = "Updating" className = 'fixed top-0 w-full h-12 text-lg text-white  hidden items-center transition-transform duration-500 ease-out animate-slideDown  justify-center  text-center z-20 te bg-green-600'>Updating</p>
-      <title>Dr Prashant Jhim @SkillsHub📝</title>
+      <title>Dr Prashant Jhim @TryMyBoard📝</title>
         <button onClick={BackToCourses} className = 'z-10 flex items-center justify-center p-2 rounded  bg-transparent fixed top-2 left-2  rounded'><VscArrowCircleLeft size={30} /> Back</button>
-        <h1 className = 'text-2xl mt-3'>SkillsHub📝</h1>
+        <h1 className = 'text-2xl mt-3'>TryMyBoard📝</h1>
         <label>Profile👨🏻‍💻</label>
        <div className = 'w-full mt-6 flex-wrap flex items-center justify-center gap-6'>
        </div>

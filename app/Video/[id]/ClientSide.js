@@ -320,7 +320,7 @@ const FetchQuestions = async() =>{
   return (
     <div className="  items-center  flex flex-col  ">      
     <button className = 'absolute top-2 left-2 px-3 py-2 bg-white active:shadow-none transition duration-200 flex gap-1 items-center justify-center active:translate-y-2  rounded-lg  text-md'> <VscArrowCircleLeft size={30} />  Back</button>
-    <h1 className = 'text-2xl  mt-6'>SkillsHub📝</h1>
+    <h1 className = 'text-2xl  mt-6'>TryMyBoard📝</h1>
     
      <h1 className = 'text-xl mt-24'>{Data.Details.Name}</h1>
      <p>{Data.Details.Description}</p>

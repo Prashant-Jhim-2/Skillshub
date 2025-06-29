@@ -113,9 +113,9 @@ const Signup = () =>{
     }
     return (
         <div className = "flex flex-col relative items-center">
-            <title>SkillsHub📝</title>
+            <title>TryMyBoard📝</title>
             <button onClick = {Login} className = 'text-2xl absolute border-2 border-transparent right-6 top-2  p-3 rounded-lg hover:border-black hover:text-white active:translate-y-1 hover:bg-black active:bg-black active:text-white active:border-black transition duration-200'>Login👨🏻‍💻</button>
-           <h1 className = "text-5xl mt-32">SkillsHub📝</h1>
+           <h1 className = "text-5xl mt-32">TryMyBoard📝</h1>
            <p id = "EmailConfirmation" className = 'mt-10 border hidden border-black bg-green-300 p-2 rounded-lg text-xl'>Please Check Email for Verification 📩</p>
           
            <input onChange={EmailValidator} id = "Email" className = {`w-64 mt-28 border-0 border-b-2 text-lg outline-none border-b-black h-12 ${Color}`} type = "email" placeholder = "Enter The Email :" />

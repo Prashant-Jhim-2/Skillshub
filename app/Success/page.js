@@ -8,7 +8,7 @@ const Page = () =>{
     }
     return (
         <div className="flex flex-col w-full items-center justify-center">
-            <h1 className="text-xl mt-6">Skillshub📝</h1>
+            <h1 className="text-xl mt-6">TryMyBoard📝</h1>
             <label className="text-xs mb-24">Success Page</label>
             <Image src="/tick.png" alt="Success" width={120} height={120} className="mt-6"/>
             <h1 className="text-xl mt-6">Payment Successfull</h1>

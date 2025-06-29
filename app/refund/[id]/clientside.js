@@ -155,7 +155,7 @@ const Page = ({data}) =>{
     return (
         <div className = "flex flex-col items-center justify-center">
             <h1 className = 'mt-4 text-xl'>
-            Skillshub 📝
+            TryMyBoard 📝
             </h1>
             <label className="text-[10px]">Refund Application</label>
             <button onClick={GoBack} className = 'fixed top-2  flex items-center justify-center left-2'><VscArrowCircleLeft size={30} />Back</button>

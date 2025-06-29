@@ -357,7 +357,7 @@ const Page = ({DataofCard}) =>{
      
       return (
         <div className = 'flex pb-24  pt-24 relative flex-wrap sm:flex-wrap md:flex-nowrap lg:flex-nowrap xl:flex-nowrap 2xl:flex-nowrap  items-center'>
-            <h1 className = 'z-20  absolute text-2xl bg-white   text-center top-12 w-full'>Skillshub📝</h1>
+            <h1 className = 'z-20  absolute text-2xl bg-white   text-center top-12 w-full'>TryMyBoard📝</h1>
             <button onClick = {BackToCourses} className = 'fixed z-30 top-2 left-2 text-lg'>⏪ Back to Courses </button>
 
             <p id = 'Saving' className = 'fixed justify-center items-center hidden top-0 z-30  bg-green-600  px-3 py-4 w-full transition-transform duration-500 ease-out animate-slideDown text-center text-white'>Saving...</p>
@@ -443,7 +443,7 @@ const Page = ({DataofCard}) =>{
     if (Data == undefined){
      return (
       <div className = 'flex flex-col'>
-        <h1 className = 'z-20 absolute text-2xl bg-white   text-center top-3 w-full'>Skillshub📝</h1>
+        <h1 className = 'z-20 absolute text-2xl bg-white   text-center top-3 w-full'>TryMyBoard📝</h1>
             <button onClick = {BackToCourses} className = 'fixed z-30 top-2 left-2 text-lg'>⏪ Back to Courses </button>
             
       <div className = 'flex mt-24 animate-jump  mt-24 flex-col mt-12 items-center text-2xl'>

@@ -4,7 +4,7 @@ import Image from 'next/image'
     const Invoice = ({Details}) =>{
         return (
             <div className = 'flex flex-col items-center justify-center mt-6'>
-                <h1>SkillsHub📝</h1>
+                <h1>TryMyBoard📝</h1>
                 <label className='text-xs mb-6'>Invoice</label>
                 <Image src = '/payment.jpg' width = {250} height = {250} alt = 'No Payments Found'/>
                 <div className = 'flex flex-col items-start justify-center gap-2 bg-white  rounded-lg p-6 m-2'>

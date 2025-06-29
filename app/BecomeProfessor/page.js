@@ -491,7 +491,7 @@ const Page = ()=>{
         <div className = 'flex flex-col items-center justify-center'>
             <button onClick={GoBack} className = 'fixed active:text-rose-600 flex items-center justify-center gap-1 top-2 left-2'><VscArrowCircleLeft size={30} />Back</button>
             <label id = "Posting" className = 'text-white animate-slideDown bg-green-600 w-full h-12  hidden items-center gap-2 justify-center z-20 '>Posting....</label>
-            <h1 className = 'text-2xl mt-6'>SkillsHub📝</h1>
+            <h1 className = 'text-2xl mt-6'>TryMyBoard📝</h1>
             <button id = "Post" onClick ={PostRequest} className = 'px-3 py-2 rounded  fixed top-2 right-2 bg-green-500 text-white'>Post</button>
           
             <h2>Professor Application</h2>
