@@ -104,6 +104,8 @@ const Clientside = ({data})=>{
         return Response.answers
     }
     else{
+        ChangeDisplay(true)
+    
         return null
     }
     }
